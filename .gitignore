@@ -22,6 +22,9 @@ __pycache__/
 *$py.class
 *.so
 
+# AI/Design system scaffolding
+.github/prompts/
+
 # Temporary/broken/old files
 *_old.*
 *_broken.*
