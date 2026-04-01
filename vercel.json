@@ -1,6 +1,7 @@
 {
   "buildCommand": "npm run build",
   "devCommand": "npm run dev",
-  "regions": ["sin1"]
+  "outputDirectory": "dist"
 }
+
 
