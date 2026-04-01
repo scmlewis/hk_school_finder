@@ -1,0 +1,13 @@
+{
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "env": {
+    "GOOGLE_GENAI_API_KEY": "@google_genai_api_key"
+  },
+  "regions": ["sin1"],
+  "functions": {
+    "server.ts": {
+      "runtime": "nodejs20.x"
+    }
+  }
+}
