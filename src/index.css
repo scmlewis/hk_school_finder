@@ -1,0 +1,92 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap');
+
+@theme {
+  --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fredoka", sans-serif;
+  --color-primary: #4F46E5;
+  --color-primary-light: #818CF8;
+  --color-accent: #F97316;
+  --color-background: #EEF2FF;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #020617;
+  color: #e2e8f0;
+}
+
+.maplibregl-ctrl-bottom-right, .maplibregl-ctrl-bottom-left {
+  display: none;
+}
+
+.glass {
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(71, 85, 105, 0.65);
+}
+
+.glass-dark {
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(71, 85, 105, 0.65);
+}
+
+/* MapLibre popup dark theme styling */
+.school-popup.maplibregl-popup {
+  filter: none;
+}
+
+.school-popup .maplibregl-popup-content {
+  background: #0f172a !important;
+  border-radius: 12px;
+  border: 1px solid #1e293b !important;
+  padding: 0 !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+.school-popup .maplibregl-popup-close-button {
+  display: none;
+}
+
+.school-popup .maplibregl-popup-tip {
+  border-top-color: #0f172a;
+}
+
+/* Skeleton Loading Animation */
+@keyframes skeleton-loading {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.skeleton {
+  background-color: rgba(71, 85, 105, 0.4);
+  background-image: linear-gradient(
+    90deg,
+    rgba(71, 85, 105, 0.4) 25%,
+    rgba(100, 116, 139, 0.4) 50%,
+    rgba(71, 85, 105, 0.4) 75%
+  );
+  background-size: 1000px 100%;
+  animation: skeleton-loading 2s infinite;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .animate-spin,
+  .animate-pulse {
+    animation: none;
+  }
+  
+  .skeleton {
+    animation: none;
+    background: rgba(71, 85, 105, 0.3);
+  }
+}
+

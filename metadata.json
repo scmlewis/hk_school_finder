@@ -1,0 +1,5 @@
+{
+  "name": "HK School Finder",
+  "description": "A comprehensive map-based tool for finding schools in Hong Kong, featuring commute analysis and school net boundaries.",
+  "requestFramePermissions": ["geolocation"]
+}
