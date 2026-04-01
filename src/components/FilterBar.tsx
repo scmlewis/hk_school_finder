@@ -221,12 +221,12 @@ const FilterBar: React.FC = () => {
   }, [schools, language]);
 
   const panelContent = (
-    <div className="p-4 space-y-4">
+    <div className="p-2.5 sm:p-3 md:p-4 space-y-2.5 sm:space-y-3 md:space-y-4">
           <div className="flex justify-end">
             <button
               type="button"
               onClick={clearFilters}
-              className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-600 text-slate-200 hover:bg-slate-800 transition-colors cursor-pointer active:scale-95"
+              className="text-[10px] sm:text-xs font-semibold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-slate-600 text-slate-200 hover:bg-slate-800 transition-colors cursor-pointer active:scale-95"
             >
               {t.clearFilters}
             </button>
@@ -234,13 +234,13 @@ const FilterBar: React.FC = () => {
 
           {/* School Level Filter */}
           <div>
-            <p className="text-xs font-semibold text-slate-300 uppercase mb-2">{t.level}</p>
-            <div className="flex flex-wrap gap-2">
+            <p className="text-[10px] sm:text-xs font-semibold text-slate-300 uppercase mb-1.5 sm:mb-2">{t.level}</p>
+            <div className="flex flex-wrap gap-1.5 sm:gap-2">
               {levelOptions.map(({ label, value, color }) => (
                 <button
                   key={value}
                   onClick={() => toggleLevel(value)}
-                  className={`px-3 py-2 rounded-lg font-semibold text-xs transition-all min-h-10 cursor-pointer ${
+                  className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg font-semibold text-[10px] sm:text-xs transition-all min-h-8 sm:min-h-10 cursor-pointer ${
                     levelFilter.includes(value)
                       ? 'text-white shadow-md'
                       : 'text-slate-200 bg-slate-800 hover:bg-slate-700 active:scale-95'
@@ -256,13 +256,13 @@ const FilterBar: React.FC = () => {
           {/* Distance Filter */}
           {userLocation && (
             <div>
-              <p className="text-xs font-semibold text-slate-300 uppercase mb-2">{t.distance}</p>
-              <div className="flex flex-wrap gap-2">
+              <p className="text-[10px] sm:text-xs font-semibold text-slate-300 uppercase mb-1.5 sm:mb-2">{t.distance}</p>
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 {distanceOptions.map(({ label, value }) => (
                   <button
                     key={label}
                     onClick={() => setDistanceFilter(value)}
-                    className={`px-3 py-2 rounded-lg font-semibold text-xs transition-all min-h-10 cursor-pointer ${
+                    className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg font-semibold text-[10px] sm:text-xs transition-all min-h-8 sm:min-h-10 cursor-pointer ${
                       distanceFilter === value
                         ? 'bg-indigo-500 text-white shadow-md shadow-indigo-900/40'
                         : 'bg-slate-800 text-slate-200 hover:bg-slate-700 active:scale-95'
@@ -276,11 +276,11 @@ const FilterBar: React.FC = () => {
           )}
 
           <div>
-            <p className="text-xs font-semibold text-slate-300 uppercase mb-2">{t.gender}</p>
+            <p className="text-[10px] sm:text-xs font-semibold text-slate-300 uppercase mb-1.5 sm:mb-2">{t.gender}</p>
             <select
               value={genderFilter ?? ''}
               onChange={(e) => setGenderFilter(e.target.value || null)}
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-slate-100 cursor-pointer hover:border-slate-600 transition-colors"
+              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm text-slate-100 cursor-pointer hover:border-slate-600 transition-colors"
             >
               <option value="">{t.all}</option>
               {uniqueGenders.map((option) => (
@@ -290,11 +290,11 @@ const FilterBar: React.FC = () => {
           </div>
 
           <div>
-            <p className="text-xs font-semibold text-slate-300 uppercase mb-2">{t.financing}</p>
+            <p className="text-[10px] sm:text-xs font-semibold text-slate-300 uppercase mb-1.5 sm:mb-2">{t.financing}</p>
             <select
               value={financingTypeFilter ?? ''}
               onChange={(e) => setFinancingTypeFilter(e.target.value || null)}
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-slate-100 cursor-pointer hover:border-slate-600 transition-colors"
+              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm text-slate-100 cursor-pointer hover:border-slate-600 transition-colors"
             >
               <option value="">{t.all}</option>
               {uniqueFinancingTypes.map((option) => (
@@ -304,11 +304,11 @@ const FilterBar: React.FC = () => {
           </div>
 
           <div>
-            <p className="text-xs font-semibold text-slate-300 uppercase mb-2">{t.religion}</p>
+            <p className="text-[10px] sm:text-xs font-semibold text-slate-300 uppercase mb-1.5 sm:mb-2">{t.religion}</p>
             <select
               value={religionFilter ?? ''}
               onChange={(e) => setReligionFilter(e.target.value || null)}
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-slate-100 cursor-pointer hover:border-slate-600 transition-colors"
+              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm text-slate-100 cursor-pointer hover:border-slate-600 transition-colors"
             >
               <option value="">{t.all}</option>
               {uniqueReligions.map((option) => (
@@ -322,7 +322,7 @@ const FilterBar: React.FC = () => {
             <button
               onClick={handleLocateMe}
               disabled={isLocating}
-              className={`w-full py-2.5 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              className={`w-full py-2 sm:py-2.5 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer ${
                 isLocating
                   ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
                   : userLocation
@@ -330,29 +330,29 @@ const FilterBar: React.FC = () => {
                   : 'bg-indigo-500 hover:bg-indigo-600 text-white active:scale-95'
               }`}
             >
-              <Locate className="w-4 h-4" />
+              <Locate className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
               {isLocating ? t.locating : userLocation ? t.updateLocation : t.locate}
             </button>
           </div>
 
           {/* Location Status */}
           {userLocation && (
-            <div className="bg-emerald-500/10 border border-emerald-500/25 rounded-lg px-3 py-2">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-emerald-600" />
-                <p className="text-xs text-emerald-300 font-medium">{t.locationDetected}</p>
+            <div className="bg-emerald-500/10 border border-emerald-500/25 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <MapPin className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-emerald-600 flex-shrink-0" />
+                <p className="text-xs sm:text-sm text-emerald-300 font-medium">{t.locationDetected}</p>
               </div>
             </div>
           )}
 
           {locationError && (
-            <div className="bg-red-500/10 border border-red-500/25 rounded-lg px-3 py-2">
-              <p className="text-xs text-red-300 font-medium">{locationError}</p>
+            <div className="bg-red-500/10 border border-red-500/25 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2">
+              <p className="text-xs sm:text-sm text-red-300 font-medium">{locationError}</p>
             </div>
           )}
 
           {/* Info text */}
-          <p className="text-[10px] text-slate-400 mt-3">
+          <p className="text-[9px] sm:text-[10px] text-slate-400 mt-2 sm:mt-3">
             {t.tips}
           </p>
       </div>
@@ -369,13 +369,13 @@ const FilterBar: React.FC = () => {
         </div>
       </div>
 
-      <div className="md:hidden absolute top-36 right-3 z-40">
+      <div className="md:hidden absolute top-32 sm:top-36 right-2 sm:right-3 z-40">
         <button
           onClick={() => setIsMobileOpen(true)}
-          className="h-12 px-4 rounded-xl bg-slate-900/98 border border-indigo-400/25 text-slate-100 shadow-[0_16px_40px_rgba(2,6,23,0.55)] flex items-center gap-2 cursor-pointer hover:border-indigo-400/40 transition-colors active:scale-95"
+          className="h-10 sm:h-12 px-3 sm:px-4 rounded-lg sm:rounded-xl bg-slate-900/98 border border-indigo-400/25 text-slate-100 shadow-[0_16px_40px_rgba(2,6,23,0.55)] flex items-center gap-1.5 sm:gap-2 cursor-pointer hover:border-indigo-400/40 transition-colors active:scale-95"
         >
-          <SlidersHorizontal className="w-4 h-4" />
-          <span className="text-base font-semibold">{t.filtersBtn}</span>
+          <SlidersHorizontal className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
+          <span className="text-sm sm:text-base font-semibold">{t.filtersBtn}</span>
         </button>
       </div>
 
@@ -387,20 +387,20 @@ const FilterBar: React.FC = () => {
             className="fixed inset-0 z-40 bg-black/45"
             onClick={() => setIsMobileOpen(false)}
           />
-          <div className="fixed bottom-0 left-0 right-0 z-50 px-3 pb-3">
-            <div className="bg-slate-900 border border-slate-700 rounded-t-2xl rounded-b-2xl overflow-hidden shadow-2xl max-h-[75vh]">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700">
-                <p className="text-sm font-bold text-slate-100 tracking-wide uppercase">{t.title}</p>
+          <div className="fixed bottom-0 left-0 right-0 z-50 px-2 sm:px-3 pb-2 sm:pb-3">
+            <div className="bg-slate-900 border border-slate-700 rounded-t-xl sm:rounded-t-2xl rounded-b-xl sm:rounded-b-2xl overflow-hidden shadow-2xl max-h-[75vh]">
+              <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 border-b border-slate-700">
+                <p className="text-xs sm:text-sm font-bold text-slate-100 tracking-wide uppercase">{t.title}</p>
                 <button
                   type="button"
                   onClick={() => setIsMobileOpen(false)}
-                  className="w-9 h-9 rounded-full bg-slate-800 text-slate-200 flex items-center justify-center cursor-pointer hover:bg-slate-700 transition-colors"
+                  className="w-8 sm:w-9 h-8 sm:h-9 rounded-full bg-slate-800 text-slate-200 flex items-center justify-center cursor-pointer hover:bg-slate-700 transition-colors flex-shrink-0"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
                 </button>
               </div>
-              <div className="max-h-[calc(75vh-60px)] overflow-y-auto p-3">
-                <div className="rounded-2xl border border-slate-700 bg-slate-900/95">
+              <div className="max-h-[calc(75vh-50px)] overflow-y-auto p-2 sm:p-3">
+                <div className="rounded-lg sm:rounded-2xl border border-slate-700 bg-slate-900/95">
                   {panelContent}
                 </div>
               </div>

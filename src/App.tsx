@@ -109,15 +109,15 @@ export default function App() {
 
   if (error) {
     return (
-      <div className="h-full w-full flex flex-col items-center justify-center bg-slate-950 p-6 text-center">
-        <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mb-4 border border-red-500/30">
-          <AlertCircle className="w-8 h-8 text-red-300" />
+      <div className="h-full w-full flex flex-col items-center justify-center bg-slate-950 p-3 sm:p-6 text-center">
+        <div className="w-12 sm:w-16 h-12 sm:h-16 bg-red-500/20 rounded-full flex items-center justify-center mb-2 sm:mb-4 border border-red-500/30">
+          <AlertCircle className="w-6 sm:w-8 h-6 sm:h-8 text-red-300" />
         </div>
-        <h2 className="text-xl font-bold text-slate-100 mb-2">{t.errorTitle}</h2>
-        <p className="text-slate-400 max-w-xs mb-6">{error}</p>
+        <h2 className="text-lg sm:text-xl font-bold text-slate-100 mb-1 sm:mb-2">{t.errorTitle}</h2>
+        <p className="text-xs sm:text-sm text-slate-400 max-w-xs mb-4 sm:mb-6">{error}</p>
         <button 
           onClick={() => window.location.reload()}
-          className="px-6 py-2 bg-orange-500 text-white rounded-xl font-bold hover:bg-orange-600 transition-colors cursor-pointer"
+          className="px-4 sm:px-6 py-1.5 sm:py-2 text-sm sm:text-base bg-orange-500 text-white rounded-lg sm:rounded-xl font-bold hover:bg-orange-600 transition-colors cursor-pointer"
         >
           {t.retry}
         </button>
@@ -127,23 +127,23 @@ export default function App() {
 
   return (
     <div className="h-full w-full relative overflow-hidden font-sans">
-      <div className="absolute top-3 left-3 right-3 z-50 flex items-center justify-between gap-2">
-        <div className="bg-slate-900/98 border border-indigo-400/30 shadow-[0_10px_30px_rgba(79,70,229,0.18)] rounded-xl px-4 py-2.5">
-          <p className="text-base md:text-xl font-display font-bold text-slate-100 tracking-wide">
+      <div className="absolute top-1 sm:top-2 md:top-3 left-1 sm:left-2 md:left-3 right-1 sm:right-2 md:right-3 z-50 flex items-center justify-between gap-1.5 sm:gap-2">
+        <div className="bg-slate-900/98 border border-indigo-400/30 shadow-[0_10px_30px_rgba(79,70,229,0.18)] rounded-lg sm:rounded-xl px-2.5 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5">
+          <p className="text-xs sm:text-base md:text-xl font-display font-bold text-slate-100 tracking-wide">
             {t.appName}
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="rounded-xl bg-slate-900/98 border border-blue-400/25 p-1.5 flex gap-1 shadow-[0_8px_24px_rgba(30,41,59,0.45)]">
+        <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2">
+          <div className="rounded-lg sm:rounded-xl bg-slate-900/98 border border-blue-400/25 p-1 sm:p-1.5 flex gap-0.5 sm:gap-1 shadow-[0_8px_24px_rgba(30,41,59,0.45)]">
             <button
               onClick={() => setLanguage('en')}
-              className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors ${language === 'en' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:text-white'}`}
+              className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-bold transition-colors ${language === 'en' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:text-white'}`}
             >
               EN
             </button>
             <button
               onClick={() => setLanguage('zh')}
-              className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors ${language === 'zh' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:text-white'}`}
+              className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-bold transition-colors ${language === 'zh' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:text-white'}`}
             >
               繁中
             </button>
@@ -151,10 +151,11 @@ export default function App() {
           <button
             type="button"
             onClick={() => setIsAboutOpen(true)}
-            className="h-10 px-3.5 rounded-xl bg-slate-900/98 border border-blue-400/25 text-slate-100 text-sm font-semibold flex items-center gap-1.5 shadow-[0_8px_24px_rgba(30,41,59,0.45)]"
+            className="h-8 sm:h-10 px-2 sm:px-3.5 rounded-lg sm:rounded-xl bg-slate-900/98 border border-blue-400/25 text-slate-100 text-xs sm:text-sm font-semibold flex items-center gap-1 sm:gap-1.5 shadow-[0_8px_24px_rgba(30,41,59,0.45)]"
           >
-            <Info className="w-4 h-4" />
-            {t.about}
+            <Info className="w-3 sm:w-4 h-3 sm:h-4" />
+            <span className="hidden sm:inline">{t.about}</span>
+            <span className="sm:hidden">ℹ️</span>
           </button>
         </div>
       </div>
