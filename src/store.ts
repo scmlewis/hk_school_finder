@@ -161,10 +161,14 @@ function filterSchools(
 
   // Zoom rule still overrides level selection for broad map views.
   let effectiveLevels = levels;
-  if (mapZoom < 12) {
-    effectiveLevels = ['PRIMARY'];
-  } else if (mapZoom < 15) {
-    effectiveLevels = ['PRIMARY', 'SECONDARY'];
+  // Only apply zoom-based level fallback when the user has not customized levels
+  const isDefaultLevelSelection = levels.length === 3 && levels.includes('PRIMARY') && levels.includes('SECONDARY') && levels.includes('KINDERGARTEN');
+  if (isDefaultLevelSelection) {
+    if (mapZoom < 12) {
+      effectiveLevels = ['PRIMARY'];
+    } else if (mapZoom < 15) {
+      effectiveLevels = ['PRIMARY', 'SECONDARY'];
+    }
   }
   const hasLevelFilter = effectiveLevels.length > 0;
   const shouldCheckDistance = !!distanceFilter && !!userLocation;
