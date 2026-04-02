@@ -7,7 +7,8 @@ import BottomSheet from './components/BottomSheet';
 import StatsTab from './components/StatsTab';
 import { fetchSchools } from './services';
 import { useStore } from './store';
-import { Loader2, AlertCircle, Info, X } from 'lucide-react';
+import { AlertCircle, Info, X } from 'lucide-react';
+import Loading from './components/Loading';
 
 export default function App() {
   console.log('App: Rendering...');
@@ -89,29 +90,7 @@ export default function App() {
     loadData();
   }, [setSchools, setLoading, setError]);
 
-  if (loading) {
-    return (
-      <div className="h-full w-full flex flex-col items-center justify-center bg-slate-950 relative overflow-hidden">
-        {/* Background decorative elements */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-20 left-4 right-4 max-w-xl mx-auto h-16 bg-slate-900 rounded-2xl skeleton" />
-          <div className="absolute top-64 left-3 right-3 max-w-md mx-auto h-96 bg-slate-900 rounded-2xl skeleton" />
-        </div>
-        
-        <div className="relative z-10 text-center">
-          <div className="mb-6">
-            <Loader2 className="w-12 h-12 text-indigo-500 animate-spin mx-auto mb-4" />
-          </div>
-          <p className="text-slate-300 font-display font-semibold text-lg mb-2">
-            {t.loading}
-          </p>
-          <p className="text-slate-500 text-sm font-medium">
-            {language === 'zh' ? '正在獲取數據...' : 'Fetching data...'}
-          </p>
-        </div>
-      </div>
-    );
-  }
+  
 
   if (error) {
     return (
@@ -133,6 +112,7 @@ export default function App() {
 
   return (
     <div className="h-full w-full relative overflow-hidden overflow-x-hidden font-sans">
+      <Loading visible={loading} />
       <div className="absolute top-1 sm:top-2 md:top-3 left-1 sm:left-2 md:left-3 right-1 sm:right-2 md:right-3 z-50 flex items-center justify-between gap-1.5 sm:gap-2">
         <div className="bg-slate-900/98 border border-indigo-400/30 shadow-[0_10px_30px_rgba(79,70,229,0.18)] rounded-lg sm:rounded-xl px-2.5 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5">
           <p className="text-xs sm:text-base md:text-xl font-display font-bold text-slate-100 tracking-wide">

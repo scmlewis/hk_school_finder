@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { MapPin, Locate, SlidersHorizontal, X } from 'lucide-react';
 import { useStore } from '../store';
-import { getSchoolFinancingByLanguage, getSchoolGenderByLanguage, getSchoolReligionByLanguage } from '../utils';
+import { getSchoolFinancingByLanguage, getSchoolGenderByLanguage, getSchoolReligionByLanguage, getSchoolDistrictByLanguage } from '../utils';
 
 const FilterBar: React.FC = () => {
   const {
@@ -18,6 +18,8 @@ const FilterBar: React.FC = () => {
     setFinancingTypeFilter,
     religionFilter,
     setReligionFilter,
+    districtFilter,
+    setDistrictFilter,
     clearFilters,
     language,
   } = useStore();
@@ -40,6 +42,7 @@ const FilterBar: React.FC = () => {
         locationDetected: '已偵測位置',
         filtersBtn: '篩選',
         tips: '💡 建議先用學校級別和地區關鍵字，再搭配宗教/資助類別縮小結果。',
+        district: '地區',
         noLimit: '不限',
         notApplicable: '不適用',
         clearFilters: '清除篩選',
@@ -58,6 +61,7 @@ const FilterBar: React.FC = () => {
         locationDetected: 'Location detected',
         filtersBtn: 'Filters',
         tips: '💡 Start with level + keyword search, then narrow with religion/financing filters.',
+        district: 'District',
         noLimit: 'No Limit',
         notApplicable: 'Not Applicable',
         clearFilters: 'Clear Filters',
@@ -220,6 +224,96 @@ const FilterBar: React.FC = () => {
     return buildCanonicalOptions(Array.from(values));
   }, [schools, language]);
 
+  const uniqueDistricts = React.useMemo(() => {
+    // Build a bilingual map of districts from the dataset (deduplicated)
+    const map: Record<string, { en?: string; zh?: string }> = {};
+
+    schools.forEach((school) => {
+      const en = getSchoolDistrictByLanguage(school, 'en').trim();
+      const zh = getSchoolDistrictByLanguage(school, 'zh').trim();
+      const keyEn = normalizeFilterKey(en);
+      const keyZh = normalizeFilterKey(zh);
+      const canonicalKey = keyEn || keyZh;
+      if (!canonicalKey) return;
+      if (!map[canonicalKey]) map[canonicalKey] = {};
+      if (en) map[canonicalKey].en = en;
+      if (zh) map[canonicalKey].zh = zh;
+    });
+
+    // Small fallback translation map for common HK districts (EN -> ZH)
+    const fallbackEnToZh: Record<string, string> = {
+      'CENTRAL AND WESTERN': '中西區',
+      'WAN CHAI': '灣仔',
+      'EASTERN': '東區',
+      'SOUTHERN': '南區',
+      'ISLANDS': '離島',
+      'YAU TSIM MONG': '油尖旺',
+      'KOWLOON CITY': '九龍城',
+      'SHAM SHUI PO': '深水埗',
+      'WONG TAI SIN': '黃大仙',
+      'KWUN TONG': '觀塘',
+      'TSUEN WAN': '荃灣',
+      'KWAI TSING': '葵青',
+      'TUEN MUN': '屯門',
+      'YUEN LONG': '元朗',
+      'NORTH': '北區',
+      'TAI PO': '大埔',
+      'SHA TIN': '沙田',
+      'SAI KUNG': '西貢'
+    };
+
+    // ensure both en/zh labels exist where possible using fallbacks
+    Object.keys(map).forEach((k) => {
+      const entry = map[k];
+      if (!entry.en && entry.zh) {
+        // try reverse lookup in fallback
+        const match = Object.entries(fallbackEnToZh).find(([, v]) => normalizeFilterKey(v) === k);
+        if (match) entry.en = match[0];
+      }
+      if (!entry.zh && entry.en) {
+        const maybe = fallbackEnToZh[normalizeFilterKey(entry.en)];
+        if (maybe) entry.zh = maybe;
+      }
+    });
+
+    // Define ordered groups with canonical member order (use EN keys as canonical)
+    const groups = [
+      { key: 'HK_ISLAND', label: { en: '---HONG KONG ISLAND---', zh: '---港島---' }, members: ['CENTRAL AND WESTERN', 'WAN CHAI', 'EASTERN', 'SOUTHERN'] },
+      { key: 'KOWLOON', label: { en: '---KOWLOON---', zh: '---九龍---' }, members: ['YAU TSIM MONG', 'KOWLOON CITY', 'SHAM SHUI PO', 'WONG TAI SIN', 'KWUN TONG'] },
+      { key: 'NEW_TERRITORIES', label: { en: '---NEW TERRITORIES---', zh: '---新界---' }, members: ['TSUEN WAN', 'KWAI TSING', 'TUEN MUN', 'YUEN LONG', 'NORTH', 'TAI PO', 'SHA TIN', 'SAI KUNG'] },
+      { key: 'ISLANDS', label: { en: '---ISLANDS---', zh: '---離島---' }, members: ['ISLANDS'] }
+    ];
+
+    const added = new Set<string>();
+    const result: Array<{ value: string; label: string; disabled?: boolean }> = [];
+
+    // Insert groups in order, adding members if present in map
+    groups.forEach((g) => {
+      // check if group has any members in dataset
+      const groupMembersPresent = g.members.some((m) => map[normalizeFilterKey(m)]);
+      if (!groupMembersPresent) return;
+
+      result.push({ value: `__SEP__${g.key}`, label: language === 'zh' ? g.label.zh : g.label.en, disabled: true });
+
+      g.members.forEach((m) => {
+        const key = normalizeFilterKey(m);
+        const entry = map[key];
+        if (entry && !added.has(key)) {
+          const label = language === 'zh' ? (entry.zh || entry.en) : (entry.en || entry.zh);
+          result.push({ value: key, label });
+          added.add(key);
+        }
+      });
+    });
+
+    // Append any remaining districts not covered by groups, sorted by label
+    const remaining = Object.keys(map).filter(k => !added.has(k)).map(k => ({ value: k, label: language === 'zh' ? (map[k].zh || map[k].en) : (map[k].en || map[k].zh) }));
+    remaining.sort((a, b) => a.label.localeCompare(b.label, language === 'zh' ? 'zh' : 'en'));
+    result.push(...remaining);
+
+    return result;
+  }, [schools, language]);
+
   const panelContent = (
     <div className="p-2.5 sm:p-3 md:p-4 space-y-2.5 sm:space-y-3 md:space-y-4">
           <div className="flex justify-end">
@@ -274,6 +368,20 @@ const FilterBar: React.FC = () => {
               </div>
             </div>
           )}
+
+          <div>
+            <p className="text-[10px] sm:text-xs font-semibold text-slate-300 uppercase mb-1.5 sm:mb-2">{t.district}</p>
+            <select
+              value={districtFilter ?? ''}
+              onChange={(e) => setDistrictFilter(e.target.value || null)}
+              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm text-slate-100 cursor-pointer hover:border-slate-600 transition-colors"
+            >
+              <option value="">{t.all}</option>
+              {uniqueDistricts.map((option) => (
+                <option key={option.value} value={option.value} disabled={(option as any).disabled}>{option.label}</option>
+              ))}
+            </select>
+          </div>
 
           <div>
             <p className="text-[10px] sm:text-xs font-semibold text-slate-300 uppercase mb-1.5 sm:mb-2">{t.gender}</p>

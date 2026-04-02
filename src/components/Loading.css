@@ -1,0 +1,101 @@
+:root{
+  --bg: #0f1724; /* slate-950 */
+  --muted: #94a3b8; /* slate-400 */
+  --accent: #6366f1; /* indigo-500 */
+}
+
+.loading-overlay{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+  pointer-events:auto;
+}
+.loading-backdrop{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg, rgba(2,6,23,0.92) 0%, rgba(2,6,23,0.82) 100%);
+  backdrop-filter: blur(6px);
+}
+.loading-content{
+  position:relative;
+  z-index:2;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
+  padding:28px 36px;
+  border-radius:16px;
+  max-width:520px;
+  width:90%;
+  box-shadow:0 12px 40px rgba(2,6,23,0.6);
+  background: linear-gradient(180deg, rgba(12,18,27,0.6), rgba(8,12,18,0.4));
+  color: #e6eef8;
+  text-align:center;
+}
+.brand-mark{
+  width:72px;
+  height:72px;
+  display:block;
+  margin:0 auto;
+  filter: drop-shadow(0 8px 24px rgba(99,102,241,0.14));
+  animation: brand-pulse 1800ms ease-in-out infinite;
+}
+.loading-title{
+  font-size:1.15rem;
+  font-weight:700;
+  letter-spacing:0.2px;
+}
+.loading-sub{
+  font-size:0.925rem;
+  color:var(--muted);
+  margin:0;
+}
+.loading-bar{
+  margin-top:6px;
+  width:240px;
+  height:6px;
+  border-radius:999px;
+  background:linear-gradient(90deg, rgba(99,102,241,0.15) 0%, rgba(99,102,241,0.08) 50%, rgba(99,102,241,0.15) 100%);
+  overflow:hidden;
+  position:relative;
+}
+.loading-bar::after{
+  content:'';
+  position:absolute;
+  top:0; left:0; bottom:0;
+  width:30%;
+  background:linear-gradient(90deg, rgba(99,102,241,0.9), rgba(99,102,241,0.6));
+  transform:translateX(-120%);
+  animation: bar-slide 2.2s cubic-bezier(.2,.8,.2,1) infinite;
+}
+
+@keyframes bar-slide{
+  0%{ transform:translateX(-120%); }
+  50%{ transform:translateX(20%); }
+  100%{ transform:translateX(120%); }
+}
+
+@keyframes brand-pulse{
+  0%{ transform:scale(1); opacity:1 }
+  50%{ transform:scale(1.06); opacity:0.96 }
+  100%{ transform:scale(1); opacity:1 }
+}
+
+.loading-enter{ opacity:0; transform:translateY(6px) scale(.998); animation: enter-anim 360ms forwards cubic-bezier(.2,.9,.25,1); }
+.loading-exit{ opacity:1; transform:translateY(0); animation: exit-anim 360ms forwards cubic-bezier(.2,.9,.25,1); }
+
+@keyframes enter-anim{
+  to{ opacity:1; transform:translateY(0) scale(1); }
+}
+@keyframes exit-anim{
+  to{ opacity:0; transform:translateY(-6px) scale(.996); }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .brand-mark{ animation:none }
+  .loading-bar::after{ animation:none }
+  .loading-enter, .loading-exit{ animation:none }
+}

@@ -47,6 +47,7 @@ export interface AppState {
   genderFilter: string | null;
   financingTypeFilter: string | null;
   religionFilter: string | null;
+  districtFilter: string | null;
   
   setSchools: (schools: School[]) => void;
   setLoading: (loading: boolean) => void;
@@ -63,5 +64,6 @@ export interface AppState {
   setGenderFilter: (gender: string | null) => void;
   setFinancingTypeFilter: (financingType: string | null) => void;
   setReligionFilter: (religion: string | null) => void;
+  setDistrictFilter: (district: string | null) => void;
   clearFilters: () => void;
 }

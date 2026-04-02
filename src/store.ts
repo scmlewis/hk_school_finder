@@ -11,6 +11,7 @@ type IndexedSchool = School & {
   __genderUpper: string;
   __financingUpper: string;
   __religionUpper: string;
+  __districtUpper: string;
 };
 
 export const useStore = create<AppState>()(persist((set) => ({
@@ -30,6 +31,7 @@ export const useStore = create<AppState>()(persist((set) => ({
   genderFilter: null,
   financingTypeFilter: null,
   religionFilter: null,
+  districtFilter: null,
 
   setSchools: (schools) => set((state) => {
     if (!Array.isArray(schools)) {
@@ -37,7 +39,7 @@ export const useStore = create<AppState>()(persist((set) => ({
       return { schools: [], filteredSchools: [] };
     }
     const indexedSchools = schools.map(indexSchool);
-    const filtered = filterSchools(indexedSchools, state.searchQuery, state.levelFilter, state.activeSchoolNet, state.onlyShowInNet, state.userLocation, state.distanceFilter, state.mapZoom, state.genderFilter, state.financingTypeFilter, state.religionFilter);
+    const filtered = filterSchools(indexedSchools, state.searchQuery, state.levelFilter, state.activeSchoolNet, state.onlyShowInNet, state.userLocation, state.distanceFilter, state.mapZoom, state.genderFilter, state.financingTypeFilter, state.districtFilter, state.religionFilter);
     return { schools: indexedSchools, filteredSchools: filtered };
   }),
   setLoading: (loading) => set({ loading }),
@@ -45,44 +47,48 @@ export const useStore = create<AppState>()(persist((set) => ({
   setSelectedSchool: (school) => set({ selectedSchool: school }),
   setSearchQuery: (query) => set((state) => ({
     searchQuery: query,
-    filteredSchools: filterSchools(state.schools, query, state.levelFilter, state.activeSchoolNet, state.onlyShowInNet, state.userLocation, state.distanceFilter, state.mapZoom, state.genderFilter, state.financingTypeFilter, state.religionFilter)
+    filteredSchools: filterSchools(state.schools, query, state.levelFilter, state.activeSchoolNet, state.onlyShowInNet, state.userLocation, state.distanceFilter, state.mapZoom, state.genderFilter, state.financingTypeFilter, state.districtFilter, state.religionFilter)
   })),
   setLevelFilter: (levels) => set((state) => ({
     levelFilter: levels,
-    filteredSchools: filterSchools(state.schools, state.searchQuery, levels, state.activeSchoolNet, state.onlyShowInNet, state.userLocation, state.distanceFilter, state.mapZoom, state.genderFilter, state.financingTypeFilter, state.religionFilter)
+    filteredSchools: filterSchools(state.schools, state.searchQuery, levels, state.activeSchoolNet, state.onlyShowInNet, state.userLocation, state.distanceFilter, state.mapZoom, state.genderFilter, state.financingTypeFilter, state.districtFilter, state.religionFilter)
   })),
   setUserLocation: (location) => set((state) => ({
     userLocation: location,
-    filteredSchools: filterSchools(state.schools, state.searchQuery, state.levelFilter, state.activeSchoolNet, state.onlyShowInNet, location, state.distanceFilter, state.mapZoom, state.genderFilter, state.financingTypeFilter, state.religionFilter)
+    filteredSchools: filterSchools(state.schools, state.searchQuery, state.levelFilter, state.activeSchoolNet, state.onlyShowInNet, location, state.distanceFilter, state.mapZoom, state.genderFilter, state.financingTypeFilter, state.districtFilter, state.religionFilter)
   })),
   setActiveSchoolNet: (net) => set((state) => ({
     activeSchoolNet: net,
-    filteredSchools: filterSchools(state.schools, state.searchQuery, state.levelFilter, net, state.onlyShowInNet, state.userLocation, state.distanceFilter, state.mapZoom, state.genderFilter, state.financingTypeFilter, state.religionFilter)
+    filteredSchools: filterSchools(state.schools, state.searchQuery, state.levelFilter, net, state.onlyShowInNet, state.userLocation, state.distanceFilter, state.mapZoom, state.genderFilter, state.financingTypeFilter, state.districtFilter, state.religionFilter)
   })),
   setOnlyShowInNet: (only) => set((state) => ({
     onlyShowInNet: only,
-    filteredSchools: filterSchools(state.schools, state.searchQuery, state.levelFilter, state.activeSchoolNet, only, state.userLocation, state.distanceFilter, state.mapZoom, state.genderFilter, state.financingTypeFilter, state.religionFilter)
+    filteredSchools: filterSchools(state.schools, state.searchQuery, state.levelFilter, state.activeSchoolNet, only, state.userLocation, state.distanceFilter, state.mapZoom, state.genderFilter, state.financingTypeFilter, state.districtFilter, state.religionFilter)
   })),
   setDistanceFilter: (distance) => set((state) => ({
     distanceFilter: distance,
-    filteredSchools: filterSchools(state.schools, state.searchQuery, state.levelFilter, state.activeSchoolNet, state.onlyShowInNet, state.userLocation, distance, state.mapZoom, state.genderFilter, state.financingTypeFilter, state.religionFilter)
+    filteredSchools: filterSchools(state.schools, state.searchQuery, state.levelFilter, state.activeSchoolNet, state.onlyShowInNet, state.userLocation, distance, state.mapZoom, state.genderFilter, state.financingTypeFilter, state.districtFilter, state.religionFilter)
   })),
   setMapZoom: (zoom) => set((state) => ({
     mapZoom: zoom,
-    filteredSchools: filterSchools(state.schools, state.searchQuery, state.levelFilter, state.activeSchoolNet, state.onlyShowInNet, state.userLocation, state.distanceFilter, zoom, state.genderFilter, state.financingTypeFilter, state.religionFilter)
+    filteredSchools: filterSchools(state.schools, state.searchQuery, state.levelFilter, state.activeSchoolNet, state.onlyShowInNet, state.userLocation, state.distanceFilter, zoom, state.genderFilter, state.financingTypeFilter, state.districtFilter, state.religionFilter)
   })),
   setLanguage: (lang) => set({ language: lang }),
   setGenderFilter: (gender) => set((state) => ({
     genderFilter: gender,
-    filteredSchools: filterSchools(state.schools, state.searchQuery, state.levelFilter, state.activeSchoolNet, state.onlyShowInNet, state.userLocation, state.distanceFilter, state.mapZoom, gender, state.financingTypeFilter, state.religionFilter)
+    filteredSchools: filterSchools(state.schools, state.searchQuery, state.levelFilter, state.activeSchoolNet, state.onlyShowInNet, state.userLocation, state.distanceFilter, state.mapZoom, gender, state.financingTypeFilter, state.districtFilter, state.religionFilter)
   })),
   setFinancingTypeFilter: (financingType) => set((state) => ({
     financingTypeFilter: financingType,
-    filteredSchools: filterSchools(state.schools, state.searchQuery, state.levelFilter, state.activeSchoolNet, state.onlyShowInNet, state.userLocation, state.distanceFilter, state.mapZoom, state.genderFilter, financingType, state.religionFilter)
+    filteredSchools: filterSchools(state.schools, state.searchQuery, state.levelFilter, state.activeSchoolNet, state.onlyShowInNet, state.userLocation, state.distanceFilter, state.mapZoom, state.genderFilter, financingType, state.districtFilter, state.religionFilter)
+  })),
+  setDistrictFilter: (district) => set((state) => ({
+    districtFilter: district,
+    filteredSchools: filterSchools(state.schools, state.searchQuery, state.levelFilter, state.activeSchoolNet, state.onlyShowInNet, state.userLocation, state.distanceFilter, state.mapZoom, state.genderFilter, state.financingTypeFilter, district, state.religionFilter)
   })),
   setReligionFilter: (religion) => set((state) => ({
     religionFilter: religion,
-    filteredSchools: filterSchools(state.schools, state.searchQuery, state.levelFilter, state.activeSchoolNet, state.onlyShowInNet, state.userLocation, state.distanceFilter, state.mapZoom, state.genderFilter, state.financingTypeFilter, religion)
+    filteredSchools: filterSchools(state.schools, state.searchQuery, state.levelFilter, state.activeSchoolNet, state.onlyShowInNet, state.userLocation, state.distanceFilter, state.mapZoom, state.genderFilter, state.financingTypeFilter, state.districtFilter, religion)
   })),
   clearFilters: () => set((state) => {
     const nextLevelFilter = ['KINDERGARTEN', 'PRIMARY', 'SECONDARY'];
@@ -90,6 +96,7 @@ export const useStore = create<AppState>()(persist((set) => ({
     const nextGender = null;
     const nextFinancing = null;
     const nextReligion = null;
+    const nextDistrict = null;
     const nextQuery = '';
 
     return {
@@ -99,6 +106,7 @@ export const useStore = create<AppState>()(persist((set) => ({
       genderFilter: nextGender,
       financingTypeFilter: nextFinancing,
       religionFilter: nextReligion,
+      districtFilter: nextDistrict,
       filteredSchools: filterSchools(
         state.schools,
         nextQuery,
@@ -110,6 +118,7 @@ export const useStore = create<AppState>()(persist((set) => ({
         state.mapZoom,
         nextGender,
         nextFinancing,
+        nextDistrict,
         nextReligion
       )
     };
@@ -125,8 +134,10 @@ export const useStore = create<AppState>()(persist((set) => ({
     genderFilter: state.genderFilter,
     financingTypeFilter: state.financingTypeFilter,
     religionFilter: state.religionFilter,
+    districtFilter: state.districtFilter,
   }),
 }));
+
 
 function filterSchools(
   schools: School[],
@@ -139,6 +150,7 @@ function filterSchools(
   mapZoom: number,
   genderFilter: string | null,
   financingTypeFilter: string | null,
+  districtFilter: string | null,
   religionFilter: string | null
 ) {
   if (!Array.isArray(schools)) return [];
@@ -170,6 +182,7 @@ function filterSchools(
     const matchesGender = matchesCategoryFilter(school.__genderUpper, genderFilter);
     const matchesFinancing = matchesCategoryFilter(school.__financingUpper, financingTypeFilter);
     const matchesReligion = matchesCategoryFilter(school.__religionUpper, religionFilter);
+    const matchesDistrict = matchesCategoryFilter((school as any).__districtUpper || '', districtFilter);
 
     let matchesDistance = true;
     if (shouldCheckDistance) {
@@ -183,7 +196,7 @@ function filterSchools(
       }
     }
 
-    return matchesQuery && matchesLevel && matchesNet && matchesDistance && matchesGender && matchesFinancing && matchesReligion;
+    return matchesQuery && matchesLevel && matchesNet && matchesDistance && matchesGender && matchesFinancing && matchesDistrict && matchesReligion;
   });
 
   console.log('filterSchools: Input count:', schools.length, 'Output count:', filtered.length, 'Filters:', { query, levels, activeNet, onlyInNet, mapZoom, hasUserLocation: !!userLocation, distanceFilter });
@@ -218,6 +231,7 @@ function indexSchool(school: School): IndexedSchool {
   const genderUpper = `${school["Student Gender"] || ''} ${school["STUDENTS GENDER"] || ''} ${school["就讀學生性別"] || ''}`.toUpperCase();
   const financingUpper = `${school["Financing Type"] || ''} ${school["FINANCE TYPE"] || ''} ${school["資助種類"] || ''}`.toUpperCase();
   const religionUpper = `${school["Religion"] || ''} ${school["宗教"] || ''}`.toUpperCase();
+  const districtUpper = `${school["District"] || ''}`.toUpperCase();
 
   return {
     ...school,
@@ -228,5 +242,6 @@ function indexSchool(school: School): IndexedSchool {
     __genderUpper: genderUpper,
     __financingUpper: financingUpper,
     __religionUpper: religionUpper,
+    __districtUpper: districtUpper,
   };
 }
