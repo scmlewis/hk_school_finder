@@ -94,7 +94,13 @@ const FilterBar: React.FC = () => {
         if (corrected === '基督��') corrected = '基督教';
         if (corrected === '不適���' || corrected === '不��用') corrected = '不適用';
       }
-      const key = normalizeFilterKey(corrected);
+      // Treat Chinese '其他' as canonical 'OTHERS' so ordering and grouping match English
+      let key = '';
+      if (language === 'zh' && corrected === '其他') {
+        key = 'OTHERS';
+      } else {
+        key = normalizeFilterKey(corrected);
+      }
       if (!key) return;
       if (!map.has(key)) {
         map.set(key, key === 'NOT_APPLICABLE' ? t.notApplicable : corrected);
