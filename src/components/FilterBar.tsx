@@ -139,26 +139,32 @@ const FilterBar: React.FC = () => {
       'OTHERS'
     ];
 
-    return Array.from(map.entries())
-      .sort(([a, labelA], [b, labelB]) => {
-        // Always push NOT_APPLICABLE to the end
-        if (a === 'NOT_APPLICABLE') return 1;
-        if (b === 'NOT_APPLICABLE') return -1;
+    // Build final ordered list: canonical entries (in order), then remaining sorted by label, then NOT_APPLICABLE
+    const added = new Set<string>();
+    const result: Array<{ value: string; label: string }> = [];
 
-        const idxA = canonicalOrder.indexOf(a);
-        const idxB = canonicalOrder.indexOf(b);
+    // Add canonical members in order
+    canonicalOrder.forEach((canonKey) => {
+      if (map.has(canonKey) && !added.has(canonKey)) {
+        result.push({ value: canonKey, label: map.get(canonKey)! });
+        added.add(canonKey);
+      }
+    });
 
-        // If both have canonical positions, respect that ordering
-        if (idxA >= 0 && idxB >= 0) return idxA - idxB;
-        // If only one has a canonical position, it comes first
-        if (idxA >= 0 && idxB < 0) return -1;
-        if (idxA < 0 && idxB >= 0) return 1;
+    // Append remaining entries (excluding NOT_APPLICABLE), sorted by label locale-aware
+    const remaining = Array.from(map.entries())
+      .filter(([key]) => key !== 'NOT_APPLICABLE' && !added.has(key))
+      .map(([value, label]) => ({ value, label }))
+      .sort((a, b) => a.label.localeCompare(b.label, language === 'zh' ? 'zh' : 'en'));
 
-        // Neither is in canonical list: sort by displayed label locale-aware
-        const locale = language === 'zh' ? 'zh' : 'en';
-        return String(labelA).localeCompare(String(labelB), locale, { sensitivity: 'base' });
-      })
-      .map(([value, label]) => ({ value, label }));
+    result.push(...remaining);
+
+    // Finally append NOT_APPLICABLE if present
+    if (map.has('NOT_APPLICABLE')) {
+      result.push({ value: 'NOT_APPLICABLE', label: map.get('NOT_APPLICABLE')! });
+    }
+
+    return result;
   };
 
   const buildGenderOptions = (values: string[]) => {
