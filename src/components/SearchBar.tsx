@@ -16,7 +16,9 @@ const SearchBar: React.FC = () => {
 
   const [localQuery, setLocalQuery] = useState(searchQuery);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
 
   // Debounce search
   React.useEffect(() => {
@@ -45,12 +47,55 @@ const SearchBar: React.FC = () => {
     setSelectedSchool(school);
     setLocalQuery('');
     setShowDropdown(false);
+    setSelectedIndex(-1);
   };
 
   const handleClearSearch = () => {
     setLocalQuery('');
     setShowDropdown(false);
+    setSelectedIndex(-1);
     inputRef.current?.focus();
+  };
+
+  // Reset selectedIndex when dropdown is hidden
+  React.useEffect(() => {
+    if (!showDropdown) {
+      setSelectedIndex(-1);
+    }
+  }, [showDropdown]);
+
+  // Handle keyboard navigation
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!showDropdown || matchingSchools.length === 0) {
+      if (e.key === 'Escape') {
+        setShowDropdown(false);
+      }
+      return;
+    }
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setSelectedIndex(prev => (prev + 1) % matchingSchools.length);
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setSelectedIndex(prev => (prev - 1 + matchingSchools.length) % matchingSchools.length);
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (selectedIndex >= 0 && matchingSchools[selectedIndex]) {
+          handleSelectSchool(matchingSchools[selectedIndex]);
+        }
+        break;
+      case 'Escape':
+        e.preventDefault();
+        setShowDropdown(false);
+        setSelectedIndex(-1);
+        break;
+      default:
+        break;
+    }
   };
 
   return (
@@ -66,12 +111,20 @@ const SearchBar: React.FC = () => {
           value={localQuery}
           onChange={(e) => setLocalQuery(e.target.value)}
           onFocus={() => localQuery.length > 0 && setShowDropdown(true)}
+          onKeyDown={handleKeyDown}
+          role="combobox"
+          aria-label={language === 'zh' ? '學校搜尋' : 'School search'}
+          aria-autocomplete="list"
+          aria-expanded={showDropdown}
+          aria-controls={showDropdown ? 'school-listbox' : undefined}
+          aria-activedescendant={selectedIndex >= 0 ? `school-option-${selectedIndex}` : undefined}
         />
         {localQuery && (
           <button
             onClick={handleClearSearch}
             className="p-1.5 sm:p-2 hover:bg-slate-800 rounded-full transition-colors text-slate-300 flex-shrink-0"
             title={language === 'zh' ? '清除' : 'Clear'}
+            aria-label={language === 'zh' ? '清除搜尋' : 'Clear search'}
           >
             <X className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
           </button>
@@ -82,23 +135,33 @@ const SearchBar: React.FC = () => {
       <AnimatePresence>
         {showDropdown && matchingSchools.length > 0 && (
           <motion.div
+            ref={dropdownRef}
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.15 }}
             className="rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden border border-slate-700 bg-slate-900/95 max-h-48 sm:max-h-72 overflow-y-auto"
+            id="school-listbox"
+            role="listbox"
+            aria-label={language === 'zh' ? '學校列表' : 'Schools list'}
           >
             {matchingSchools.map((school, index) => {
               const level = getSchoolLevelByLanguage(school, language);
               const levelBadge = getLevelBadgeColor(level);
               const isSelected = selectedSchool?.["School No."] === school["School No."];
+              const isHighlighted = index === selectedIndex;
 
               return (
                 <motion.button
                   key={school["School No."] || index}
+                  id={`school-option-${index}`}
+                  role="option"
+                  aria-selected={isHighlighted || isSelected}
                   onClick={() => handleSelectSchool(school)}
+                  onMouseEnter={() => setSelectedIndex(index)}
                   className={cn(
                     "w-full px-2.5 sm:px-4 py-2 sm:py-3 border-b border-slate-700 text-left hover:bg-slate-800 transition-colors flex items-start gap-2 sm:gap-3 cursor-pointer group",
+                    isHighlighted && "bg-slate-700",
                     isSelected && "bg-indigo-500/20"
                   )}
                   whileHover={{ backgroundColor: 'rgba(30,41,59,1)' }}

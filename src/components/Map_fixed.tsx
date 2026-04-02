@@ -279,16 +279,23 @@ const Map: React.FC = () => {
 
         // Create popup
         const popupContent = document.createElement('div');
-        popupContent.innerHTML = `
-          <div style="padding: 8px; max-width: 200px; font-family: system-ui;">
-            <p style="font-weight: bold; margin: 0 0 4px 0; font-size: 13px;">
-              ${school["School Name"]}
-            </p>
-            <p style="font-size: 12px; color: #666; margin: 0;">
-              ${school["English Name"]}
-            </p>
-          </div>
-        `;
+        popupContent.style.padding = '8px';
+        popupContent.style.maxWidth = '200px';
+        popupContent.style.fontFamily = 'system-ui';
+
+        const nameEl = document.createElement('p');
+        nameEl.style.fontWeight = 'bold';
+        nameEl.style.margin = '0 0 4px 0';
+        nameEl.style.fontSize = '13px';
+        nameEl.textContent = school["School Name"];
+        popupContent.appendChild(nameEl);
+
+        const englishNameEl = document.createElement('p');
+        englishNameEl.style.fontSize = '12px';
+        englishNameEl.style.color = '#666';
+        englishNameEl.style.margin = '0';
+        englishNameEl.textContent = school["English Name"];
+        popupContent.appendChild(englishNameEl);
 
         const popup = new maplibregl.Popup({
           offset: [0, -10],

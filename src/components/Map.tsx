@@ -321,6 +321,26 @@ const Map: React.FC = () => {
               hoverPopup.current.remove();
               hoverPopup.current = null;
             }
+            const popupContent = document.createElement('div');
+            popupContent.style.padding = '10px';
+            popupContent.style.maxWidth = '240px';
+            popupContent.style.fontFamily = 'system-ui';
+            popupContent.style.color = '#e2e8f0';
+
+            const nameEl = document.createElement('p');
+            nameEl.style.fontWeight = '700';
+            nameEl.style.margin = '0 0 2px 0';
+            nameEl.style.fontSize = '13px';
+            nameEl.textContent = getSchoolNameByLanguage(school, languageRef.current);
+            popupContent.appendChild(nameEl);
+
+            const secondaryEl = document.createElement('p');
+            secondaryEl.style.fontSize = '11px';
+            secondaryEl.style.color = '#94a3b8';
+            secondaryEl.style.margin = '0';
+            secondaryEl.textContent = getSchoolSecondaryNameByLanguage(school, languageRef.current);
+            popupContent.appendChild(secondaryEl);
+
             currentPopup.current = new maplibregl.Popup({
               offset: [0, -12],
               closeButton: false,
@@ -328,12 +348,7 @@ const Map: React.FC = () => {
               className: 'school-popup',
             })
               .setLngLat(coordinates)
-              .setHTML(`
-                <div style="padding:10px; max-width:240px; font-family:system-ui; color:#e2e8f0;">
-                  <p style="font-weight:700; margin:0 0 2px 0; font-size:13px;">${getSchoolNameByLanguage(school, languageRef.current)}</p>
-                  <p style="font-size:11px; color:#94a3b8; margin:0;">${getSchoolSecondaryNameByLanguage(school, languageRef.current)}</p>
-                </div>
-              `)
+              .setDOMContent(popupContent)
               .addTo(map.current);
 
             map.current.flyTo({
@@ -376,14 +391,29 @@ const Map: React.FC = () => {
               });
             }
 
+            const hoverContent = document.createElement('div');
+            hoverContent.style.padding = '10px';
+            hoverContent.style.maxWidth = '240px';
+            hoverContent.style.fontFamily = 'system-ui';
+            hoverContent.style.color = '#e2e8f0';
+
+            const hoverNameEl = document.createElement('p');
+            hoverNameEl.style.fontWeight = '700';
+            hoverNameEl.style.margin = '0 0 2px 0';
+            hoverNameEl.style.fontSize = '13px';
+            hoverNameEl.textContent = getSchoolNameByLanguage(school, languageRef.current);
+            hoverContent.appendChild(hoverNameEl);
+
+            const hoverSecondaryEl = document.createElement('p');
+            hoverSecondaryEl.style.fontSize = '11px';
+            hoverSecondaryEl.style.color = '#94a3b8';
+            hoverSecondaryEl.style.margin = '0';
+            hoverSecondaryEl.textContent = getSchoolSecondaryNameByLanguage(school, languageRef.current);
+            hoverContent.appendChild(hoverSecondaryEl);
+
             hoverPopup.current
               .setLngLat(coordinates)
-              .setHTML(`
-                <div style="padding:10px; max-width:240px; font-family:system-ui; color:#e2e8f0;">
-                  <p style="font-weight:700; margin:0 0 2px 0; font-size:13px;">${getSchoolNameByLanguage(school, languageRef.current)}</p>
-                  <p style="font-size:11px; color:#94a3b8; margin:0;">${getSchoolSecondaryNameByLanguage(school, languageRef.current)}</p>
-                </div>
-              `)
+              .setDOMContent(hoverContent)
               .addTo(map.current);
           });
 
