@@ -4,6 +4,7 @@ import Map from './components/Map';
 import SearchBar from './components/SearchBar';
 import FilterBar from './components/FilterBar';
 import BottomSheet from './components/BottomSheet';
+import StatsTab from './components/StatsTab';
 import { fetchSchools } from './services';
 import { useStore } from './store';
 import { Loader2, AlertCircle, Info, X } from 'lucide-react';
@@ -12,6 +13,7 @@ export default function App() {
   console.log('App: Rendering...');
   const { setSchools, setLoading, setError, loading, error, schools, language, setLanguage } = useStore();
   const [isAboutOpen, setIsAboutOpen] = useState(false);
+  const [activeView, setActiveView] = useState<'map' | 'stats'>('map');
 
   const t = useMemo(() => (
     language === 'zh'
@@ -27,6 +29,8 @@ export default function App() {
           aboutMap: '地圖提示：點擊學校標記可打開詳細資訊卡，查看地址、學校資訊及聯絡方式。',
           close: '關閉',
           data: '資料來源：教育局與Data.gov.hk',
+          map: '地圖',
+          stats: '統計',
         }
       : {
           appName: 'HK School Finder',
@@ -40,6 +44,8 @@ export default function App() {
           aboutMap: 'Map tip: click a school marker to open the detail card with address, school details, and contact actions.',
           close: 'Close',
           data: 'Data: EDB & Data.gov.hk',
+          map: 'Map',
+          stats: 'Stats',
         }
   ), [language]);
 
@@ -126,7 +132,7 @@ export default function App() {
   }
 
   return (
-    <div className="h-full w-full relative overflow-hidden font-sans">
+    <div className="h-full w-full relative overflow-hidden overflow-x-hidden font-sans">
       <div className="absolute top-1 sm:top-2 md:top-3 left-1 sm:left-2 md:left-3 right-1 sm:right-2 md:right-3 z-50 flex items-center justify-between gap-1.5 sm:gap-2">
         <div className="bg-slate-900/98 border border-indigo-400/30 shadow-[0_10px_30px_rgba(79,70,229,0.18)] rounded-lg sm:rounded-xl px-2.5 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5">
           <p className="text-xs sm:text-base md:text-xl font-display font-bold text-slate-100 tracking-wide">
@@ -134,6 +140,20 @@ export default function App() {
           </p>
         </div>
         <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2">
+          <div className="rounded-lg sm:rounded-xl bg-slate-900/98 border border-blue-400/25 p-1 sm:p-1.5 flex gap-0.5 sm:gap-1 shadow-[0_8px_24px_rgba(30,41,59,0.45)]">
+            <button
+              onClick={() => setActiveView('map')}
+              className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-bold transition-colors ${activeView === 'map' ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:text-white'}`}
+            >
+              {t.map}
+            </button>
+            <button
+              onClick={() => setActiveView('stats')}
+              className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-bold transition-colors ${activeView === 'stats' ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:text-white'}`}
+            >
+              {t.stats}
+            </button>
+          </div>
           <div className="rounded-lg sm:rounded-xl bg-slate-900/98 border border-blue-400/25 p-1 sm:p-1.5 flex gap-0.5 sm:gap-1 shadow-[0_8px_24px_rgba(30,41,59,0.45)]">
             <button
               onClick={() => setLanguage('en')}
@@ -160,10 +180,16 @@ export default function App() {
         </div>
       </div>
 
-      <SearchBar />
-      <FilterBar />
-      <Map />
-      <BottomSheet />
+      {activeView === 'map' ? (
+        <>
+          <SearchBar />
+          <FilterBar />
+          <Map />
+          <BottomSheet />
+        </>
+      ) : (
+        <StatsTab />
+      )}
 
       {isAboutOpen && (
         <>
