@@ -75,7 +75,8 @@ const FilterBar: React.FC = () => {
       upper === 'N/A' ||
       upper === 'NA' ||
       upper === 'NOT APPLICABLE' ||
-      upper === '不適用'
+      upper === '不適用' ||
+      upper === '無'
     ) {
       return 'NOT_APPLICABLE';
     }
