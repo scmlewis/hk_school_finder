@@ -330,6 +330,25 @@ const FilterBar: React.FC = () => {
           <div>
             <p className="text-[10px] sm:text-xs font-semibold text-slate-300 uppercase mb-1.5 sm:mb-2">{t.level}</p>
             <div className="flex flex-wrap gap-1.5 sm:gap-2">
+              {/* All selector */}
+              {(() => {
+                const allLevels = ['KINDERGARTEN', 'PRIMARY', 'SECONDARY'];
+                const isAllSelected = allLevels.every(l => levelFilter.includes(l));
+                return (
+                  <button
+                    key="ALL_LEVELS"
+                    onClick={() => setLevelFilter(allLevels)}
+                    className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg font-semibold text-[10px] sm:text-xs transition-all min-h-8 sm:min-h-10 cursor-pointer ${
+                      isAllSelected
+                        ? 'text-white shadow-md bg-slate-700'
+                        : 'text-slate-200 bg-slate-800 hover:bg-slate-700 active:scale-95'
+                    }`}
+                  >
+                    {language === 'zh' ? '全部' : 'All'}
+                  </button>
+                );
+              })()}
+
               {levelOptions.map(({ label, value, color }) => (
                 <button
                   key={value}
