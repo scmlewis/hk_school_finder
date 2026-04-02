@@ -95,10 +95,17 @@ const FilterBar: React.FC = () => {
     });
 
     return Array.from(map.entries())
-      .sort(([a], [b]) => {
+      .sort(([a, labelA], [b, labelB]) => {
+        // Always push NOT_APPLICABLE to the end
         if (a === 'NOT_APPLICABLE') return 1;
         if (b === 'NOT_APPLICABLE') return -1;
-        return a.localeCompare(b, 'en');
+        // Put generic "OTHERS" after normal entries but before NOT_APPLICABLE
+        if (a === 'OTHERS') return 1;
+        if (b === 'OTHERS') return -1;
+
+        // Sort by the displayed label using locale for the current language
+        const locale = language === 'zh' ? 'zh' : 'en';
+        return String(labelA).localeCompare(String(labelB), locale, { sensitivity: 'base' });
       })
       .map(([value, label]) => ({ value, label }));
   };
