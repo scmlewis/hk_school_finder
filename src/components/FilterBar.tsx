@@ -107,6 +107,10 @@ const FilterBar: React.FC = () => {
         if (a === 'NOT_APPLICABLE') return 1;
         if (b === 'NOT_APPLICABLE') return -1;
 
+        // Put OTHERS just before NOT_APPLICABLE (i.e., after normal entries)
+        if (a === 'OTHERS' && b !== 'OTHERS') return 1;
+        if (b === 'OTHERS' && a !== 'OTHERS') return -1;
+
         // Sort by the displayed label using locale for the current language
         const locale = language === 'zh' ? 'zh' : 'en';
         return String(labelA).localeCompare(String(labelB), locale, { sensitivity: 'base' });
