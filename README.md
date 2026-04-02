@@ -1,13 +1,12 @@
 # HK School Finder 香港學校地圖
 
-A modern, mobile-first web app that helps families in Hong Kong find schools and plan their commute. Search by school name, filter by criteria (level, gender, financing type, religion), and visualize schools on an interactive map with built-in MTR commute information.
+A modern, mobile-first web app that helps families in Hong Kong find schools. Search by school name, filter by criteria (level, gender, financing type, religion), and visualize schools on an interactive map.
 
 ## Features
 
 - **Interactive Map**: Real-time visualization of all Hong Kong schools with clustering for better performance
 - **Smart Search**: Quick-search schools by name in English or Chinese
 - **Advanced Filtering**: Filter by school level (kindergarten, primary, secondary), gender, financing type, and religion
-- **Commute Insights**: See the nearest MTR exits and estimated walking times from each school
 - **School Net Support**: Identify and highlight the geographic school net boundaries for your area
 - **Bilingual Interface**: Full English and Chinese (Traditional) support
 - **Mobile-Optimized**: Responsive design perfect for browsing on your phone
@@ -84,8 +83,7 @@ npm run preview
 3. **Explore the Map**: 
    - Zoom and pan to navigate Hong Kong
    - Click a school marker to view details
-4. **Check Commute**: When you select a school, see the nearest MTR exits and walking times
-5. **Identify School Net**: The app highlights your school net area based on your selection or current location
+4. **Identify School Net**: The app highlights your school net area based on your selection or current location
 
 ## Data Source
 
@@ -105,10 +103,8 @@ The app is built in phases:
 - ✅ School marker visualization and clustering
 
 ### Phase 2: ✅ Commute Logic & UI Polish  
-- ✅ MTR integration for nearest exits
-- ✅ Commute time calculations
-- ✅ Glassmorphism-styled bottom sheet
-- ✅ Bilingual UI
+-- ✅ Glassmorphism-styled bottom sheet
+-- ✅ Bilingual UI
 
 ### Phase 3: 🚀 School Net Geometry (In Progress)
 - 🚀 GeoJSON school net boundaries
