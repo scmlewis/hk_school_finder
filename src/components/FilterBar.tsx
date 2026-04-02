@@ -147,11 +147,15 @@ const FilterBar: React.FC = () => {
   };
 
   const toggleLevel = (level: string) => {
-    setLevelFilter(
-      levelFilter.includes(level)
-        ? levelFilter.filter(l => l !== level)
-        : [...levelFilter, level]
-    );
+    // Prevent deselecting the last remaining level — ensure at least one level is always active
+    if (levelFilter.includes(level)) {
+      if (levelFilter.length <= 1) {
+        return; // ignore attempt to deselect the last level
+      }
+      setLevelFilter(levelFilter.filter(l => l !== level));
+    } else {
+      setLevelFilter([...levelFilter, level]);
+    }
   };
 
   const handleLocateMe = () => {
@@ -349,20 +353,23 @@ const FilterBar: React.FC = () => {
                 );
               })()}
 
-              {levelOptions.map(({ label, value, color }) => (
-                <button
-                  key={value}
-                  onClick={() => toggleLevel(value)}
-                  className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg font-semibold text-[10px] sm:text-xs transition-all min-h-8 sm:min-h-10 cursor-pointer ${
-                    levelFilter.includes(value)
-                      ? 'text-white shadow-md'
-                      : 'text-slate-200 bg-slate-800 hover:bg-slate-700 active:scale-95'
-                  }`}
-                  style={levelFilter.includes(value) ? { backgroundColor: color } : undefined}
-                >
-                  {label}
-                </button>
-              ))}
+              {levelOptions.map(({ label, value, color }) => {
+                const isActive = levelFilter.includes(value);
+                const isLast = isActive && levelFilter.length === 1;
+                return (
+                  <button
+                    key={value}
+                    onClick={() => toggleLevel(value)}
+                    disabled={isLast}
+                    className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg font-semibold text-[10px] sm:text-xs transition-all min-h-8 sm:min-h-10 ${
+                      isLast ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
+                    } ${isActive ? 'text-white shadow-md' : 'text-slate-200 bg-slate-800 hover:bg-slate-700 active:scale-95'}`}
+                    style={isActive ? { backgroundColor: color } : undefined}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
