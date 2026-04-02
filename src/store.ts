@@ -49,10 +49,16 @@ export const useStore = create<AppState>()(persist((set) => ({
     searchQuery: query,
     filteredSchools: filterSchools(state.schools, query, state.levelFilter, state.activeSchoolNet, state.onlyShowInNet, state.userLocation, state.distanceFilter, state.mapZoom, state.genderFilter, state.financingTypeFilter, state.districtFilter, state.religionFilter)
   })),
-  setLevelFilter: (levels) => set((state) => ({
-    levelFilter: levels,
-    filteredSchools: filterSchools(state.schools, state.searchQuery, levels, state.activeSchoolNet, state.onlyShowInNet, state.userLocation, state.distanceFilter, state.mapZoom, state.genderFilter, state.financingTypeFilter, state.districtFilter, state.religionFilter)
-  })),
+  setLevelFilter: (levels) => set((state) => {
+    // Normalize empty selection to mean "all levels" to avoid duplicate semantics between 0 and all selected
+    const normalizedLevels = (Array.isArray(levels) && levels.length > 0)
+      ? levels
+      : ['KINDERGARTEN', 'PRIMARY', 'SECONDARY'];
+    return {
+      levelFilter: normalizedLevels,
+      filteredSchools: filterSchools(state.schools, state.searchQuery, normalizedLevels, state.activeSchoolNet, state.onlyShowInNet, state.userLocation, state.distanceFilter, state.mapZoom, state.genderFilter, state.financingTypeFilter, state.districtFilter, state.religionFilter)
+    };
+  }),
   setUserLocation: (location) => set((state) => ({
     userLocation: location,
     filteredSchools: filterSchools(state.schools, state.searchQuery, state.levelFilter, state.activeSchoolNet, state.onlyShowInNet, location, state.distanceFilter, state.mapZoom, state.genderFilter, state.financingTypeFilter, state.districtFilter, state.religionFilter)
