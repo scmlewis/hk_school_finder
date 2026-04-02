@@ -118,6 +118,8 @@ const Map: React.FC = () => {
           pitch: 0,
           bearing: 0,
           renderWorldCopies: false,
+          dragRotate: false,
+          touchPitch: false,
         });
         return m;
       };
