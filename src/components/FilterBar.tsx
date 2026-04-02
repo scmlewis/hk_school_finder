@@ -101,17 +101,35 @@ const FilterBar: React.FC = () => {
       }
     });
 
+    // Canonical order to keep English and Chinese lists aligned
+    const canonicalOrder = [
+      'BUDDHISM',
+      'CATHOLICISM',
+      'CONFUCIANISM',
+      'CONFUCIANISM,BUDDHISM & TAOISM',
+      'ISLAM',
+      'PROTESTANTISM / CHRISTIANITY',
+      'SIKH',
+      'TAOISM',
+      'OTHERS'
+    ];
+
     return Array.from(map.entries())
       .sort(([a, labelA], [b, labelB]) => {
         // Always push NOT_APPLICABLE to the end
         if (a === 'NOT_APPLICABLE') return 1;
         if (b === 'NOT_APPLICABLE') return -1;
 
-        // Put OTHERS just before NOT_APPLICABLE (i.e., after normal entries)
-        if (a === 'OTHERS' && b !== 'OTHERS') return 1;
-        if (b === 'OTHERS' && a !== 'OTHERS') return -1;
+        const idxA = canonicalOrder.indexOf(a);
+        const idxB = canonicalOrder.indexOf(b);
 
-        // Sort by the displayed label using locale for the current language
+        // If both have canonical positions, respect that ordering
+        if (idxA >= 0 && idxB >= 0) return idxA - idxB;
+        // If only one has a canonical position, it comes first
+        if (idxA >= 0 && idxB < 0) return -1;
+        if (idxA < 0 && idxB >= 0) return 1;
+
+        // Neither is in canonical list: sort by displayed label locale-aware
         const locale = language === 'zh' ? 'zh' : 'en';
         return String(labelA).localeCompare(String(labelB), locale, { sensitivity: 'base' });
       })
