@@ -94,11 +94,15 @@ const FilterBar: React.FC = () => {
         if (corrected === '基督��') corrected = '基督教';
         if (corrected === '不適���' || corrected === '不��用') corrected = '不適用';
       }
-      // Treat Chinese '其他' as canonical 'OTHERS' so ordering and grouping match English
+      // Treat Chinese '其他' variants as canonical 'OTHERS' so ordering and grouping match English
       let key = '';
-      if (language === 'zh' && corrected === '其他') {
-        key = 'OTHERS';
-      } else {
+      if (language === 'zh') {
+        const zhNormalized = corrected.replace(/[\s\uFEFF\u00A0\u200B-\u200D]/g, '').normalize('NFKC');
+        if (zhNormalized === '其他' || zhNormalized === '其他。' || zhNormalized === '其他：' || zhNormalized === '其他:') {
+          key = 'OTHERS';
+        }
+      }
+      if (!key) {
         key = normalizeFilterKey(corrected);
       }
       if (!key) return;
