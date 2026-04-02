@@ -87,10 +87,16 @@ const FilterBar: React.FC = () => {
     values.forEach((raw) => {
       const trimmed = raw.trim();
       if (!trimmed) return;
-      const key = normalizeFilterKey(trimmed);
+      // Apply small defensive fixes for known garbled Chinese values
+      let corrected = trimmed;
+      if (language === 'zh') {
+        if (corrected === '基督��') corrected = '基督教';
+        if (corrected === '不適���' || corrected === '不��用') corrected = '不適用';
+      }
+      const key = normalizeFilterKey(corrected);
       if (!key) return;
       if (!map.has(key)) {
-        map.set(key, key === 'NOT_APPLICABLE' ? t.notApplicable : trimmed);
+        map.set(key, key === 'NOT_APPLICABLE' ? t.notApplicable : corrected);
       }
     });
 
@@ -99,9 +105,6 @@ const FilterBar: React.FC = () => {
         // Always push NOT_APPLICABLE to the end
         if (a === 'NOT_APPLICABLE') return 1;
         if (b === 'NOT_APPLICABLE') return -1;
-        // Put generic "OTHERS" after normal entries but before NOT_APPLICABLE
-        if (a === 'OTHERS') return 1;
-        if (b === 'OTHERS') return -1;
 
         // Sort by the displayed label using locale for the current language
         const locale = language === 'zh' ? 'zh' : 'en';
