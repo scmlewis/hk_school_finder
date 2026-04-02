@@ -94,11 +94,26 @@ const FilterBar: React.FC = () => {
         if (corrected === '基督��') corrected = '基督教';
         if (corrected === '不適���' || corrected === '不��用') corrected = '不適用';
       }
-      // Treat Chinese '其他' variants as canonical 'OTHERS' so ordering and grouping match English
+      // Map Chinese labels to canonical English keys so ordering aligns between languages
       let key = '';
       if (language === 'zh') {
         const zhNormalized = corrected.replace(/[\s\uFEFF\u00A0\u200B-\u200D]/g, '').normalize('NFKC');
-        if (zhNormalized === '其他' || zhNormalized === '其他。' || zhNormalized === '其他：' || zhNormalized === '其他:') {
+
+        const zhToCanonical: Record<string, string> = {
+          '佛教': 'BUDDHISM',
+          '天主教': 'CATHOLICISM',
+          '孔教': 'CONFUCIANISM',
+          '儒釋道三教': 'CONFUCIANISM,BUDDHISM & TAOISM',
+          '伊斯蘭教': 'ISLAM',
+          '基督教': 'PROTESTANTISM / CHRISTIANITY',
+          '錫克教': 'SIKH',
+          '道教': 'TAOISM',
+          '其他': 'OTHERS'
+        };
+
+        if (zhToCanonical[zhNormalized]) {
+          key = zhToCanonical[zhNormalized];
+        } else if (zhNormalized === '其他。' || zhNormalized === '其他：' || zhNormalized === '其他:') {
           key = 'OTHERS';
         }
       }
