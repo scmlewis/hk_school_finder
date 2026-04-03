@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Search, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useStore } from '../store';
-import { cn, getLevelBadgeColor, getSchoolDistrictByLanguage, getSchoolFinancingByLanguage, getSchoolNameByLanguage, getSchoolSecondaryNameByLanguage, getSchoolLevelByLanguage } from '../utils';
+import { cn, getLevelBadgeColor, getSchoolDistrictByLanguage, getSchoolFinancingByLanguage, getSchoolNameByLanguage, getSchoolSecondaryNameByLanguage, getSchoolLevelByLanguage, localizeDistrictValue, localizeFinancingValue } from '../utils';
 
 const SearchBar: React.FC = () => {
   const { 
@@ -192,7 +192,7 @@ const SearchBar: React.FC = () => {
                       {getSchoolSecondaryNameByLanguage(school, language)}
                     </p>
                     <p className="text-[9px] sm:text-[11px] text-slate-500 mt-0.5">
-                      {getSchoolDistrictByLanguage(school, language)} · {getSchoolFinancingByLanguage(school, language)}
+                      {localizeDistrictValue(getSchoolDistrictByLanguage(school, 'en'), language)} · {localizeFinancingValue(getSchoolFinancingByLanguage(school, 'en'), language)}
                     </p>
                   </div>
 

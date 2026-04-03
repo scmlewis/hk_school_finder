@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { MapPin, Locate, SlidersHorizontal, X } from 'lucide-react';
 import { useStore } from '../store';
-import { getSchoolFinancingByLanguage, getSchoolGenderByLanguage, getSchoolReligionByLanguage, getSchoolDistrictByLanguage } from '../utils';
+import { getSchoolFinancingByLanguage, getSchoolGenderByLanguage, getSchoolReligionByLanguage, getSchoolDistrictByLanguage, localizeFinancingValue, localizeReligionValue, localizeDistrictValue, localizeGenderValue } from '../utils';
 
 const FilterBar: React.FC = () => {
   const {
@@ -232,10 +232,10 @@ const FilterBar: React.FC = () => {
       return;
     }
 
-    navigator.geolocation.getCurrentPosition(
+        navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
-        setUserLocation([latitude, longitude]);
+        setUserLocation({ lat: latitude, lng: longitude });
         setDistanceFilter(3); // Default to 3km when location is obtained
         setIsLocating(false);
         console.log('Location found:', latitude, longitude);
@@ -468,7 +468,9 @@ const FilterBar: React.FC = () => {
             >
               <option value="">{t.all}</option>
               {uniqueDistricts.map((option) => (
-                <option key={option.value} value={option.value} disabled={(option as any).disabled}>{option.label}</option>
+                <option key={option.value} value={option.value} disabled={(option as any).disabled}>
+                  {(option as any).disabled ? option.label : (language === 'zh' ? localizeDistrictValue(option.label, language) : option.label)}
+                </option>
               ))}
             </select>
           </div>
@@ -496,7 +498,7 @@ const FilterBar: React.FC = () => {
             >
               <option value="">{t.all}</option>
               {uniqueFinancingTypes.map((option) => (
-                <option key={option.value} value={option.value}>{option.label}</option>
+                <option key={option.value} value={option.value}>{language === 'zh' ? localizeFinancingValue(option.label, language) : option.label}</option>
               ))}
             </select>
           </div>
@@ -510,7 +512,7 @@ const FilterBar: React.FC = () => {
             >
               <option value="">{t.all}</option>
               {uniqueReligions.map((option) => (
-                <option key={option.value} value={option.value}>{option.label}</option>
+                <option key={option.value} value={option.value}>{language === 'zh' ? localizeReligionValue(option.label, language) : option.label}</option>
               ))}
             </select>
           </div>

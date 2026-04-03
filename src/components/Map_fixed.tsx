@@ -5,6 +5,7 @@ import * as turf from '@turf/turf';
 import axios from 'axios';
 import { useStore } from '../store';
 import { SCHOOL_NET_GEOJSON_URL } from '../services';
+import { getSchoolDistrictByLanguage, getSchoolFinancingByLanguage, localizeDistrictValue, localizeFinancingValue } from '../utils';
 
 const Map: React.FC = () => {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -15,7 +16,7 @@ const Map: React.FC = () => {
   const mapReady = useRef(false);
   const currentPopup = useRef<maplibregl.Popup | null>(null);
   
-  const { filteredSchools, setSelectedSchool, selectedSchool, setActiveSchoolNet, activeSchoolNet, setMapZoom } = useStore();
+  const { filteredSchools, setSelectedSchool, selectedSchool, setActiveSchoolNet, activeSchoolNet, setMapZoom, language } = useStore();
 
   // Initialize map once
   useEffect(() => {
@@ -296,6 +297,13 @@ const Map: React.FC = () => {
         englishNameEl.style.margin = '0';
         englishNameEl.textContent = school["English Name"];
         popupContent.appendChild(englishNameEl);
+
+        const infoEl = document.createElement('p');
+        infoEl.style.fontSize = '11px';
+        infoEl.style.color = '#666';
+        infoEl.style.margin = '6px 0 0 0';
+        infoEl.textContent = `${localizeDistrictValue(getSchoolDistrictByLanguage(school, 'en'), language)} · ${localizeFinancingValue(getSchoolFinancingByLanguage(school, 'en'), language)}`;
+        popupContent.appendChild(infoEl);
 
         const popup = new maplibregl.Popup({
           offset: [0, -10],

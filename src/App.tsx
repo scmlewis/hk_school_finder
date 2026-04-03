@@ -1,10 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, Suspense } from 'react';
 import axios from 'axios';
-import Map from './components/Map';
+const Map = React.lazy(() => import('./components/Map'));
 import SearchBar from './components/SearchBar';
 import FilterBar from './components/FilterBar';
 import BottomSheet from './components/BottomSheet';
-import StatsTab from './components/StatsTab';
+const StatsTab = React.lazy(() => import('./components/StatsTab'));
 import { fetchSchools } from './services';
 import { useStore } from './store';
 import { AlertCircle, Info, X } from 'lucide-react';
@@ -15,6 +15,7 @@ export default function App() {
   const { setSchools, setLoading, setError, loading, error, schools, language, setLanguage } = useStore();
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [activeView, setActiveView] = useState<'map' | 'stats'>('map');
+  const [deferMap, setDeferMap] = useState(false);
 
   const t = useMemo(() => (
     language === 'zh'
@@ -88,6 +89,9 @@ export default function App() {
     };
 
     loadData();
+    // Defer loading the map bundle briefly to prioritize initial render
+    const t = setTimeout(() => setDeferMap(true), 350);
+    return () => clearTimeout(t);
   }, [setSchools, setLoading, setError]);
 
   
@@ -164,11 +168,19 @@ export default function App() {
         <>
           <SearchBar />
           <FilterBar />
-          <Map />
+          {deferMap ? (
+            <Suspense fallback={<div className="p-4 text-slate-300">{language === 'zh' ? '載入地圖...' : 'Loading map...'}</div>}>
+              <Map />
+            </Suspense>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-slate-400">{language === 'zh' ? '載入地圖中...' : 'Preparing map...'}</div>
+          )}
           <BottomSheet />
         </>
       ) : (
-        <StatsTab />
+        <Suspense fallback={<div className="p-4 text-slate-300">{language === 'zh' ? '載入統計資料...' : 'Loading statistics...'}</div>}>
+          <StatsTab />
+        </Suspense>
       )}
 
       {isAboutOpen && (

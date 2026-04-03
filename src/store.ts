@@ -151,7 +151,7 @@ function filterSchools(
   levels: string[],
   activeNet: string | null,
   onlyInNet: boolean,
-  userLocation: [number, number] | null,
+  userLocation: { lat: number; lng: number } | null,
   distanceFilter: number | null,
   mapZoom: number,
   genderFilter: string | null,
@@ -199,7 +199,7 @@ function filterSchools(
       const lat = parseFloat(school.Latitude || school.latitude || "");
       const lng = parseFloat(school.Longitude || school.longitude || "");
       if (!isNaN(lat) && !isNaN(lng)) {
-        const distance = getDistance(userLocation![0], userLocation![1], lat, lng);
+        const distance = getDistance(userLocation!.lat, userLocation!.lng, lat, lng);
         matchesDistance = distance <= distanceFilter!;
       } else {
         matchesDistance = false;

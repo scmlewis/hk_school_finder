@@ -2,7 +2,19 @@ import React, { useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Globe, Phone, MapPin } from 'lucide-react';
 import { useStore } from '../store';
-import { getSchoolAddressByLanguage, getSchoolDistrictByLanguage, getSchoolFinancingByLanguage, getSchoolGenderByLanguage, getSchoolLevelByLanguage, getSchoolNameByLanguage, getSchoolReligionByLanguage, getSchoolSecondaryNameByLanguage, getLevelBadgeColor } from '../utils';
+import {
+  getSchoolAddressByLanguage,
+  getSchoolDistrictByLanguage,
+  getSchoolNameByLanguage,
+  getSchoolSecondaryNameByLanguage,
+  getLevelBadgeColor,
+  getLocalizedFinancingLabel,
+  getLocalizedGenderLabel,
+  getLocalizedReligionLabel,
+  getLocalizedLevelLabel,
+  getLocalizedDistrictLabel,
+  getSchoolLevelByLanguage,
+} from '../utils';
 
 const BottomSheet: React.FC = () => {
   const { selectedSchool, setSelectedSchool, language } = useStore();
@@ -60,8 +72,9 @@ const BottomSheet: React.FC = () => {
                     {getSchoolNameByLanguage(selectedSchool, language)}
                   </h2>
                   {(() => {
-                    const level = getSchoolLevelByLanguage(selectedSchool, language);
-                    const levelBadge = getLevelBadgeColor(level);
+                    // Use English canonical value for badge detection, but show localized level text elsewhere
+                    const levelForBadge = getSchoolLevelByLanguage(selectedSchool, 'en') || getSchoolLevelByLanguage(selectedSchool, language);
+                    const levelBadge = getLevelBadgeColor(levelForBadge);
                     return (
                       <span className={`text-xs font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-full border-2 ${levelBadge.bg} ${levelBadge.text} border-current/40 flex-shrink-0`}>
                         {levelBadge.label}
@@ -86,12 +99,12 @@ const BottomSheet: React.FC = () => {
               {/* Financing Type */}
               <div className="bg-gradient-to-br from-indigo-500/10 to-indigo-500/5 rounded-xl sm:rounded-2xl p-2.5 sm:p-3 border border-indigo-400/20">
                 <p className="text-[9px] sm:text-[10px] uppercase tracking-wider text-indigo-300 font-bold mb-0.5 sm:mb-1">{t.type}</p>
-                <p className="text-xs sm:text-sm font-semibold text-slate-200">{getSchoolFinancingByLanguage(selectedSchool, language)}</p>
+                <p className="text-xs sm:text-sm font-semibold text-slate-200">{getLocalizedFinancingLabel(selectedSchool, language)}</p>
               </div>
               {/* Gender */}
               <div className="bg-gradient-to-br from-purple-500/10 to-purple-500/5 rounded-xl sm:rounded-2xl p-2.5 sm:p-3 border border-purple-400/20">
                 <p className="text-[9px] sm:text-[10px] uppercase tracking-wider text-purple-300 font-bold mb-0.5 sm:mb-1 flex items-center gap-1">{t.gender}</p>
-                <p className="text-xs sm:text-sm font-semibold text-slate-200">{getSchoolGenderByLanguage(selectedSchool, language)}</p>
+                <p className="text-xs sm:text-sm font-semibold text-slate-200">{getLocalizedGenderLabel(selectedSchool, language)}</p>
               </div>
             </div>
 
@@ -100,17 +113,17 @@ const BottomSheet: React.FC = () => {
               {/* School Level */}
               <div className="bg-slate-800/60 rounded-lg sm:rounded-xl p-2.5 sm:p-3 border border-slate-700/50 hover:border-slate-600 transition-colors">
                 <p className="text-[9px] sm:text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-0.5 sm:mb-1">{t.level}</p>
-                <p className="text-xs font-semibold text-slate-200 break-words leading-snug">{getSchoolLevelByLanguage(selectedSchool, language)}</p>
+                <p className="text-xs font-semibold text-slate-200 break-words leading-snug">{getLocalizedLevelLabel(selectedSchool, language)}</p>
               </div>
               {/* District */}
               <div className="bg-slate-800/60 rounded-lg sm:rounded-xl p-2.5 sm:p-3 border border-slate-700/50 hover:border-slate-600 transition-colors">
                 <p className="text-[9px] sm:text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-0.5 sm:mb-1">{t.district}</p>
-                <p className="text-xs font-semibold text-slate-200 break-words leading-snug">{getSchoolDistrictByLanguage(selectedSchool, language) || '-'}</p>
+                <p className="text-xs font-semibold text-slate-200 break-words leading-snug">{getLocalizedDistrictLabel(selectedSchool, language) || '-'}</p>
               </div>
               {/* Religion */}
               <div className="bg-slate-800/60 rounded-lg sm:rounded-xl p-2.5 sm:p-3 border border-slate-700/50 hover:border-slate-600 transition-colors">
                 <p className="text-[9px] sm:text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-0.5 sm:mb-1">{t.religion}</p>
-                <p className="text-xs font-semibold text-slate-200 break-words leading-snug">{getSchoolReligionByLanguage(selectedSchool, language) || t.noReligion}</p>
+                <p className="text-xs font-semibold text-slate-200 break-words leading-snug">{getLocalizedReligionLabel(selectedSchool, language) || t.noReligion}</p>
               </div>
             </div>
 

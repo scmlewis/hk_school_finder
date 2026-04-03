@@ -15,6 +15,10 @@ import {
   getSchoolGenderByLanguage,
   getSchoolLevelByLanguage,
   getSchoolReligionByLanguage,
+  localizeFinancingValue,
+  localizeGenderValue,
+  localizeReligionValue,
+  localizeDistrictValue,
 } from '../utils';
 
 type ChartDatum = {
@@ -264,21 +268,21 @@ const StatsTab: React.FC = () => {
 
   const financingDistribution = useMemo(() => {
     return buildDistribution(
-      filteredStatsSchools.map((school) => getSchoolFinancingByLanguage(school, language)),
+      filteredStatsSchools.map((school) => localizeFinancingValue(getSchoolFinancingByLanguage(school, 'en'), language)),
       t.unknown
     );
   }, [filteredStatsSchools, language, t.unknown]);
 
   const genderDistribution = useMemo(() => {
     return buildDistribution(
-      filteredStatsSchools.map((school) => getSchoolGenderByLanguage(school, language)),
+      filteredStatsSchools.map((school) => localizeGenderValue(getSchoolGenderByLanguage(school, 'en'), language)),
       t.unknown
     );
   }, [filteredStatsSchools, language, t.unknown]);
 
   const religionDistribution = useMemo(() => {
     return buildReligionDistribution(
-      filteredStatsSchools.map((school) => getSchoolReligionByLanguage(school, language)),
+      filteredStatsSchools.map((school) => localizeReligionValue(getSchoolReligionByLanguage(school, 'en'), language)),
       t.unknown,
       t.noReligion
     );
@@ -286,7 +290,7 @@ const StatsTab: React.FC = () => {
 
   const districtDistribution = useMemo(() => {
     return buildDistribution(
-      filteredStatsSchools.map((school) => getSchoolDistrictByLanguage(school, language)),
+      filteredStatsSchools.map((school) => localizeDistrictValue(getSchoolDistrictByLanguage(school, 'en'), language)),
       t.unknown
     );
   }, [filteredStatsSchools, language, t.unknown]);

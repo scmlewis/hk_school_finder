@@ -5,7 +5,7 @@ import axios from 'axios';
 import { useStore } from '../store';
 import { SCHOOL_NET_GEOJSON_URL } from '../services';
 import { School } from '../types';
-import { getSchoolNameByLanguage, getSchoolSecondaryNameByLanguage } from '../utils';
+import { getSchoolNameByLanguage, getSchoolSecondaryNameByLanguage, getSchoolDistrictByLanguage, getSchoolFinancingByLanguage, localizeDistrictValue, localizeFinancingValue } from '../utils';
 
 type SchoolFeature = GeoJSON.Feature<GeoJSON.Point, {
   schoolId: string;
@@ -341,6 +341,13 @@ const Map: React.FC = () => {
             secondaryEl.textContent = getSchoolSecondaryNameByLanguage(school, languageRef.current);
             popupContent.appendChild(secondaryEl);
 
+            const infoEl = document.createElement('p');
+            infoEl.style.fontSize = '11px';
+            infoEl.style.color = '#94a3b8';
+            infoEl.style.margin = '6px 0 0 0';
+            infoEl.textContent = `${localizeDistrictValue(getSchoolDistrictByLanguage(school, 'en'), languageRef.current)} · ${localizeFinancingValue(getSchoolFinancingByLanguage(school, 'en'), languageRef.current)}`;
+            popupContent.appendChild(infoEl);
+
             currentPopup.current = new maplibregl.Popup({
               offset: [0, -12],
               closeButton: false,
@@ -410,6 +417,13 @@ const Map: React.FC = () => {
             hoverSecondaryEl.style.margin = '0';
             hoverSecondaryEl.textContent = getSchoolSecondaryNameByLanguage(school, languageRef.current);
             hoverContent.appendChild(hoverSecondaryEl);
+
+            const hoverInfoEl = document.createElement('p');
+            hoverInfoEl.style.fontSize = '11px';
+            hoverInfoEl.style.color = '#94a3b8';
+            hoverInfoEl.style.margin = '6px 0 0 0';
+            hoverInfoEl.textContent = `${localizeDistrictValue(getSchoolDistrictByLanguage(school, 'en'), languageRef.current)} · ${localizeFinancingValue(getSchoolFinancingByLanguage(school, 'en'), languageRef.current)}`;
+            hoverContent.appendChild(hoverInfoEl);
 
             hoverPopup.current
               .setLngLat(coordinates)

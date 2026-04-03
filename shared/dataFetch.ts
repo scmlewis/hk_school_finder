@@ -1,14 +1,10 @@
 import axios from "axios";
-
-type CachedPayload<T> = {
-  data: T;
-  updatedAt: number;
-};
+import type { CachedPayload, School } from '@/src/types';
 
 const SIX_HOURS_MS = 6 * 60 * 60 * 1000;
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
-let cachedSchools: CachedPayload<any[]> | null = null;
+let cachedSchools: CachedPayload<School[]> | null = null;
 let cachedSchoolNets: CachedPayload<any> | null = null;
 
 const EDB_JSON_URL =
