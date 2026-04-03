@@ -22,8 +22,8 @@ export default async function handler(
     const payload = await fetchSchoolNetsCached();
     res.setHeader("Cache-Control", "public, max-age=86400");
     res.setHeader("X-Data-Updated-At", new Date(payload.updatedAt).toISOString());
-    res.json(payload.data);
+    return res.json(payload.data);
   } catch (error: any) {
-    res.json({ type: "FeatureCollection", features: [] });
+    return res.json({ type: "FeatureCollection", features: [] });
   }
 }

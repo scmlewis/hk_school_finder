@@ -22,17 +22,17 @@ export default async function handler(
     const payload = await fetchSchoolsCached();
     res.setHeader("Cache-Control", "public, max-age=3600");
     res.setHeader("X-Data-Updated-At", new Date(payload.updatedAt).toISOString());
-    res.json(payload.data);
+    return res.json(payload.data);
   } catch (error: any) {
     console.error("Proxy error fetching schools:", error.name, error.message);
     if (error.code === "ECONNABORTED") {
-      res.status(504).json({ error: "Request to EDB timed out" });
+      return res.status(504).json({ error: "Request to EDB timed out" });
     } else if (error.response) {
-      res
+      return res
         .status(error.response.status)
         .json({ error: `EDB API error: ${error.response.status}` });
     } else {
-      res.status(500).json({ error: "Failed to fetch schools data" });
+      return res.status(500).json({ error: "Failed to fetch schools data" });
     }
   }
 }
