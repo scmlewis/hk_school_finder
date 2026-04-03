@@ -3,7 +3,7 @@
   "devCommand": "npm run dev",
   "outputDirectory": "dist",
   "functions": {
-    "api/**/*.ts": {
+    "api/**/*.js": {
       "runtime": "nodejs20.x"
     }
   }
