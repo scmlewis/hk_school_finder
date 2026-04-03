@@ -40,10 +40,8 @@ export default defineConfig(({ mode }) => {
             if (id.includes('node_modules')) {
               if (id.includes('maplibre-gl')) return 'vendor-maplibre';
               if (id.includes('@turf') || id.includes('turf')) return 'vendor-turf';
-              if (id.includes('recharts')) return 'vendor-recharts';
-              if (id.includes('lucide-react')) return 'vendor-icons';
-              if (id.includes('motion')) return 'vendor-motion';
-              if (id.includes('react') || id.includes('react-dom')) return 'vendor-react';
+              // Keep the rest of dependencies in a single vendor chunk to avoid
+              // circular chunk dependencies that can break module initialization.
               return 'vendor';
             }
           }
