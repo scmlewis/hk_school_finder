@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { fetchSchoolNetsCached } from "../shared/dataFetch";
+import { fetchSchoolNetsCached } from "@/shared/dataFetch";
 
 export default async function handler(
   req: VercelRequest,

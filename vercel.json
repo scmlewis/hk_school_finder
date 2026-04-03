@@ -1,7 +1,12 @@
 {
   "buildCommand": "npm run build",
   "devCommand": "npm run dev",
-  "outputDirectory": "dist"
+  "outputDirectory": "dist",
+  "functions": {
+    "api/**/*.ts": {
+      "runtime": "nodejs20.x"
+    }
+  }
 }
 
 
