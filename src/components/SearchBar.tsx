@@ -32,16 +32,28 @@ const SearchBar: React.FC = () => {
   // Get matching schools for autocomplete
   const matchingSchools = useMemo(() => {
     if (!localQuery.trim()) return [];
-    
+
     const query = localQuery.toLowerCase();
-    return schools
-      .filter(school => {
-        const name = `${school["School Name"] || ''} ${school["中文名稱"] || ''}`.toLowerCase();
-        const englishName = `${school["English Name"] || ''} ${school["ENGLISH NAME"] || ''}`.toLowerCase();
-        return name.includes(query) || englishName.includes(query);
+    const scored = schools
+      .map((school) => {
+        const name = `${school["School Name"] || ""} ${school["中文名稱"] || ""}`.toLowerCase();
+        const englishName = `${school["English Name"] || ""} ${school["ENGLISH NAME"] || ""}`.toLowerCase();
+        const score = scoreMatch(query, name, englishName);
+        return { school, score };
       })
-      .slice(0, 8); // Show top 8 results
+      .filter((item) => item.score > 0)
+      .sort((a, b) => b.score - a.score);
+
+    return scored.slice(0, 8).map((item) => item.school);
   }, [localQuery, schools]);
+
+  function scoreMatch(query: string, name: string, englishName: string): number {
+    if (!query) return 0;
+    if (name === query || englishName === query) return 100;
+    if (name.startsWith(query) || englishName.startsWith(query)) return 80;
+    if (name.includes(query) || englishName.includes(query)) return 50;
+    return 0;
+  }
 
   const handleSelectSchool = (school: typeof schools[0]) => {
     setSelectedSchool(school);

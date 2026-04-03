@@ -174,7 +174,8 @@ function DistrictChart({ data, color, valueLabel }: { data: ChartDatum[]; color:
 }
 
 const StatsTab: React.FC = () => {
-  const { schools, language } = useStore();
+  const { schools, filteredSchools, language } = useStore();
+  const [useFiltered, setUseFiltered] = useState(false);
   const [selectedLevels, setSelectedLevels] = useState<Array<'KINDERGARTEN' | 'PRIMARY' | 'SECONDARY'>>([
     'KINDERGARTEN',
     'PRIMARY',
@@ -184,7 +185,9 @@ const StatsTab: React.FC = () => {
   const t = language === 'zh'
     ? {
         title: '學校統計總覽',
-        subtitle: '以下統計基於目前載入的全部學校資料。',
+        subtitle: '以下統計可切換使用全部學校或目前篩選結果。',
+        scopeAll: '全部學校',
+        scopeFiltered: '目前篩選',
         levelFilterLabel: '學校級別篩選',
         levelFilterHint: '可多選',
         levelKindergarten: '幼稚園',
@@ -204,7 +207,9 @@ const StatsTab: React.FC = () => {
       }
     : {
         title: 'School Statistics',
-        subtitle: 'These charts are based on all loaded schools.',
+        subtitle: 'Toggle between all schools or current filters.',
+        scopeAll: 'All schools',
+        scopeFiltered: 'Current filters',
         levelFilterLabel: 'School Level Filter',
         levelFilterHint: 'multi-select',
         levelKindergarten: 'Kindergarten',
@@ -223,7 +228,7 @@ const StatsTab: React.FC = () => {
         countLabel: 'count',
       };
 
-  const statsSchools = schools;
+  const statsSchools = useFiltered ? filteredSchools : schools;
 
   const levelOptions = useMemo(() => [
     { key: 'KINDERGARTEN' as const, label: t.levelKindergarten },
@@ -308,6 +313,22 @@ const StatsTab: React.FC = () => {
         <div className={`${cardClass} p-4 sm:p-5`}>
           <h2 className="text-xl sm:text-2xl font-bold text-slate-100">{t.title}</h2>
           <p className="text-sm text-slate-400 mt-1">{t.subtitle}</p>
+          <div className="mt-3 flex items-center gap-2">
+            <span className="text-[11px] sm:text-xs uppercase tracking-wider text-slate-400 font-semibold">
+              {useFiltered ? t.scopeFiltered : t.scopeAll}
+            </span>
+            <button
+              type="button"
+              onClick={() => setUseFiltered((prev) => !prev)}
+              className={`px-2.5 py-1 rounded-lg text-xs font-semibold border transition-colors ${
+                useFiltered
+                  ? "bg-emerald-600 border-emerald-500 text-white"
+                  : "bg-slate-800 border-slate-600 text-slate-300 hover:text-white"
+              }`}
+            >
+              {useFiltered ? t.scopeFiltered : t.scopeAll}
+            </button>
+          </div>
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <span className="text-[11px] sm:text-xs uppercase tracking-wider text-slate-400 font-semibold">
               {t.levelFilterLabel}

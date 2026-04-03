@@ -67,7 +67,7 @@ const Map: React.FC = () => {
 
     const features: SchoolFeature[] = [];
     for (const school of filteredSchools) {
-      const id = String(school['School No.'] || school['English Name'] || '');
+      const id = getSchoolId(school);
       if (!id) continue;
 
       const lng = parseFloat(school.Longitude || school.longitude || '');
@@ -549,6 +549,21 @@ function getMarkerColor(schoolLevel: string): string {
   if (level.includes('PRIMARY')) return '#60a5fa';
   if (level.includes('SECONDARY')) return '#34d399';
   return '#94a3b8';
+}
+
+function getSchoolId(school: School): string {
+  const primary = String(school['School No.'] || school['SCHOOL NO.'] || '').trim();
+  if (primary) return primary;
+
+  const englishName = String(school['English Name'] || school['ENGLISH NAME'] || '').trim();
+  const localName = String(school['School Name'] || school['中文名稱'] || '').trim();
+  const district = String(school['District'] || school['DISTRICT'] || '').trim();
+  const level = String(school['School Level'] || school['SCHOOL LEVEL'] || '').trim();
+  const lat = String(school['Latitude'] || school['LATITUDE'] || '').trim();
+  const lng = String(school['Longitude'] || school['LONGITUDE'] || '').trim();
+
+  const composite = [englishName, localName, district, level, lat, lng].filter(Boolean).join('|');
+  return composite || '';
 }
 
 export default Map;

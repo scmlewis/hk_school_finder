@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import axios from "axios";
+import { fetchSchoolNetsCached } from "../shared/dataFetch";
 
 export default async function handler(
   req: VercelRequest,
@@ -19,35 +19,11 @@ export default async function handler(
   }
 
   try {
-    const GEOJSON_URL =
-      "https://api.csdi.gov.hk/apim/dataquery/v1/dataset/edb_rcd_1629267205213?format=geojson";
-    console.log("Fetching school nets from CSDI:", GEOJSON_URL);
-
-    const response = await axios.get(GEOJSON_URL, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
-      },
-      timeout: 20000,
-      validateStatus: (status) => status < 500
-    });
-
-    console.log("CSDI Response status:", response.status);
-
-    if (response.status === 404) {
-      console.warn(
-        "CSDI School Net dataset not found (404). Using empty fallback."
-      );
-      return res.json({ type: "FeatureCollection", features: [] });
-    }
-
-    if (response.status !== 200) {
-      throw new Error(`CSDI API returned ${response.status}`);
-    }
-
-    res.json(response.data);
+    const payload = await fetchSchoolNetsCached();
+    res.setHeader("Cache-Control", "public, max-age=86400");
+    res.setHeader("X-Data-Updated-At", new Date(payload.updatedAt).toISOString());
+    res.json(payload.data);
   } catch (error: any) {
-    console.error("Proxy error fetching school nets:", error.message);
     res.json({ type: "FeatureCollection", features: [] });
   }
 }
