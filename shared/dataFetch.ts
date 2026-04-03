@@ -27,27 +27,34 @@ function isFresh(cache: CachedPayload<any> | null, ttlMs: number) {
 }
 
 function mapSchoolFields(raw: any) {
+  const schoolNameZh = raw["中文名稱"] || raw["SCHOOL NAME"];
+  const schoolNameEn = raw["ENGLISH NAME"] || raw["English Name"];
+  const primaryNet =
+    raw["Primary One Admission School Net"] ||
+    raw["PRIMARY ONE ADMISSION SCHOOL NET"] ||
+    raw["SCHOOL NET"];
+
   return {
-    "School No.": raw["SCHOOL NO."],
-    "School Name": raw["中文名稱"] || raw["ENGLISH NAME"],
-    "English Name": raw["ENGLISH NAME"],
-    "School Address": raw["中文地址"] || raw["ENGLISH ADDRESS"],
-    "English Address": raw["ENGLISH ADDRESS"],
-    Telephone: raw["TELEPHONE"],
-    "Fax Number": raw["FAX NUMBER"],
-    Website: raw["WEBSITE"],
-    Religion: raw["RELIGION"],
-    "School Level": raw["SCHOOL LEVEL"],
-    Session: raw["SESSION"],
-    "School Type": raw["ENGLISH CATEGORY"],
-    "Financing Type": raw["FINANCE TYPE"],
-    "Student Gender": raw["STUDENTS GENDER"],
-    District: raw["DISTRICT"],
-    Longitude: raw["LONGITUDE"],
-    Latitude: raw["LATITUDE"],
-    East: raw["EASTING"],
-    North: raw["NORTHING"],
-    ...raw,
+    "School No.": raw["SCHOOL NO."] || raw["School No."],
+    "School Name": schoolNameZh || schoolNameEn,
+    "English Name": schoolNameEn || schoolNameZh,
+    "School Address": raw["中文地址"] || raw["School Address"] || raw["ENGLISH ADDRESS"],
+    "English Address": raw["ENGLISH ADDRESS"] || raw["English Address"] || raw["中文地址"],
+    Telephone: raw["TELEPHONE"] || raw["Telephone"],
+    "Fax Number": raw["FAX NUMBER"] || raw["Fax Number"],
+    Website: raw["WEBSITE"] || raw["Website"],
+    Religion: raw["RELIGION"] || raw["Religion"],
+    "School Level": raw["SCHOOL LEVEL"] || raw["School Level"],
+    Session: raw["SESSION"] || raw["Session"],
+    "School Type": raw["ENGLISH CATEGORY"] || raw["School Type"] || raw["SCHOOL TYPE"],
+    "Financing Type": raw["FINANCE TYPE"] || raw["Financing Type"],
+    "Student Gender": raw["STUDENTS GENDER"] || raw["Student Gender"],
+    District: raw["DISTRICT"] || raw["District"],
+    Longitude: raw["LONGITUDE"] || raw["Longitude"],
+    Latitude: raw["LATITUDE"] || raw["Latitude"],
+    East: raw["EASTING"] || raw["East"],
+    North: raw["NORTHING"] || raw["North"],
+    ...(primaryNet ? { "Primary One Admission School Net": primaryNet } : {}),
   };
 }
 

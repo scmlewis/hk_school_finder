@@ -9,10 +9,16 @@ const getBaseUrl = () => {
   return '';
 };
 
-const EDB_API_URL = `${getBaseUrl()}/api/schools`;
+const normalizeBaseUrl = (value: string) => value.replace(/\/+$/, '');
+
+const API_BASE = normalizeBaseUrl(
+  (import.meta.env.VITE_API_BASE as string | undefined) || getBaseUrl()
+);
+
+const EDB_API_URL = `${API_BASE}/api/schools`;
 
 // GeoJSON for Primary School Nets
-export const SCHOOL_NET_GEOJSON_URL = `${getBaseUrl()}/api/school-nets`;
+export const SCHOOL_NET_GEOJSON_URL = `${API_BASE}/api/school-nets`;
 
 export async function fetchSchools(retries = 3): Promise<School[]> {
   try {
