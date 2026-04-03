@@ -12,6 +12,8 @@ export default defineConfig(({ mode }) => {
       react(),
       tailwindcss(),
       VitePWA({
+        // Temporary safety switch: remove stale SW/caches from previous chunk layouts.
+        selfDestroying: true,
         registerType: 'autoUpdate',
         includeAssets: ['mask-icon.svg'],
         manifest: {
