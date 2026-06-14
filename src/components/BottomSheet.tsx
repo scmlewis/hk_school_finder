@@ -22,7 +22,6 @@ import {
 } from '../utils';
 
 const MAX_MTR_DISTANCE_KM = 1.5;
-const NEARBY_SCHOOL_COUNT = 5;
 
 const BottomSheet: React.FC = () => {
   const { selectedSchool, setSelectedSchool, language, schools, favorites, toggleFavorite } = useStore();
@@ -89,21 +88,28 @@ const BottomSheet: React.FC = () => {
     const lng = parseFloat(selectedSchool.Longitude || (selectedSchool as any).longitude || '');
     if (isNaN(lat) || isNaN(lng)) return [];
 
-    const schoolId = selectedSchool['School No.'];
+    const currentName = (selectedSchool['English Name'] || '').trim().toLowerCase();
 
-    return schools
-      .filter((s) => s['School No.'] !== schoolId)
-      .map((school) => {
-        const sLat = parseFloat(school.Latitude || (school as any).latitude || '');
-        const sLng = parseFloat(school.Longitude || (school as any).longitude || '');
-        return {
-          school,
-          distance: isNaN(sLat) || isNaN(sLng) ? Infinity : getDistance(lat, lng, sLat, sLng),
-        };
-      })
-      .filter((s) => s.distance <= MAX_MTR_DISTANCE_KM && s.distance !== Infinity)
-      .sort((a, b) => a.distance - b.distance)
-      .slice(0, NEARBY_SCHOOL_COUNT);
+    const seen = new Set<string>();
+    const results: Array<{ school: School; distance: number }> = [];
+
+    for (const school of schools) {
+      const name = (school['English Name'] || '').trim().toLowerCase();
+      if (!name || name === currentName) continue;
+      if (seen.has(name)) continue;
+
+      const sLat = parseFloat(school.Latitude || (school as any).latitude || '');
+      const sLng = parseFloat(school.Longitude || (school as any).longitude || '');
+      if (isNaN(sLat) || isNaN(sLng)) continue;
+
+      const distance = getDistance(lat, lng, sLat, sLng);
+      if (distance > MAX_MTR_DISTANCE_KM) continue;
+
+      seen.add(name);
+      results.push({ school, distance });
+    }
+
+    return results.sort((a, b) => a.distance - b.distance);
   }, [selectedSchool, schools]);
 
   const isFavorited = selectedSchool ? favorites.includes(selectedSchool['School No.']) : false;
