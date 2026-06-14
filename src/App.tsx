@@ -5,6 +5,7 @@ import SearchBar from './components/SearchBar';
 import FilterBar from './components/FilterBar';
 import BottomSheet from './components/BottomSheet';
 const StatsTab = React.lazy(() => import('./components/StatsTab'));
+const FavoritesView = React.lazy(() => import('./components/FavoritesView'));
 import { fetchSchools } from './services';
 import { useStore } from './store';
 import { AlertCircle, Info, X } from 'lucide-react';
@@ -12,9 +13,9 @@ import Loading from './components/Loading';
 
 export default function App() {
   console.log('App: Rendering...');
-  const { setSchools, setLoading, setError, loading, error, schools, language, setLanguage } = useStore();
+  const { setSchools, setLoading, setError, loading, error, schools, language, setLanguage, showHeatmap, setShowHeatmap, favorites } = useStore();
   const [isAboutOpen, setIsAboutOpen] = useState(false);
-  const [activeView, setActiveView] = useState<'map' | 'stats'>('map');
+  const [activeView, setActiveView] = useState<'map' | 'stats' | 'favorites'>('map');
   const [deferMap, setDeferMap] = useState(false);
 
   const t = useMemo(() => (
@@ -33,6 +34,10 @@ export default function App() {
           data: '資料來源：教育局與Data.gov.hk',
           map: '地圖',
           stats: '統計',
+          favorites: '收藏',
+          heatmap: '熱力圖',
+          noFavorites: '尚未收藏任何學校',
+          favoritesHint: '在學校詳情頁點擊 ☆ 即可收藏',
         }
       : {
           appName: 'HK School Finder',
@@ -48,6 +53,10 @@ export default function App() {
           data: 'Data: EDB & Data.gov.hk',
           map: 'Map',
           stats: 'Stats',
+          favorites: 'Favorites',
+          heatmap: 'Heatmap',
+          noFavorites: 'No favorites yet',
+          favoritesHint: 'Tap ☆ on any school detail to save it here',
         }
   ), [language]);
 
@@ -137,6 +146,15 @@ export default function App() {
             >
               {t.stats}
             </button>
+            <button
+              onClick={() => setActiveView('favorites')}
+              className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-bold transition-colors ${activeView === 'favorites' ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:text-white'} relative`}
+            >
+              {t.favorites}
+              {favorites.length > 0 && (
+                <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-yellow-500 rounded-full text-[8px] font-bold text-white flex items-center justify-center">{favorites.length}</span>
+              )}
+            </button>
           </div>
           <div className="rounded-lg sm:rounded-xl bg-slate-900/98 border border-blue-400/25 p-1 sm:p-1.5 flex gap-0.5 sm:gap-1 shadow-[0_8px_24px_rgba(30,41,59,0.45)]">
             <button
@@ -175,8 +193,26 @@ export default function App() {
           ) : (
             <div className="w-full h-full flex items-center justify-center text-slate-400">{language === 'zh' ? '載入地圖中...' : 'Preparing map...'}</div>
           )}
+          {/* Heatmap Toggle */}
+          <div className="absolute bottom-20 left-3 z-20">
+            <button
+              onClick={() => setShowHeatmap(!showHeatmap)}
+              className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl font-semibold text-[10px] sm:text-xs transition-all shadow-lg flex items-center gap-1.5 cursor-pointer ${
+                showHeatmap
+                  ? 'bg-rose-500 text-white'
+                  : 'bg-slate-900/98 border border-slate-700 text-slate-200 hover:bg-slate-800'
+              }`}
+            >
+              <span className="text-base">{showHeatmap ? '🔥' : '🌡️'}</span>
+              {t.heatmap}
+            </button>
+          </div>
           <BottomSheet />
         </>
+      ) : activeView === 'favorites' ? (
+        <Suspense fallback={<div className="p-4 text-slate-300">{language === 'zh' ? '載入收藏...' : 'Loading favorites...'}</div>}>
+          <FavoritesView onBack={() => setActiveView('map')} />
+        </Suspense>
       ) : (
         <Suspense fallback={<div className="p-4 text-slate-300">{language === 'zh' ? '載入統計資料...' : 'Loading statistics...'}</div>}>
           <StatsTab />

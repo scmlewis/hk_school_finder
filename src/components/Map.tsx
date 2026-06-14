@@ -52,6 +52,8 @@ const Map: React.FC = () => {
     activeSchoolNet,
     setMapZoom,
     language,
+    showHeatmap,
+    setShowHeatmap,
   } = useStore();
 
   useEffect(() => {
@@ -278,6 +280,30 @@ const Map: React.FC = () => {
               'circle-stroke-color': '#e2e8f0',
               'circle-stroke-width': 1.5,
               'circle-opacity': 0.95,
+            },
+          });
+
+          map.current.addLayer({
+            id: 'school-heatmap',
+            type: 'heatmap',
+            source: SCHOOLS_SOURCE_ID,
+            layout: {
+              visibility: 'none',
+            },
+            paint: {
+              'heatmap-weight': ['interpolate', ['linear'], ['get', 'point_count'], 0, 0, 50, 1],
+              'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 10, 1, 16, 3],
+              'heatmap-color': [
+                'interpolate', ['linear'], ['heatmap-density'],
+                0, 'rgba(0,0,0,0)',
+                0.2, '#3b82f6',
+                0.4, '#6366f1',
+                0.6, '#a855f7',
+                0.8, '#ec4899',
+                1, '#f43f5e',
+              ],
+              'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 10, 15, 16, 30],
+              'heatmap-opacity': ['interpolate', ['linear'], ['zoom'], 10, 0.6, 16, 0.3],
             },
           });
 
@@ -526,6 +552,34 @@ const Map: React.FC = () => {
 
     source.setData(schoolFeatures);
   }, [schoolFeatures, isMapLoaded]);
+
+  useEffect(() => {
+    if (!isMapLoaded || !mapReady.current || !map.current) return;
+    try {
+      map.current.setLayoutProperty(
+        'school-heatmap',
+        'visibility',
+        showHeatmap ? 'visible' : 'none'
+      );
+      map.current.setLayoutProperty(
+        SCHOOL_POINTS_LAYER_ID,
+        'visibility',
+        showHeatmap ? 'none' : 'visible'
+      );
+      map.current.setLayoutProperty(
+        CLUSTERS_LAYER_ID,
+        'visibility',
+        showHeatmap ? 'none' : 'visible'
+      );
+      map.current.setLayoutProperty(
+        CLUSTER_COUNT_LAYER_ID,
+        'visibility',
+        showHeatmap ? 'none' : 'visible'
+      );
+    } catch (e) {
+      console.warn('Failed to toggle heatmap layer:', e);
+    }
+  }, [showHeatmap, isMapLoaded]);
 
   useEffect(() => {
     if (!isMapLoaded || !selectedSchool || !map.current) return;

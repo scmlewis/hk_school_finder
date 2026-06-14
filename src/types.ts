@@ -53,6 +53,8 @@ export interface AppState {
   financingTypeFilter: string | null;
   religionFilter: string | null;
   districtFilter: string | null;
+  favorites: string[];
+  showHeatmap: boolean;
   
   setSchools: (schools: School[]) => void;
   setLoading: (loading: boolean) => void;
@@ -70,5 +72,7 @@ export interface AppState {
   setFinancingTypeFilter: (financingType: string | null) => void;
   setReligionFilter: (religion: string | null) => void;
   setDistrictFilter: (district: string | null) => void;
+  toggleFavorite: (schoolId: string | undefined) => void;
+  setShowHeatmap: (show: boolean) => void;
   clearFilters: () => void;
 }

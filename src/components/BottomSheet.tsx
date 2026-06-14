@@ -1,12 +1,15 @@
 import React, { useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Globe, Phone, MapPin } from 'lucide-react';
+import { X, Globe, Phone, MapPin, Train, Navigation, Share2, Star, ArrowLeft } from 'lucide-react';
 import { useStore } from '../store';
+import { MTR_STATIONS, getDistance } from '../services';
+import { School } from '../types';
 import {
   getSchoolAddressByLanguage,
   getSchoolDistrictByLanguage,
   getSchoolNameByLanguage,
   getSchoolSecondaryNameByLanguage,
+  getSchoolNameByLanguage as getSchoolName,
   getLevelBadgeColor,
   getLocalizedFinancingLabel,
   getLocalizedGenderLabel,
@@ -14,10 +17,15 @@ import {
   getLocalizedLevelLabel,
   getLocalizedDistrictLabel,
   getSchoolLevelByLanguage,
+  getSchoolFinancingByLanguage,
+  getSchoolGenderByLanguage,
 } from '../utils';
 
+const MAX_MTR_DISTANCE_KM = 1.5;
+const NEARBY_SCHOOL_COUNT = 5;
+
 const BottomSheet: React.FC = () => {
-  const { selectedSchool, setSelectedSchool, language } = useStore();
+  const { selectedSchool, setSelectedSchool, language, schools, favorites, toggleFavorite } = useStore();
 
   const t = language === 'zh'
     ? {
@@ -29,6 +37,15 @@ const BottomSheet: React.FC = () => {
         noReligion: '未提供',
         website: '學校網站',
         call: '致電學校',
+        directions: '導航',
+        share: '分享',
+        nearbyMtr: '附近港鐵站',
+        noMtr: '附近無港鐵站',
+        walk: '步行',
+        km: '公里',
+        nearbySchools: '附近學校',
+        noNearby: '附近無其他學校',
+        minutes: '分鐘',
       }
     : {
         type: 'Type',
@@ -39,7 +56,57 @@ const BottomSheet: React.FC = () => {
         noReligion: 'Not Provided',
         website: 'Visit Website',
         call: 'Call School',
+        directions: 'Directions',
+        share: 'Share',
+        nearbyMtr: 'Nearby MTR Stations',
+        noMtr: 'No nearby MTR stations',
+        walk: 'walk',
+        km: 'km',
+        nearbySchools: 'Nearby Schools',
+        noNearby: 'No other schools nearby',
+        minutes: 'min',
       };
+
+  const nearbyStations = useMemo(() => {
+    if (!selectedSchool) return [];
+    const lat = parseFloat(selectedSchool.Latitude || (selectedSchool as any).latitude || '');
+    const lng = parseFloat(selectedSchool.Longitude || (selectedSchool as any).longitude || '');
+    if (isNaN(lat) || isNaN(lng)) return [];
+
+    return MTR_STATIONS
+      .map((station) => ({
+        ...station,
+        distance: getDistance(lat, lng, station.lat, station.lng),
+      }))
+      .filter((s) => s.distance <= MAX_MTR_DISTANCE_KM)
+      .sort((a, b) => a.distance - b.distance)
+      .slice(0, 3);
+  }, [selectedSchool]);
+
+  const nearbySchools = useMemo(() => {
+    if (!selectedSchool) return [];
+    const lat = parseFloat(selectedSchool.Latitude || (selectedSchool as any).latitude || '');
+    const lng = parseFloat(selectedSchool.Longitude || (selectedSchool as any).longitude || '');
+    if (isNaN(lat) || isNaN(lng)) return [];
+
+    const schoolId = selectedSchool['School No.'];
+
+    return schools
+      .filter((s) => s['School No.'] !== schoolId)
+      .map((school) => {
+        const sLat = parseFloat(school.Latitude || (school as any).latitude || '');
+        const sLng = parseFloat(school.Longitude || (school as any).longitude || '');
+        return {
+          school,
+          distance: isNaN(sLat) || isNaN(sLng) ? Infinity : getDistance(lat, lng, sLat, sLng),
+        };
+      })
+      .filter((s) => s.distance <= MAX_MTR_DISTANCE_KM && s.distance !== Infinity)
+      .sort((a, b) => a.distance - b.distance)
+      .slice(0, NEARBY_SCHOOL_COUNT);
+  }, [selectedSchool, schools]);
+
+  const isFavorited = selectedSchool ? favorites.includes(selectedSchool['School No.']) : false;
 
   return (
     <AnimatePresence>
@@ -139,28 +206,137 @@ const BottomSheet: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex gap-2 sm:gap-3 pt-1 sm:pt-2">
+              {/* Action Buttons */}
+              <div className="grid grid-cols-4 gap-1.5 sm:gap-2 pt-1 sm:pt-2">
+                {selectedSchool.Longitude && selectedSchool.Latitude && (
+                  <a
+                    href={`https://www.google.com/maps/dir/?api=1&destination=${selectedSchool.Latitude},${selectedSchool.Longitude}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex flex-col items-center justify-center gap-0.5 sm:gap-1 bg-emerald-500 text-white py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-[10px] sm:text-xs hover:bg-emerald-600 transition-all active:scale-95"
+                  >
+                    <Navigation className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
+                    {t.directions}
+                  </a>
+                )}
                 {selectedSchool.Website && (
-                  <a 
+                  <a
                     href={selectedSchool.Website.startsWith('http') ? selectedSchool.Website : `https://${selectedSchool.Website}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 flex items-center justify-center gap-1.5 sm:gap-2 bg-orange-500 text-white py-2 sm:py-2.5 md:py-3 px-2 sm:px-3 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm hover:bg-orange-600 transition-all active:scale-95"
+                    className="flex flex-col items-center justify-center gap-0.5 sm:gap-1 bg-orange-500 text-white py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-[10px] sm:text-xs hover:bg-orange-600 transition-all active:scale-95"
                   >
                     <Globe className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
                     {t.website}
                   </a>
                 )}
                 {selectedSchool.Telephone && (
-                  <a 
+                  <a
                     href={`tel:${selectedSchool.Telephone}`}
-                    className="flex-1 flex items-center justify-center gap-1.5 sm:gap-2 bg-slate-800 border border-slate-700 text-slate-100 py-2 sm:py-2.5 md:py-3 px-2 sm:px-3 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm hover:bg-slate-700 transition-all active:scale-95"
+                    className="flex flex-col items-center justify-center gap-0.5 sm:gap-1 bg-slate-800 border border-slate-700 text-slate-100 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-[10px] sm:text-xs hover:bg-slate-700 transition-all active:scale-95"
                   >
                     <Phone className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
                     {t.call}
                   </a>
                 )}
+                <button
+                  onClick={() => {
+                    const url = `${window.location.origin}?school=${selectedSchool['School No.'] || ''}`;
+                    if (navigator.share) {
+                      navigator.share({ title: getSchoolName(selectedSchool, language), url });
+                    } else {
+                      navigator.clipboard.writeText(url);
+                    }
+                  }}
+                  className="flex flex-col items-center justify-center gap-0.5 sm:gap-1 bg-slate-800 border border-slate-700 text-slate-100 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-[10px] sm:text-xs hover:bg-slate-700 transition-all active:scale-95"
+                >
+                  <Share2 className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
+                  {t.share}
+                </button>
+                <button
+                  onClick={() => toggleFavorite(selectedSchool['School No.'])}
+                  className={`flex flex-col items-center justify-center gap-0.5 sm:gap-1 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-[10px] sm:text-xs transition-all active:scale-95 ${
+                    isFavorited
+                      ? 'bg-yellow-500 text-white'
+                      : 'bg-slate-800 border border-slate-700 text-slate-100 hover:bg-slate-700'
+                  }`}
+                >
+                  <Star className={`w-3.5 sm:w-4 h-3.5 sm:h-4 ${isFavorited ? 'fill-current' : ''}`} />
+                  {isFavorited ? '★' : '☆'}
+                </button>
               </div>
+            {/* Nearby MTR Stations */}
+            <div className="mt-4 sm:mt-5">
+              <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                <Train className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-red-400" />
+                <p className="text-xs sm:text-sm font-bold text-slate-200 uppercase tracking-wider">{t.nearbyMtr}</p>
+              </div>
+              {nearbyStations.length > 0 ? (
+                <div className="space-y-1.5 sm:space-y-2">
+                  {nearbyStations.map((station) => {
+                    const walkMin = Math.max(1, Math.round(station.distance / 0.075));
+                    return (
+                      <div key={station.nameEn} className="flex items-center justify-between bg-slate-800/60 border border-slate-700/50 rounded-lg sm:rounded-xl px-3 py-2">
+                        <div className="flex items-center gap-2 sm:gap-2.5">
+                          <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-md bg-red-500/15 flex items-center justify-center">
+                            <Train className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-red-400" />
+                          </div>
+                          <div>
+                            <p className="text-xs sm:text-sm font-semibold text-slate-100">{station.nameEn}</p>
+                            <p className="text-[10px] sm:text-xs text-slate-400">{station.name}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-[10px] sm:text-xs font-bold text-slate-200">{station.distance.toFixed(1)} {t.km}</p>
+                          <p className="text-[9px] sm:text-[10px] text-slate-400">~{walkMin} {t.minutes} {t.walk}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-[10px] sm:text-xs text-slate-500 italic">{t.noMtr}</p>
+              )}
+            </div>
+
+            {/* Nearby Schools */}
+            <div className="mt-4 sm:mt-5">
+              <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                <MapPin className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-blue-400" />
+                <p className="text-xs sm:text-sm font-bold text-slate-200 uppercase tracking-wider">{t.nearbySchools}</p>
+              </div>
+              {nearbySchools.length > 0 ? (
+                <div className="space-y-1.5 sm:space-y-2">
+                  {nearbySchools.map(({ school, distance }) => {
+                    const level = school['School Level'] || '';
+                    const levelBadge = getLevelBadgeColor(level);
+                    return (
+                      <button
+                        key={school['School No.']}
+                        onClick={() => setSelectedSchool(school)}
+                        className="w-full flex items-center justify-between bg-slate-800/60 border border-slate-700/50 rounded-lg sm:rounded-xl px-3 py-2 hover:bg-slate-700/60 transition-colors text-left cursor-pointer"
+                      >
+                        <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+                          <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-md flex items-center justify-center flex-shrink-0 font-bold text-[9px] sm:text-[10px] border ${levelBadge.bg} ${levelBadge.text} border-current/30`}>
+                            {levelBadge.label}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs sm:text-sm font-semibold text-slate-100 truncate">{getSchoolName(school, language)}</p>
+                            <p className="text-[10px] sm:text-xs text-slate-400 truncate">{getSchoolSecondaryNameByLanguage(school, language)}</p>
+                          </div>
+                        </div>
+                        <div className="text-right flex-shrink-0 ml-2">
+                          <p className="text-[10px] sm:text-xs font-bold text-slate-200">{distance.toFixed(1)} {t.km}</p>
+                          <p className="text-[9px] sm:text-[10px] text-slate-400">{getLocalizedFinancingLabel(school, language)}</p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-[10px] sm:text-xs text-slate-500 italic">{t.noNearby}</p>
+              )}
+            </div>
             </div>
           </div>
         </motion.div>

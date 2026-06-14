@@ -32,6 +32,8 @@ export const useStore = create<AppState>()(persist((set) => ({
   financingTypeFilter: null,
   religionFilter: null,
   districtFilter: null,
+  favorites: [],
+  showHeatmap: false,
 
   setSchools: (schools) => set((state) => {
     if (!Array.isArray(schools)) {
@@ -96,6 +98,16 @@ export const useStore = create<AppState>()(persist((set) => ({
     religionFilter: religion,
     filteredSchools: filterSchools(state.schools, state.searchQuery, state.levelFilter, state.activeSchoolNet, state.onlyShowInNet, state.userLocation, state.distanceFilter, state.mapZoom, state.genderFilter, state.financingTypeFilter, state.districtFilter, religion)
   })),
+  toggleFavorite: (schoolId) => set((state) => {
+    if (!schoolId) return {};
+    const exists = state.favorites.includes(schoolId);
+    return {
+      favorites: exists
+        ? state.favorites.filter((id) => id !== schoolId)
+        : [...state.favorites, schoolId],
+    };
+  }),
+  setShowHeatmap: (show) => set({ showHeatmap: show }),
   clearFilters: () => set((state) => {
     const nextLevelFilter = ['KINDERGARTEN', 'PRIMARY', 'SECONDARY'];
     const nextDistance = null;
@@ -141,6 +153,8 @@ export const useStore = create<AppState>()(persist((set) => ({
     financingTypeFilter: state.financingTypeFilter,
     religionFilter: state.religionFilter,
     districtFilter: state.districtFilter,
+    favorites: state.favorites,
+    showHeatmap: state.showHeatmap,
   }),
 }));
 
