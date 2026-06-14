@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Globe, Phone, MapPin, Train, Navigation, Share2, Star, ArrowLeft } from 'lucide-react';
+import { X, Globe, Phone, MapPin, Train, Navigation, Share2, Star } from 'lucide-react';
 import { useStore } from '../store';
 import { MTR_STATIONS, getDistance } from '../services';
 import { School } from '../types';
@@ -207,7 +207,7 @@ const BottomSheet: React.FC = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="grid grid-cols-4 gap-1.5 sm:gap-2 pt-1 sm:pt-2">
+              <div className="grid grid-cols-5 gap-1.5 sm:gap-2 pt-1 sm:pt-2">
                 {selectedSchool.Longitude && selectedSchool.Latitude && (
                   <a
                     href={`https://www.google.com/maps/dir/?api=1&destination=${selectedSchool.Latitude},${selectedSchool.Longitude}`}
@@ -262,7 +262,6 @@ const BottomSheet: React.FC = () => {
                   }`}
                 >
                   <Star className={`w-3.5 sm:w-4 h-3.5 sm:h-4 ${isFavorited ? 'fill-current' : ''}`} />
-                  {isFavorited ? '★' : '☆'}
                 </button>
               </div>
             {/* Nearby MTR Stations */}
@@ -282,8 +281,8 @@ const BottomSheet: React.FC = () => {
                             <Train className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-red-400" />
                           </div>
                           <div>
-                            <p className="text-xs sm:text-sm font-semibold text-slate-100">{station.nameEn}</p>
-                            <p className="text-[10px] sm:text-xs text-slate-400">{station.name}</p>
+                            <p className="text-xs sm:text-sm font-semibold text-slate-100">{language === 'zh' ? station.name : station.nameEn}</p>
+                            <p className="text-[10px] sm:text-xs text-slate-400">{language === 'zh' ? station.nameEn : station.name}</p>
                           </div>
                         </div>
                         <div className="text-right">

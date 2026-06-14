@@ -14,6 +14,36 @@ type IndexedSchool = School & {
   __districtUpper: string;
 };
 
+interface FilterOptions {
+  query: string;
+  levels: string[];
+  activeNet: string | null;
+  onlyInNet: boolean;
+  userLocation: { lat: number; lng: number } | null;
+  distanceFilter: number | null;
+  mapZoom: number;
+  genderFilter: string | null;
+  financingTypeFilter: string | null;
+  districtFilter: string | null;
+  religionFilter: string | null;
+}
+
+function getFilterOptions(state: AppState): FilterOptions {
+  return {
+    query: state.searchQuery,
+    levels: state.levelFilter,
+    activeNet: state.activeSchoolNet,
+    onlyInNet: state.onlyShowInNet,
+    userLocation: state.userLocation,
+    distanceFilter: state.distanceFilter,
+    mapZoom: state.mapZoom,
+    genderFilter: state.genderFilter,
+    financingTypeFilter: state.financingTypeFilter,
+    districtFilter: state.districtFilter,
+    religionFilter: state.religionFilter,
+  };
+}
+
 export const useStore = create<AppState>()(persist((set) => ({
   schools: [],
   filteredSchools: [],
@@ -41,7 +71,7 @@ export const useStore = create<AppState>()(persist((set) => ({
       return { schools: [], filteredSchools: [] };
     }
     const indexedSchools = schools.map(indexSchool);
-    const filtered = filterSchools(indexedSchools, state.searchQuery, state.levelFilter, state.activeSchoolNet, state.onlyShowInNet, state.userLocation, state.distanceFilter, state.mapZoom, state.genderFilter, state.financingTypeFilter, state.districtFilter, state.religionFilter);
+    const filtered = filterSchools(indexedSchools, getFilterOptions(state));
     return { schools: indexedSchools, filteredSchools: filtered };
   }),
   setLoading: (loading) => set({ loading }),
@@ -49,7 +79,7 @@ export const useStore = create<AppState>()(persist((set) => ({
   setSelectedSchool: (school) => set({ selectedSchool: school }),
   setSearchQuery: (query) => set((state) => ({
     searchQuery: query,
-    filteredSchools: filterSchools(state.schools, query, state.levelFilter, state.activeSchoolNet, state.onlyShowInNet, state.userLocation, state.distanceFilter, state.mapZoom, state.genderFilter, state.financingTypeFilter, state.districtFilter, state.religionFilter)
+    filteredSchools: filterSchools(state.schools, getFilterOptions({ ...state, searchQuery: query }))
   })),
   setLevelFilter: (levels) => set((state) => {
     // Normalize empty selection to mean "all levels" to avoid duplicate semantics between 0 and all selected
@@ -58,45 +88,45 @@ export const useStore = create<AppState>()(persist((set) => ({
       : ['KINDERGARTEN', 'PRIMARY', 'SECONDARY'];
     return {
       levelFilter: normalizedLevels,
-      filteredSchools: filterSchools(state.schools, state.searchQuery, normalizedLevels, state.activeSchoolNet, state.onlyShowInNet, state.userLocation, state.distanceFilter, state.mapZoom, state.genderFilter, state.financingTypeFilter, state.districtFilter, state.religionFilter)
+      filteredSchools: filterSchools(state.schools, getFilterOptions({ ...state, levelFilter: normalizedLevels }))
     };
   }),
   setUserLocation: (location) => set((state) => ({
     userLocation: location,
-    filteredSchools: filterSchools(state.schools, state.searchQuery, state.levelFilter, state.activeSchoolNet, state.onlyShowInNet, location, state.distanceFilter, state.mapZoom, state.genderFilter, state.financingTypeFilter, state.districtFilter, state.religionFilter)
+    filteredSchools: filterSchools(state.schools, getFilterOptions({ ...state, userLocation: location }))
   })),
   setActiveSchoolNet: (net) => set((state) => ({
     activeSchoolNet: net,
-    filteredSchools: filterSchools(state.schools, state.searchQuery, state.levelFilter, net, state.onlyShowInNet, state.userLocation, state.distanceFilter, state.mapZoom, state.genderFilter, state.financingTypeFilter, state.districtFilter, state.religionFilter)
+    filteredSchools: filterSchools(state.schools, getFilterOptions({ ...state, activeSchoolNet: net }))
   })),
   setOnlyShowInNet: (only) => set((state) => ({
     onlyShowInNet: only,
-    filteredSchools: filterSchools(state.schools, state.searchQuery, state.levelFilter, state.activeSchoolNet, only, state.userLocation, state.distanceFilter, state.mapZoom, state.genderFilter, state.financingTypeFilter, state.districtFilter, state.religionFilter)
+    filteredSchools: filterSchools(state.schools, getFilterOptions({ ...state, onlyShowInNet: only }))
   })),
   setDistanceFilter: (distance) => set((state) => ({
     distanceFilter: distance,
-    filteredSchools: filterSchools(state.schools, state.searchQuery, state.levelFilter, state.activeSchoolNet, state.onlyShowInNet, state.userLocation, distance, state.mapZoom, state.genderFilter, state.financingTypeFilter, state.districtFilter, state.religionFilter)
+    filteredSchools: filterSchools(state.schools, getFilterOptions({ ...state, distanceFilter: distance }))
   })),
   setMapZoom: (zoom) => set((state) => ({
     mapZoom: zoom,
-    filteredSchools: filterSchools(state.schools, state.searchQuery, state.levelFilter, state.activeSchoolNet, state.onlyShowInNet, state.userLocation, state.distanceFilter, zoom, state.genderFilter, state.financingTypeFilter, state.districtFilter, state.religionFilter)
+    filteredSchools: filterSchools(state.schools, getFilterOptions({ ...state, mapZoom: zoom }))
   })),
   setLanguage: (lang) => set({ language: lang }),
   setGenderFilter: (gender) => set((state) => ({
     genderFilter: gender,
-    filteredSchools: filterSchools(state.schools, state.searchQuery, state.levelFilter, state.activeSchoolNet, state.onlyShowInNet, state.userLocation, state.distanceFilter, state.mapZoom, gender, state.financingTypeFilter, state.districtFilter, state.religionFilter)
+    filteredSchools: filterSchools(state.schools, getFilterOptions({ ...state, genderFilter: gender }))
   })),
   setFinancingTypeFilter: (financingType) => set((state) => ({
     financingTypeFilter: financingType,
-    filteredSchools: filterSchools(state.schools, state.searchQuery, state.levelFilter, state.activeSchoolNet, state.onlyShowInNet, state.userLocation, state.distanceFilter, state.mapZoom, state.genderFilter, financingType, state.districtFilter, state.religionFilter)
+    filteredSchools: filterSchools(state.schools, getFilterOptions({ ...state, financingTypeFilter: financingType }))
   })),
   setDistrictFilter: (district) => set((state) => ({
     districtFilter: district,
-    filteredSchools: filterSchools(state.schools, state.searchQuery, state.levelFilter, state.activeSchoolNet, state.onlyShowInNet, state.userLocation, state.distanceFilter, state.mapZoom, state.genderFilter, state.financingTypeFilter, district, state.religionFilter)
+    filteredSchools: filterSchools(state.schools, getFilterOptions({ ...state, districtFilter: district }))
   })),
   setReligionFilter: (religion) => set((state) => ({
     religionFilter: religion,
-    filteredSchools: filterSchools(state.schools, state.searchQuery, state.levelFilter, state.activeSchoolNet, state.onlyShowInNet, state.userLocation, state.distanceFilter, state.mapZoom, state.genderFilter, state.financingTypeFilter, state.districtFilter, religion)
+    filteredSchools: filterSchools(state.schools, getFilterOptions({ ...state, religionFilter: religion }))
   })),
   toggleFavorite: (schoolId) => set((state) => {
     if (!schoolId) return {};
@@ -110,34 +140,28 @@ export const useStore = create<AppState>()(persist((set) => ({
   setShowHeatmap: (show) => set({ showHeatmap: show }),
   clearFilters: () => set((state) => {
     const nextLevelFilter = ['KINDERGARTEN', 'PRIMARY', 'SECONDARY'];
-    const nextDistance = null;
-    const nextGender = null;
-    const nextFinancing = null;
-    const nextReligion = null;
-    const nextDistrict = null;
     const nextQuery = '';
 
     return {
       searchQuery: nextQuery,
       levelFilter: nextLevelFilter,
-      distanceFilter: nextDistance,
-      genderFilter: nextGender,
-      financingTypeFilter: nextFinancing,
-      religionFilter: nextReligion,
-      districtFilter: nextDistrict,
+      distanceFilter: null,
+      genderFilter: null,
+      financingTypeFilter: null,
+      religionFilter: null,
+      districtFilter: null,
       filteredSchools: filterSchools(
         state.schools,
-        nextQuery,
-        nextLevelFilter,
-        state.activeSchoolNet,
-        state.onlyShowInNet,
-        state.userLocation,
-        nextDistance,
-        state.mapZoom,
-        nextGender,
-        nextFinancing,
-        nextDistrict,
-        nextReligion
+        getFilterOptions({
+          ...state,
+          searchQuery: nextQuery,
+          levelFilter: nextLevelFilter,
+          distanceFilter: null,
+          genderFilter: null,
+          financingTypeFilter: null,
+          religionFilter: null,
+          districtFilter: null,
+        })
       )
     };
   }),
@@ -161,37 +185,27 @@ export const useStore = create<AppState>()(persist((set) => ({
 
 function filterSchools(
   schools: School[],
-  query: string,
-  levels: string[],
-  activeNet: string | null,
-  onlyInNet: boolean,
-  userLocation: { lat: number; lng: number } | null,
-  distanceFilter: number | null,
-  mapZoom: number,
-  genderFilter: string | null,
-  financingTypeFilter: string | null,
-  districtFilter: string | null,
-  religionFilter: string | null
+  opts: FilterOptions
 ) {
   if (!Array.isArray(schools)) return [];
 
   const typedSchools = schools as IndexedSchool[];
-  const lowerQuery = query.trim().toLowerCase();
+  const lowerQuery = opts.query.trim().toLowerCase();
   const hasQuery = lowerQuery.length > 0;
 
   // Zoom rule still overrides level selection for broad map views.
-  let effectiveLevels = levels;
+  let effectiveLevels = opts.levels;
   // Only apply zoom-based level fallback when the user has not customized levels
-  const isDefaultLevelSelection = levels.length === 3 && levels.includes('PRIMARY') && levels.includes('SECONDARY') && levels.includes('KINDERGARTEN');
+  const isDefaultLevelSelection = opts.levels.length === 3 && opts.levels.includes('PRIMARY') && opts.levels.includes('SECONDARY') && opts.levels.includes('KINDERGARTEN');
   if (isDefaultLevelSelection) {
-    if (mapZoom < 12) {
+    if (opts.mapZoom < 12) {
       effectiveLevels = ['PRIMARY'];
-    } else if (mapZoom < 15) {
+    } else if (opts.mapZoom < 15) {
       effectiveLevels = ['PRIMARY', 'SECONDARY'];
     }
   }
   const hasLevelFilter = effectiveLevels.length > 0;
-  const shouldCheckDistance = !!distanceFilter && !!userLocation;
+  const shouldCheckDistance = !!opts.distanceFilter && !!opts.userLocation;
   
   const filtered = typedSchools.filter((school) => {
     const matchesQuery = !hasQuery ||
@@ -202,19 +216,19 @@ function filterSchools(
       school.__levelUpper.includes(level)
     );
 
-    const matchesNet = !onlyInNet || !activeNet || school.__netId === activeNet;
-    const matchesGender = matchesCategoryFilter(school.__genderUpper, genderFilter);
-    const matchesFinancing = matchesCategoryFilter(school.__financingUpper, financingTypeFilter);
-    const matchesReligion = matchesCategoryFilter(school.__religionUpper, religionFilter);
-    const matchesDistrict = matchesCategoryFilter((school as any).__districtUpper || '', districtFilter);
+    const matchesNet = !opts.onlyInNet || !opts.activeNet || school.__netId === opts.activeNet;
+    const matchesGender = matchesCategoryFilter(school.__genderUpper, opts.genderFilter);
+    const matchesFinancing = matchesCategoryFilter(school.__financingUpper, opts.financingTypeFilter);
+    const matchesReligion = matchesCategoryFilter(school.__religionUpper, opts.religionFilter);
+    const matchesDistrict = matchesCategoryFilter((school as any).__districtUpper || '', opts.districtFilter);
 
     let matchesDistance = true;
     if (shouldCheckDistance) {
       const lat = parseFloat(school.Latitude || school.latitude || "");
       const lng = parseFloat(school.Longitude || school.longitude || "");
       if (!isNaN(lat) && !isNaN(lng)) {
-        const distance = getDistance(userLocation!.lat, userLocation!.lng, lat, lng);
-        matchesDistance = distance <= distanceFilter!;
+        const distance = getDistance(opts.userLocation!.lat, opts.userLocation!.lng, lat, lng);
+        matchesDistance = distance <= opts.distanceFilter!;
       } else {
         matchesDistance = false;
       }
@@ -222,11 +236,6 @@ function filterSchools(
 
     return matchesQuery && matchesLevel && matchesNet && matchesDistance && matchesGender && matchesFinancing && matchesDistrict && matchesReligion;
   });
-
-  console.log('filterSchools: Input count:', schools.length, 'Output count:', filtered.length, 'Filters:', { query, levels, activeNet, onlyInNet, mapZoom, hasUserLocation: !!userLocation, distanceFilter });
-  if (schools.length > 0 && filtered.length === 0) {
-    console.log('filterSchools: Sample school level:', schools[0]["School Level"], 'Keys:', Object.keys(schools[0]));
-  }
 
   return filtered;
 }

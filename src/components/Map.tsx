@@ -347,32 +347,6 @@ const Map: React.FC = () => {
               hoverPopup.current.remove();
               hoverPopup.current = null;
             }
-            const popupContent = document.createElement('div');
-            popupContent.style.padding = '10px';
-            popupContent.style.maxWidth = '240px';
-            popupContent.style.fontFamily = 'system-ui';
-            popupContent.style.color = '#e2e8f0';
-
-            const nameEl = document.createElement('p');
-            nameEl.style.fontWeight = '700';
-            nameEl.style.margin = '0 0 2px 0';
-            nameEl.style.fontSize = '13px';
-            nameEl.textContent = getSchoolNameByLanguage(school, languageRef.current);
-            popupContent.appendChild(nameEl);
-
-            const secondaryEl = document.createElement('p');
-            secondaryEl.style.fontSize = '11px';
-            secondaryEl.style.color = '#94a3b8';
-            secondaryEl.style.margin = '0';
-            secondaryEl.textContent = getSchoolSecondaryNameByLanguage(school, languageRef.current);
-            popupContent.appendChild(secondaryEl);
-
-            const infoEl = document.createElement('p');
-            infoEl.style.fontSize = '11px';
-            infoEl.style.color = '#94a3b8';
-            infoEl.style.margin = '6px 0 0 0';
-            infoEl.textContent = `${localizeDistrictValue(getSchoolDistrictByLanguage(school, 'en'), languageRef.current)} · ${localizeFinancingValue(getSchoolFinancingByLanguage(school, 'en'), languageRef.current)}`;
-            popupContent.appendChild(infoEl);
 
             currentPopup.current = new maplibregl.Popup({
               offset: [0, -12],
@@ -381,7 +355,7 @@ const Map: React.FC = () => {
               className: 'school-popup',
             })
               .setLngLat(coordinates)
-              .setDOMContent(popupContent)
+              .setDOMContent(createPopupContent(school, languageRef.current))
               .addTo(map.current);
 
             map.current.flyTo({
@@ -424,36 +398,9 @@ const Map: React.FC = () => {
               });
             }
 
-            const hoverContent = document.createElement('div');
-            hoverContent.style.padding = '10px';
-            hoverContent.style.maxWidth = '240px';
-            hoverContent.style.fontFamily = 'system-ui';
-            hoverContent.style.color = '#e2e8f0';
-
-            const hoverNameEl = document.createElement('p');
-            hoverNameEl.style.fontWeight = '700';
-            hoverNameEl.style.margin = '0 0 2px 0';
-            hoverNameEl.style.fontSize = '13px';
-            hoverNameEl.textContent = getSchoolNameByLanguage(school, languageRef.current);
-            hoverContent.appendChild(hoverNameEl);
-
-            const hoverSecondaryEl = document.createElement('p');
-            hoverSecondaryEl.style.fontSize = '11px';
-            hoverSecondaryEl.style.color = '#94a3b8';
-            hoverSecondaryEl.style.margin = '0';
-            hoverSecondaryEl.textContent = getSchoolSecondaryNameByLanguage(school, languageRef.current);
-            hoverContent.appendChild(hoverSecondaryEl);
-
-            const hoverInfoEl = document.createElement('p');
-            hoverInfoEl.style.fontSize = '11px';
-            hoverInfoEl.style.color = '#94a3b8';
-            hoverInfoEl.style.margin = '6px 0 0 0';
-            hoverInfoEl.textContent = `${localizeDistrictValue(getSchoolDistrictByLanguage(school, 'en'), languageRef.current)} · ${localizeFinancingValue(getSchoolFinancingByLanguage(school, 'en'), languageRef.current)}`;
-            hoverContent.appendChild(hoverInfoEl);
-
             hoverPopup.current
               .setLngLat(coordinates)
-              .setDOMContent(hoverContent)
+              .setDOMContent(createPopupContent(school, languageRef.current))
               .addTo(map.current);
           });
 
@@ -632,6 +579,37 @@ function getSchoolId(school: School): string {
 
   const composite = [englishName, localName, district, level, lat, lng].filter(Boolean).join('|');
   return composite || '';
+}
+
+function createPopupContent(school: School, lang: 'en' | 'zh'): HTMLDivElement {
+  const container = document.createElement('div');
+  container.style.padding = '10px';
+  container.style.maxWidth = '240px';
+  container.style.fontFamily = 'system-ui';
+  container.style.color = '#e2e8f0';
+
+  const nameEl = document.createElement('p');
+  nameEl.style.fontWeight = '700';
+  nameEl.style.margin = '0 0 2px 0';
+  nameEl.style.fontSize = '13px';
+  nameEl.textContent = getSchoolNameByLanguage(school, lang);
+  container.appendChild(nameEl);
+
+  const secondaryEl = document.createElement('p');
+  secondaryEl.style.fontSize = '11px';
+  secondaryEl.style.color = '#94a3b8';
+  secondaryEl.style.margin = '0';
+  secondaryEl.textContent = getSchoolSecondaryNameByLanguage(school, lang);
+  container.appendChild(secondaryEl);
+
+  const infoEl = document.createElement('p');
+  infoEl.style.fontSize = '11px';
+  infoEl.style.color = '#94a3b8';
+  infoEl.style.margin = '6px 0 0 0';
+  infoEl.textContent = `${localizeDistrictValue(getSchoolDistrictByLanguage(school, 'en'), lang)} · ${localizeFinancingValue(getSchoolFinancingByLanguage(school, 'en'), lang)}`;
+  container.appendChild(infoEl);
+
+  return container;
 }
 
 export default Map;
