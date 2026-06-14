@@ -6,7 +6,6 @@ import { MTR_STATIONS, getDistance } from '../services';
 import { School } from '../types';
 import {
   getSchoolAddressByLanguage,
-  getSchoolDistrictByLanguage,
   getSchoolNameByLanguage,
   getSchoolSecondaryNameByLanguage,
   getSchoolNameByLanguage as getSchoolName,
@@ -17,14 +16,12 @@ import {
   getLocalizedLevelLabel,
   getLocalizedDistrictLabel,
   getSchoolLevelByLanguage,
-  getSchoolFinancingByLanguage,
-  getSchoolGenderByLanguage,
 } from '../utils';
 
 const MAX_MTR_DISTANCE_KM = 1.5;
 
 const BottomSheet: React.FC = () => {
-  const { selectedSchool, setSelectedSchool, language, schools, favorites, toggleFavorite } = useStore();
+  const { selectedSchool, setSelectedSchool, language, favorites, toggleFavorite } = useStore();
 
   const t = language === 'zh'
     ? {
@@ -42,8 +39,6 @@ const BottomSheet: React.FC = () => {
         noMtr: '附近無港鐵站',
         walk: '步行',
         km: '公里',
-        nearbySchools: '附近學校',
-        noNearby: '附近無其他學校',
         minutes: '分鐘',
       }
     : {
@@ -61,8 +56,6 @@ const BottomSheet: React.FC = () => {
         noMtr: 'No nearby MTR stations',
         walk: 'walk',
         km: 'km',
-        nearbySchools: 'Nearby Schools',
-        noNearby: 'No other schools nearby',
         minutes: 'min',
       };
 
@@ -81,36 +74,6 @@ const BottomSheet: React.FC = () => {
       .sort((a, b) => a.distance - b.distance)
       .slice(0, 3);
   }, [selectedSchool]);
-
-  const nearbySchools = useMemo(() => {
-    if (!selectedSchool) return [];
-    const lat = parseFloat(selectedSchool.Latitude || (selectedSchool as any).latitude || '');
-    const lng = parseFloat(selectedSchool.Longitude || (selectedSchool as any).longitude || '');
-    if (isNaN(lat) || isNaN(lng)) return [];
-
-    const currentName = (selectedSchool['English Name'] || '').trim().toLowerCase();
-
-    const seen = new Set<string>();
-    const results: Array<{ school: School; distance: number }> = [];
-
-    for (const school of schools) {
-      const name = (school['English Name'] || '').trim().toLowerCase();
-      if (!name || name === currentName) continue;
-      if (seen.has(name)) continue;
-
-      const sLat = parseFloat(school.Latitude || (school as any).latitude || '');
-      const sLng = parseFloat(school.Longitude || (school as any).longitude || '');
-      if (isNaN(sLat) || isNaN(sLng)) continue;
-
-      const distance = getDistance(lat, lng, sLat, sLng);
-      if (distance > MAX_MTR_DISTANCE_KM) continue;
-
-      seen.add(name);
-      results.push({ school, distance });
-    }
-
-    return results.sort((a, b) => a.distance - b.distance);
-  }, [selectedSchool, schools]);
 
   const isFavorited = selectedSchool ? favorites.includes(selectedSchool['School No.']) : false;
 
@@ -301,45 +264,6 @@ const BottomSheet: React.FC = () => {
                 </div>
               ) : (
                 <p className="text-[10px] sm:text-xs text-slate-500 italic">{t.noMtr}</p>
-              )}
-            </div>
-
-            {/* Nearby Schools */}
-            <div className="mt-4 sm:mt-5">
-              <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
-                <MapPin className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-blue-400" />
-                <p className="text-xs sm:text-sm font-bold text-slate-200 uppercase tracking-wider">{t.nearbySchools}</p>
-              </div>
-              {nearbySchools.length > 0 ? (
-                <div className="space-y-1.5 sm:space-y-2">
-                  {nearbySchools.map(({ school, distance }) => {
-                    const level = school['School Level'] || '';
-                    const levelBadge = getLevelBadgeColor(level);
-                    return (
-                      <button
-                        key={school['School No.']}
-                        onClick={() => setSelectedSchool(school)}
-                        className="w-full flex items-center justify-between bg-slate-800/60 border border-slate-700/50 rounded-lg sm:rounded-xl px-3 py-2 hover:bg-slate-700/60 transition-colors text-left cursor-pointer"
-                      >
-                        <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-                          <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-md flex items-center justify-center flex-shrink-0 font-bold text-[9px] sm:text-[10px] border ${levelBadge.bg} ${levelBadge.text} border-current/30`}>
-                            {levelBadge.label}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="text-xs sm:text-sm font-semibold text-slate-100 truncate">{getSchoolName(school, language)}</p>
-                            <p className="text-[10px] sm:text-xs text-slate-400 truncate">{getSchoolSecondaryNameByLanguage(school, language)}</p>
-                          </div>
-                        </div>
-                        <div className="text-right flex-shrink-0 ml-2">
-                          <p className="text-[10px] sm:text-xs font-bold text-slate-200">{distance.toFixed(1)} {t.km}</p>
-                          <p className="text-[9px] sm:text-[10px] text-slate-400">{getLocalizedFinancingLabel(school, language)}</p>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              ) : (
-                <p className="text-[10px] sm:text-xs text-slate-500 italic">{t.noNearby}</p>
               )}
             </div>
             </div>
