@@ -296,15 +296,6 @@ const FilterBar: React.FC = () => {
           '政府': 'GOVERNMENT',
           '資助': 'AIDED',
           '英基': 'ENGLISH SCHOOLS FOUNDATION',
-          '佛教': 'BUDDHISM',
-          '天主教': 'CATHOLICISM',
-          '孔教': 'CONFUCIANISM',
-          '儒釋道三教': 'CONFUCIANISM,BUDDHISM & TAOISM',
-          '伊斯蘭教': 'ISLAM',
-          '基督教': 'PROTESTANTISM / CHRISTIANITY',
-          '錫克教': 'SIKH',
-          '道教': 'TAOISM',
-          '其他': 'OTHERS'
         };
 
         if (zhToCanonical[zhNormalized]) {
