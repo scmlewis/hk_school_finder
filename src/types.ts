@@ -54,7 +54,6 @@ export interface AppState {
   religionFilter: string | null;
   districtFilter: string | null;
   favorites: string[];
-  showHeatmap: boolean;
   
   setSchools: (schools: School[]) => void;
   setLoading: (loading: boolean) => void;
@@ -73,6 +72,5 @@ export interface AppState {
   setReligionFilter: (religion: string | null) => void;
   setDistrictFilter: (district: string | null) => void;
   toggleFavorite: (schoolId: string | undefined) => void;
-  setShowHeatmap: (show: boolean) => void;
   clearFilters: () => void;
 }

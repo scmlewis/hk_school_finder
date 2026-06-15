@@ -63,7 +63,6 @@ export const useStore = create<AppState>()(persist((set) => ({
   religionFilter: null,
   districtFilter: null,
   favorites: [],
-  showHeatmap: false,
 
   setSchools: (schools) => set((state) => {
     if (!Array.isArray(schools)) {
@@ -137,7 +136,6 @@ export const useStore = create<AppState>()(persist((set) => ({
         : [...state.favorites, schoolId],
     };
   }),
-  setShowHeatmap: (show) => set({ showHeatmap: show }),
   clearFilters: () => set((state) => {
     const nextLevelFilter = ['KINDERGARTEN', 'PRIMARY', 'SECONDARY'];
     const nextQuery = '';
@@ -178,7 +176,6 @@ export const useStore = create<AppState>()(persist((set) => ({
     religionFilter: state.religionFilter,
     districtFilter: state.districtFilter,
     favorites: state.favorites,
-    showHeatmap: state.showHeatmap,
   }),
 }));
 

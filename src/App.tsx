@@ -13,7 +13,7 @@ import Loading from './components/Loading';
 
 export default function App() {
   console.log('App: Rendering...');
-  const { setSchools, setLoading, setError, loading, error, schools, language, setLanguage, showHeatmap, setShowHeatmap, favorites } = useStore();
+  const { setSchools, setLoading, setError, loading, error, schools, language, setLanguage, favorites } = useStore();
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [activeView, setActiveView] = useState<'map' | 'stats' | 'favorites'>('map');
   const [deferMap, setDeferMap] = useState(false);
@@ -35,7 +35,6 @@ export default function App() {
           map: '地圖',
           stats: '統計',
           favorites: '收藏',
-          heatmap: '熱力圖',
           noFavorites: '尚未收藏任何學校',
           favoritesHint: '在學校詳情頁點擊 ☆ 即可收藏',
         }
@@ -54,7 +53,6 @@ export default function App() {
           map: 'Map',
           stats: 'Stats',
           favorites: 'Favorites',
-          heatmap: 'Heatmap',
           noFavorites: 'No favorites yet',
           favoritesHint: 'Tap ☆ on any school detail to save it here',
         }
@@ -193,20 +191,6 @@ export default function App() {
           ) : (
             <div className="w-full h-full flex items-center justify-center text-slate-400">{language === 'zh' ? '載入地圖中...' : 'Preparing map...'}</div>
           )}
-          {/* Heatmap Toggle */}
-          <div className="absolute bottom-20 left-3 z-20">
-            <button
-              onClick={() => setShowHeatmap(!showHeatmap)}
-              className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl font-semibold text-[10px] sm:text-xs transition-all shadow-lg flex items-center gap-1.5 cursor-pointer ${
-                showHeatmap
-                  ? 'bg-rose-500 text-white'
-                  : 'bg-slate-900/98 border border-slate-700 text-slate-200 hover:bg-slate-800'
-              }`}
-            >
-              <span className="text-base">{showHeatmap ? '🔥' : '🌡️'}</span>
-              {t.heatmap}
-            </button>
-          </div>
           <BottomSheet />
         </>
       ) : activeView === 'favorites' ? (
