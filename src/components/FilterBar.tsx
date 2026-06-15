@@ -126,7 +126,7 @@ const FilterBar: React.FC = () => {
       }
     });
 
-    // Canonical order to keep English and Chinese lists aligned
+    // Canonical order for religions (used by both religion and financing filters)
     const canonicalOrder = [
       'BUDDHISM',
       'CATHOLICISM',
@@ -274,13 +274,98 @@ const FilterBar: React.FC = () => {
     return buildGenderOptions(Array.from(values));
   }, [schools, language]);
 
+  const buildFinancingOptions = (values: string[]) => {
+    const map = new Map<string, string>();
+    values.forEach((raw) => {
+      const trimmed = raw.trim();
+      if (!trimmed) return;
+      // Apply small defensive fixes for known garbled Chinese values
+      let corrected = trimmed;
+      if (language === 'zh') {
+        if (corrected === '基督��') corrected = '基督教';
+        if (corrected === '不適���' || corrected === '不��用') corrected = '不適用';
+      }
+      // Map Chinese labels to canonical English keys so ordering aligns between languages
+      let key = '';
+      if (language === 'zh') {
+        const zhNormalized = corrected.replace(/[\s\uFEFF\u00A0\u200B-\u200D]/g, '').normalize('NFKC');
+
+        const zhToCanonical: Record<string, string> = {
+          '私立': 'PRIVATE',
+          '直資': 'DIRECT SUBSIDY',
+          '政府': 'GOVERNMENT',
+          '資助': 'AIDED',
+          '英基': 'ENGLISH SCHOOLS FOUNDATION',
+          '佛教': 'BUDDHISM',
+          '天主教': 'CATHOLICISM',
+          '孔教': 'CONFUCIANISM',
+          '儒釋道三教': 'CONFUCIANISM,BUDDHISM & TAOISM',
+          '伊斯蘭教': 'ISLAM',
+          '基督教': 'PROTESTANTISM / CHRISTIANITY',
+          '錫克教': 'SIKH',
+          '道教': 'TAOISM',
+          '其他': 'OTHERS'
+        };
+
+        if (zhToCanonical[zhNormalized]) {
+          key = zhToCanonical[zhNormalized];
+        } else if (zhNormalized === '其他。' || zhNormalized === '其他：' || zhNormalized === '其他:') {
+          key = 'OTHERS';
+        }
+      }
+      if (!key) {
+        key = normalizeFilterKey(corrected);
+      }
+      if (!key) return;
+      if (!map.has(key)) {
+        map.set(key, key === 'NOT_APPLICABLE' ? t.notApplicable : corrected);
+      }
+    });
+
+    // Canonical order for financing types
+    const canonicalOrder = [
+      'PRIVATE',
+      'DIRECT SUBSIDY',
+      'GOVERNMENT',
+      'AIDED',
+      'ENGLISH SCHOOLS FOUNDATION',
+    ];
+
+    // Build final ordered list: canonical entries (in order), then remaining sorted by label locale-aware
+    const added = new Set<string>();
+    const result: Array<{ value: string; label: string }> = [];
+
+    // Add canonical members in order
+    canonicalOrder.forEach((canonKey) => {
+      if (map.has(canonKey) && !added.has(canonKey)) {
+        result.push({ value: canonKey, label: map.get(canonKey)! });
+        added.add(canonKey);
+      }
+    });
+
+    // Append remaining entries (excluding NOT_APPLICABLE), sorted by label locale-aware
+    const remaining = Array.from(map.entries())
+      .filter(([key]) => key !== 'NOT_APPLICABLE' && !added.has(key))
+      .map(([value, label]) => ({ value, label }))
+      .sort((a, b) => a.label.localeCompare(b.label, language === 'zh' ? 'zh' : 'en'));
+
+    result.push(...remaining);
+
+    // Finally append NOT_APPLICABLE if present
+    if (map.has('NOT_APPLICABLE')) {
+      result.push({ value: 'NOT_APPLICABLE', label: map.get('NOT_APPLICABLE')! });
+    }
+
+    return result;
+  };
+
   const uniqueFinancingTypes = React.useMemo(() => {
     const values = new Set<string>();
     schools.forEach((school) => {
       const v = getSchoolFinancingByLanguage(school, language).trim();
       if (v) values.add(v);
     });
-    return buildCanonicalOptions(Array.from(values));
+    return buildFinancingOptions(Array.from(values));
   }, [schools, language]);
 
   const uniqueReligions = React.useMemo(() => {
