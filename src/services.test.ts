@@ -41,8 +41,8 @@ describe('getDistance', () => {
 });
 
 describe('MTR_STATIONS', () => {
-  it('has at least 10 stations', () => {
-    expect(MTR_STATIONS.length).toBeGreaterThanOrEqual(10);
+  it('has at least 90 stations (full network)', () => {
+    expect(MTR_STATIONS.length).toBeGreaterThanOrEqual(90);
   });
 
   it('each station has required fields', () => {
