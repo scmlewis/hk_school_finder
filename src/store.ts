@@ -137,6 +137,7 @@ export const useStore = create<AppState>()(persist((set) => ({
       searchQuery: nextQuery,
       levelFilter: nextLevelFilter,
       distanceFilter: null,
+      activeSchoolNet: null,
       genderFilter: null,
       financingTypeFilter: null,
       religionFilter: null,
@@ -148,6 +149,7 @@ export const useStore = create<AppState>()(persist((set) => ({
           searchQuery: nextQuery,
           levelFilter: nextLevelFilter,
           distanceFilter: null,
+          activeSchoolNet: null,
           genderFilter: null,
           financingTypeFilter: null,
           religionFilter: null,
@@ -239,7 +241,8 @@ function matchesCategoryFilter(sourceUpper: string, filterValue: string | null):
       sourceUpper.includes('N/A') ||
       sourceUpper.includes('NA') ||
       sourceUpper.includes('NOT APPLICABLE') ||
-      sourceUpper.includes('不適用')
+      sourceUpper.includes('不適用') ||
+      sourceUpper.includes('無')
     );
   }
 

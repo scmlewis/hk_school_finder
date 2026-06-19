@@ -12,7 +12,6 @@ import { AlertCircle, Info, X } from 'lucide-react';
 import Loading from './components/Loading';
 
 export default function App() {
-  console.log('App: Rendering...');
   const { setSchools, setLoading, setError, loading, error, schools, language, setLanguage, favorites } = useStore();
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [activeView, setActiveView] = useState<'map' | 'stats' | 'favorites'>('map');
@@ -59,37 +58,31 @@ export default function App() {
   ), [language]);
 
   useEffect(() => {
-    console.log('App: Store State:', { loading, error, schoolsCount: schools.length });
+    // eslint-disable-next-line no-console
   }, [loading, error, schools]);
 
   useEffect(() => {
     const checkConnectivity = async () => {
       try {
         const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-        const res = await axios.get(`${baseUrl}/api/test`, { timeout: 5000 });
-        console.log('App: Connectivity test:', res.data);
+        await axios.get(`${baseUrl}/api/test`, { timeout: 5000 });
       } catch (err: any) {
-        console.error('App: Connectivity test failed', err.name, err.message);
+        console.error('Connectivity test failed:', err.message);
       }
     };
     checkConnectivity();
 
     const loadData = async () => {
-      console.log('App: Starting to load data...');
       try {
         setLoading(true);
         const data = await fetchSchools();
         if (!data || !Array.isArray(data)) {
           throw new Error('Received invalid data format from server');
         }
-        console.log('App: Data fetched successfully', data.length);
-        if (data.length > 0) {
-          console.log('App: Sample school:', data[0]);
-        }
         setSchools(data);
         setLoading(false);
       } catch (err) {
-        console.error('App: Error loading data', err);
+        console.error('Error loading data:', err);
         setError('Failed to load school data. Please check your connection.');
         setLoading(false);
       }

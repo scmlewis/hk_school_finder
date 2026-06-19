@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { MapPin, Locate, SlidersHorizontal, X } from 'lucide-react';
 import { useStore } from '../store';
-import { getSchoolFinancingByLanguage, getSchoolGenderByLanguage, getSchoolReligionByLanguage, getSchoolDistrictByLanguage, localizeFinancingValue, localizeReligionValue, localizeDistrictValue, localizeGenderValue } from '../utils';
+import { getSchoolFinancingByLanguage, getSchoolGenderByLanguage, getSchoolReligionByLanguage, getSchoolDistrictByLanguage, localizeFinancingValue, localizeReligionValue, localizeDistrictValue, localizeGenderValue, fallbackEnToZh } from '../utils';
 
 const FilterBar: React.FC = () => {
   const {
@@ -386,28 +386,6 @@ const FilterBar: React.FC = () => {
       if (en) map[canonicalKey].en = en;
       if (zh) map[canonicalKey].zh = zh;
     });
-
-    // Small fallback translation map for common HK districts (EN -> ZH)
-    const fallbackEnToZh: Record<string, string> = {
-      'CENTRAL AND WESTERN': '中西區',
-      'WAN CHAI': '灣仔',
-      'EASTERN': '東區',
-      'SOUTHERN': '南區',
-      'ISLANDS': '離島',
-      'YAU TSIM MONG': '油尖旺',
-      'KOWLOON CITY': '九龍城',
-      'SHAM SHUI PO': '深水埗',
-      'WONG TAI SIN': '黃大仙',
-      'KWUN TONG': '觀塘',
-      'TSUEN WAN': '荃灣',
-      'KWAI TSING': '葵青',
-      'TUEN MUN': '屯門',
-      'YUEN LONG': '元朗',
-      'NORTH': '北區',
-      'TAI PO': '大埔',
-      'SHA TIN': '沙田',
-      'SAI KUNG': '西貢'
-    };
 
     // ensure both en/zh labels exist where possible using fallbacks
     Object.keys(map).forEach((k) => {

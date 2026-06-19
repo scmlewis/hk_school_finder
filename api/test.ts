@@ -1,5 +1,4 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import axios from "axios";
 
 export default async function handler(
   req: VercelRequest,

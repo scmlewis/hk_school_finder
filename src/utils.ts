@@ -124,7 +124,7 @@ export function getLocalizedDistrictLabel(school: School, language: AppLanguage)
   return enCandidate || zhCandidate;
 }
 
-const fallbackEnToZh: Record<string, string> = {
+export const fallbackEnToZh: Record<string, string> = {
   'CENTRAL AND WESTERN': '中西區',
   'WAN CHAI': '灣仔',
   'EASTERN': '東區',

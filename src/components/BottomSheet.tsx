@@ -8,7 +8,6 @@ import {
   getSchoolAddressByLanguage,
   getSchoolNameByLanguage,
   getSchoolSecondaryNameByLanguage,
-  getSchoolNameByLanguage as getSchoolName,
   getLevelBadgeColor,
   getLocalizedFinancingLabel,
   getLocalizedGenderLabel,
@@ -212,7 +211,7 @@ const BottomSheet: React.FC = () => {
                   onClick={() => {
                     const url = `${window.location.origin}?school=${selectedSchool['School No.'] || ''}`;
                     if (navigator.share) {
-                      navigator.share({ title: getSchoolName(selectedSchool, language), url });
+                      navigator.share({ title: getSchoolNameByLanguage(selectedSchool, language), url });
                     } else {
                       navigator.clipboard.writeText(url);
                     }

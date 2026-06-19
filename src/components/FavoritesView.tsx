@@ -45,7 +45,7 @@ const FavoritesView: React.FC<FavoritesViewProps> = ({ onBack }) => {
             <p className="text-slate-300 font-semibold">{t.empty}</p>
             <p className="text-slate-500 text-sm mt-1">{t.hint}</p>
             <button
-              onClick={() => onBack}
+              onClick={onBack}
               className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-xl font-semibold text-sm hover:bg-indigo-700 transition-colors cursor-pointer"
             >
               {t.backToMap}
@@ -66,7 +66,7 @@ const FavoritesView: React.FC<FavoritesViewProps> = ({ onBack }) => {
               <p className="text-sm text-slate-400 mt-1">{favoriteSchools.length} {language === 'zh' ? '所學校' : 'schools'}</p>
             </div>
             <button
-              onClick={() => onBack}
+              onClick={onBack}
               className="px-3 py-1.5 bg-slate-800 border border-slate-700 text-slate-200 rounded-lg text-xs font-semibold hover:bg-slate-700 transition-colors cursor-pointer"
             >
               {t.backToMap}
