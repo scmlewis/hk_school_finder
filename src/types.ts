@@ -27,14 +27,6 @@ export type CachedPayload<T> = {
   updatedAt: number;
 };
 
-export interface MTRStation {
-  name: string;
-  nameEn: string;
-  lat: number;
-  lng: number;
-  line: string[];
-}
-
 export interface AppState {
   schools: School[];
   filteredSchools: School[];
@@ -46,7 +38,6 @@ export interface AppState {
   userLocation: { lat: number; lng: number } | null;
   distanceFilter: number | null; // in km: 1, 3, 5, or null (no limit)
   activeSchoolNet: string | null;
-  onlyShowInNet: boolean;
   mapZoom: number;
   language: 'en' | 'zh';
   genderFilter: string | null;
@@ -64,7 +55,6 @@ export interface AppState {
   setUserLocation: (location: { lat: number; lng: number } | null) => void;
   setDistanceFilter: (distance: number | null) => void;
   setActiveSchoolNet: (net: string | null) => void;
-  setOnlyShowInNet: (only: boolean) => void;
   setMapZoom: (zoom: number) => void;
   setLanguage: (lang: 'en' | 'zh') => void;
   setGenderFilter: (gender: string | null) => void;

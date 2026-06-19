@@ -18,7 +18,6 @@ interface FilterOptions {
   query: string;
   levels: string[];
   activeNet: string | null;
-  onlyInNet: boolean;
   userLocation: { lat: number; lng: number } | null;
   distanceFilter: number | null;
   mapZoom: number;
@@ -33,7 +32,6 @@ function getFilterOptions(state: AppState): FilterOptions {
     query: state.searchQuery,
     levels: state.levelFilter,
     activeNet: state.activeSchoolNet,
-    onlyInNet: state.onlyShowInNet,
     userLocation: state.userLocation,
     distanceFilter: state.distanceFilter,
     mapZoom: state.mapZoom,
@@ -55,7 +53,6 @@ export const useStore = create<AppState>()(persist((set) => ({
   userLocation: null,
   distanceFilter: null,
   activeSchoolNet: null,
-  onlyShowInNet: false,
   mapZoom: 11,
   language: 'en' as const,
   genderFilter: null,
@@ -97,10 +94,6 @@ export const useStore = create<AppState>()(persist((set) => ({
   setActiveSchoolNet: (net) => set((state) => ({
     activeSchoolNet: net,
     filteredSchools: filterSchools(state.schools, getFilterOptions({ ...state, activeSchoolNet: net }))
-  })),
-  setOnlyShowInNet: (only) => set((state) => ({
-    onlyShowInNet: only,
-    filteredSchools: filterSchools(state.schools, getFilterOptions({ ...state, onlyShowInNet: only }))
   })),
   setDistanceFilter: (distance) => set((state) => ({
     distanceFilter: distance,
@@ -213,7 +206,7 @@ function filterSchools(
       school.__levelUpper.includes(level)
     );
 
-    const matchesNet = !opts.onlyInNet || !opts.activeNet || school.__netId === opts.activeNet;
+    const matchesNet = !opts.activeNet || school.__netId === opts.activeNet;
     const matchesGender = matchesCategoryFilter(school.__genderUpper, opts.genderFilter);
     const matchesFinancing = matchesCategoryFilter(school.__financingUpper, opts.financingTypeFilter);
     const matchesReligion = matchesCategoryFilter(school.__religionUpper, opts.religionFilter);

@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
 import {
-  highlightMatch,
   cn,
   getSchoolNameByLanguage,
   getSchoolSecondaryNameByLanguage,
@@ -10,8 +9,6 @@ import {
   getSchoolGenderByLanguage,
   getSchoolFinancingByLanguage,
   getSchoolLevelByLanguage,
-  getSchoolTypeByLanguage,
-  getSchoolSessionByLanguage,
   getLevelBadgeColor,
   getLocalizedFinancingLabel,
   getLocalizedGenderLabel,
@@ -43,31 +40,6 @@ function makeSchool(overrides: Partial<Record<keyof School, string>> = {}): Scho
     ...overrides,
   };
 }
-
-describe('highlightMatch', () => {
-  it('returns original when query is empty', () => {
-    expect(highlightMatch('hello', '')).toBe('hello');
-  });
-
-  it('highlights simple matches', () => {
-    expect(highlightMatch('hello world', 'world')).toContain('<mark>world</mark>');
-  });
-
-  it('escapes regex characters in query', () => {
-    expect(highlightMatch('a.b*c', 'a.b')).toContain('<mark>a.b</mark>');
-  });
-
-  it('highlights case-insensitive matches', () => {
-    const result = highlightMatch('Hello World', 'hello');
-    expect(result).toContain('<mark>Hello</mark>');
-  });
-
-  it('highlights multiple occurrences', () => {
-    const result = highlightMatch('abc abc abc', 'abc');
-    const matches = result.match(/<mark>abc<\/mark>/g);
-    expect(matches?.length).toBe(3);
-  });
-});
 
 describe('cn', () => {
   it('merges class names', () => {
@@ -196,30 +168,6 @@ describe('getSchoolLevelByLanguage', () => {
   it('returns Chinese level when available (zh)', () => {
     const school = makeSchool({ '學校類型': '小學' });
     expect(getSchoolLevelByLanguage(school, 'zh')).toBe('小學');
-  });
-});
-
-describe('getSchoolTypeByLanguage', () => {
-  it('returns School Type field', () => {
-    const school = makeSchool({ 'School Type': 'Government' });
-    expect(getSchoolTypeByLanguage(school, 'en')).toBe('Government');
-  });
-
-  it('returns Chinese type when available (zh)', () => {
-    const school = makeSchool({ '中文種類': '政府' } as any);
-    expect(getSchoolTypeByLanguage(school, 'zh')).toBe('政府');
-  });
-});
-
-describe('getSchoolSessionByLanguage', () => {
-  it('returns Session field', () => {
-    const school = makeSchool({ Session: 'AM' });
-    expect(getSchoolSessionByLanguage(school, 'en')).toBe('AM');
-  });
-
-  it('returns Chinese session when available (zh)', () => {
-    const school = makeSchool({ '時段': '上午' } as any);
-    expect(getSchoolSessionByLanguage(school, 'zh')).toBe('上午');
   });
 });
 

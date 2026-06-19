@@ -276,34 +276,37 @@ const FilterBar: React.FC = () => {
 
   const buildFinancingOptions = (values: string[]) => {
     const map = new Map<string, string>();
+    // Comprehensive mapping: both Chinese and English variants to canonical keys
+    const toCanonical: Record<string, string> = {
+      '私立': 'PRIVATE',
+      '直資': 'DIRECT SUBSIDY',
+      '政府': 'GOVERNMENT',
+      '資助': 'AIDED',
+      '英基': 'ENGLISH SCHOOLS FOUNDATION',
+      'PRIVATE': 'PRIVATE',
+      'DIRECT SUBSIDY': 'DIRECT SUBSIDY',
+      'GOVERNMENT': 'GOVERNMENT',
+      'AIDED': 'AIDED',
+      'ENGLISH SCHOOLS FOUNDATION': 'ENGLISH SCHOOLS FOUNDATION',
+      // Handle variants
+      'PRIVATE INDEPENDENT': 'PRIVATE',
+      'SUBVENTED': 'AIDED',
+      'AIDED / SUBVENTED': 'AIDED',
+    };
+
     values.forEach((raw) => {
       const trimmed = raw.trim();
       if (!trimmed) return;
       // Apply small defensive fixes for known garbled Chinese values
       let corrected = trimmed;
-      if (language === 'zh') {
-        if (corrected === '基督��') corrected = '基督教';
-        if (corrected === '不適���' || corrected === '不��用') corrected = '不適用';
-      }
-      // Map Chinese labels to canonical English keys so ordering aligns between languages
-      let key = '';
-      if (language === 'zh') {
-        const zhNormalized = corrected.replace(/[\s\uFEFF\u00A0\u200B-\u200D]/g, '').normalize('NFKC');
+      if (corrected === '基督��') corrected = '基督教';
+      if (corrected === '不適���' || corrected === '不��用') corrected = '不適用';
 
-        const zhToCanonical: Record<string, string> = {
-          '私立': 'PRIVATE',
-          '直資': 'DIRECT SUBSIDY',
-          '政府': 'GOVERNMENT',
-          '資助': 'AIDED',
-          '英基': 'ENGLISH SCHOOLS FOUNDATION',
-        };
+      // Normalize: strip invisible chars and normalize unicode
+      const normalized = corrected.replace(/[\s\uFEFF\u00A0\u200B-\u200D]/g, '').normalize('NFKC').toUpperCase();
 
-        if (zhToCanonical[zhNormalized]) {
-          key = zhToCanonical[zhNormalized];
-        } else if (zhNormalized === '其他。' || zhNormalized === '其他：' || zhNormalized === '其他:') {
-          key = 'OTHERS';
-        }
-      }
+      // Map to canonical key
+      let key = toCanonical[normalized] || '';
       if (!key) {
         key = normalizeFilterKey(corrected);
       }
