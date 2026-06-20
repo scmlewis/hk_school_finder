@@ -40,10 +40,12 @@ export interface AppState {
   activeSchoolNet: string | null;
   mapZoom: number;
   language: 'en' | 'zh';
-  genderFilter: string | null;
-  financingTypeFilter: string | null;
-  religionFilter: string | null;
+  genderFilter: string[];
+  financingTypeFilter: string[];
+  religionFilter: string[];
   districtFilter: string | null;
+  schoolNetFilter: string | null;
+  showListView: boolean;
   favorites: string[];
   
   setSchools: (schools: School[]) => void;
@@ -57,10 +59,12 @@ export interface AppState {
   setActiveSchoolNet: (net: string | null) => void;
   setMapZoom: (zoom: number) => void;
   setLanguage: (lang: 'en' | 'zh') => void;
-  setGenderFilter: (gender: string | null) => void;
-  setFinancingTypeFilter: (financingType: string | null) => void;
-  setReligionFilter: (religion: string | null) => void;
+  setGenderFilter: (gender: string[]) => void;
+  setFinancingTypeFilter: (financingType: string[]) => void;
+  setReligionFilter: (religion: string[]) => void;
   setDistrictFilter: (district: string | null) => void;
+  setSchoolNetFilter: (net: string | null) => void;
+  setShowListView: (show: boolean) => void;
   toggleFavorite: (schoolId: string | undefined) => void;
   clearFilters: () => void;
 }

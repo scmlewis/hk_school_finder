@@ -207,3 +207,27 @@ export function localizeDistrictValue(rawValue: string, language: AppLanguage): 
   }
   return rawValue;
 }
+
+export function getSchoolSessionByLanguage(school: School, language: AppLanguage): string {
+  if (language === 'zh') {
+    return firstNonEmpty([school['學校授課時間'], school['Session'], school['SESSION']]);
+  }
+  return firstNonEmpty([school['Session'], school['SESSION'], school['學校授課時間']]);
+}
+
+export function getLocalizedSessionLabel(session: string, language: AppLanguage): string {
+  if (!session) return '';
+  const u = session.toUpperCase();
+  if (language === 'zh') {
+    if (u.includes('WHOLE DAY') || u.includes('FULL DAY')) return '全日制';
+    if (u.includes('MORNING')) return '上午校';
+    if (u.includes('AFTERNOON')) return '下午校';
+    if (u.includes('DOUBLE SESSION')) return '全日制';
+    return session;
+  }
+  return session;
+}
+
+export function getSchoolNetId(school: School): string {
+  return firstNonEmpty([school['Primary One Admission School Net'], school['PRIMARY ONE ADMISSION SCHOOL NET'], school['SCHOOL NET']]);
+}

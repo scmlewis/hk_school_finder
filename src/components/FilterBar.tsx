@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { MapPin, Locate, SlidersHorizontal, X } from 'lucide-react';
 import { useStore } from '../store';
-import { getSchoolFinancingByLanguage, getSchoolGenderByLanguage, getSchoolReligionByLanguage, getSchoolDistrictByLanguage, localizeFinancingValue, localizeReligionValue, localizeDistrictValue, localizeGenderValue, fallbackEnToZh } from '../utils';
+import { getSchoolFinancingByLanguage, getSchoolGenderByLanguage, getSchoolReligionByLanguage, getSchoolDistrictByLanguage, getSchoolNetId, localizeFinancingValue, localizeReligionValue, localizeDistrictValue, localizeGenderValue } from '../utils';
 
 const FilterBar: React.FC = () => {
   const {
@@ -20,6 +20,8 @@ const FilterBar: React.FC = () => {
     setReligionFilter,
     districtFilter,
     setDistrictFilter,
+    schoolNetFilter,
+    setSchoolNetFilter,
     clearFilters,
     language,
   } = useStore();
@@ -43,6 +45,7 @@ const FilterBar: React.FC = () => {
         filtersBtn: '篩選',
         tips: '💡 建議先用學校級別和地區關鍵字，再搭配宗教/資助類別縮小結果。',
         district: '地區',
+        schoolNet: '校網',
         noLimit: '不限',
         notApplicable: '不適用',
         clearFilters: '清除篩選',
@@ -62,6 +65,7 @@ const FilterBar: React.FC = () => {
         filtersBtn: 'Filters',
         tips: '💡 Start with level + keyword search, then narrow with religion/financing filters.',
         district: 'District',
+        schoolNet: 'School Net',
         noLimit: 'No Limit',
         notApplicable: 'Not Applicable',
         clearFilters: 'Clear Filters',
@@ -88,13 +92,11 @@ const FilterBar: React.FC = () => {
     values.forEach((raw) => {
       const trimmed = raw.trim();
       if (!trimmed) return;
-      // Apply small defensive fixes for known garbled Chinese values
       let corrected = trimmed;
       if (language === 'zh') {
         if (corrected === '基督��') corrected = '基督教';
         if (corrected === '不適���' || corrected === '不��用') corrected = '不適用';
       }
-      // Map Chinese labels to canonical English keys so ordering aligns between languages
       let key = '';
       if (language === 'zh') {
         const zhNormalized = corrected.replace(/[\s\uFEFF\u00A0\u200B-\u200D]/g, '').normalize('NFKC');
@@ -126,7 +128,6 @@ const FilterBar: React.FC = () => {
       }
     });
 
-    // Canonical order for religions (used by both religion and financing filters)
     const canonicalOrder = [
       'BUDDHISM',
       'CATHOLICISM',
@@ -139,11 +140,9 @@ const FilterBar: React.FC = () => {
       'OTHERS'
     ];
 
-    // Build final ordered list: canonical entries (in order), then remaining sorted by label, then NOT_APPLICABLE
     const added = new Set<string>();
     const result: Array<{ value: string; label: string }> = [];
 
-    // Add canonical members in order
     canonicalOrder.forEach((canonKey) => {
       if (map.has(canonKey) && !added.has(canonKey)) {
         result.push({ value: canonKey, label: map.get(canonKey)! });
@@ -151,7 +150,6 @@ const FilterBar: React.FC = () => {
       }
     });
 
-    // Append remaining entries (excluding NOT_APPLICABLE), sorted by label locale-aware
     const remaining = Array.from(map.entries())
       .filter(([key]) => key !== 'NOT_APPLICABLE' && !added.has(key))
       .map(([value, label]) => ({ value, label }))
@@ -159,7 +157,6 @@ const FilterBar: React.FC = () => {
 
     result.push(...remaining);
 
-    // Finally append NOT_APPLICABLE if present
     if (map.has('NOT_APPLICABLE')) {
       result.push({ value: 'NOT_APPLICABLE', label: map.get('NOT_APPLICABLE')! });
     }
@@ -211,14 +208,21 @@ const FilterBar: React.FC = () => {
   };
 
   const toggleLevel = (level: string) => {
-    // Prevent deselecting the last remaining level — ensure at least one level is always active
     if (levelFilter.includes(level)) {
       if (levelFilter.length <= 1) {
-        return; // ignore attempt to deselect the last level
+        return;
       }
       setLevelFilter(levelFilter.filter(l => l !== level));
     } else {
       setLevelFilter([...levelFilter, level]);
+    }
+  };
+
+  const toggleMultiFilter = (value: string, current: string[], setter: (v: string[]) => void) => {
+    if (current.includes(value)) {
+      setter(current.filter(v => v !== value));
+    } else {
+      setter([...current, value]);
     }
   };
 
@@ -236,7 +240,7 @@ const FilterBar: React.FC = () => {
       (position) => {
         const { latitude, longitude } = position.coords;
         setUserLocation({ lat: latitude, lng: longitude });
-        setDistanceFilter(3); // Default to 3km when location is obtained
+        setDistanceFilter(3);
         setIsLocating(false);
         console.log('Location found:', latitude, longitude);
       },
@@ -253,9 +257,9 @@ const FilterBar: React.FC = () => {
   };
 
   const levelOptions = [
-    { label: language === 'zh' ? '幼稚園' : 'Kindergarten', value: 'KINDERGARTEN', color: '#5c1535', textColor: '#ffb1c8' },
-    { label: language === 'zh' ? '小學' : 'Primary', value: 'PRIMARY', color: '#003d5c', textColor: '#a8c8ff' },
-    { label: language === 'zh' ? '中學' : 'Secondary', value: 'SECONDARY', color: '#003d2e', textColor: '#72dba7' }
+    { label: language === 'zh' ? '幼稚園' : 'Kindergarten', value: 'KINDERGARTEN', color: '#ec4899' },
+    { label: language === 'zh' ? '小學' : 'Primary', value: 'PRIMARY', color: '#3b82f6' },
+    { label: language === 'zh' ? '中學' : 'Secondary', value: 'SECONDARY', color: '#10b981' }
   ];
 
   const distanceOptions = [
@@ -276,7 +280,6 @@ const FilterBar: React.FC = () => {
 
   const buildFinancingOptions = (values: string[]) => {
     const map = new Map<string, string>();
-    // Comprehensive mapping: both Chinese and English variants to canonical keys
     const toCanonical: Record<string, string> = {
       '私立': 'PRIVATE',
       '直資': 'DIRECT SUBSIDY',
@@ -288,7 +291,6 @@ const FilterBar: React.FC = () => {
       'GOVERNMENT': 'GOVERNMENT',
       'AIDED': 'AIDED',
       'ENGLISH SCHOOLS FOUNDATION': 'ENGLISH SCHOOLS FOUNDATION',
-      // Handle variants
       'PRIVATE INDEPENDENT': 'PRIVATE',
       'SUBVENTED': 'AIDED',
       'AIDED / SUBVENTED': 'AIDED',
@@ -297,15 +299,12 @@ const FilterBar: React.FC = () => {
     values.forEach((raw) => {
       const trimmed = raw.trim();
       if (!trimmed) return;
-      // Apply small defensive fixes for known garbled Chinese values
       let corrected = trimmed;
       if (corrected === '基督��') corrected = '基督教';
       if (corrected === '不適���' || corrected === '不��用') corrected = '不適用';
 
-      // Normalize: strip invisible chars and normalize unicode
       const normalized = corrected.replace(/[\s\uFEFF\u00A0\u200B-\u200D]/g, '').normalize('NFKC').toUpperCase();
 
-      // Map to canonical key
       let key = toCanonical[normalized] || '';
       if (!key) {
         key = normalizeFilterKey(corrected);
@@ -316,7 +315,6 @@ const FilterBar: React.FC = () => {
       }
     });
 
-    // Canonical order for financing types
     const canonicalOrder = [
       'PRIVATE',
       'DIRECT SUBSIDY',
@@ -325,11 +323,9 @@ const FilterBar: React.FC = () => {
       'ENGLISH SCHOOLS FOUNDATION',
     ];
 
-    // Build final ordered list: canonical entries (in order), then remaining sorted by label locale-aware
     const added = new Set<string>();
     const result: Array<{ value: string; label: string }> = [];
 
-    // Add canonical members in order
     canonicalOrder.forEach((canonKey) => {
       if (map.has(canonKey) && !added.has(canonKey)) {
         result.push({ value: canonKey, label: map.get(canonKey)! });
@@ -337,7 +333,6 @@ const FilterBar: React.FC = () => {
       }
     });
 
-    // Append remaining entries (excluding NOT_APPLICABLE), sorted by label locale-aware
     const remaining = Array.from(map.entries())
       .filter(([key]) => key !== 'NOT_APPLICABLE' && !added.has(key))
       .map(([value, label]) => ({ value, label }))
@@ -345,7 +340,6 @@ const FilterBar: React.FC = () => {
 
     result.push(...remaining);
 
-    // Finally append NOT_APPLICABLE if present
     if (map.has('NOT_APPLICABLE')) {
       result.push({ value: 'NOT_APPLICABLE', label: map.get('NOT_APPLICABLE')! });
     }
@@ -371,8 +365,28 @@ const FilterBar: React.FC = () => {
     return buildCanonicalOptions(Array.from(values));
   }, [schools, language]);
 
+  const uniqueSchoolNets = React.useMemo(() => {
+    const netMap = new Map<string, string>();
+    schools.forEach((school) => {
+      const netId = getSchoolNetId(school).trim();
+      if (netId && !netMap.has(netId)) {
+        netMap.set(netId, netId);
+      }
+    });
+    return Array.from(netMap.entries())
+      .sort((a, b) => {
+        const numA = parseInt(a[0], 10);
+        const numB = parseInt(b[0], 10);
+        if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+        return a[0].localeCompare(b[0]);
+      })
+      .map(([id, label]) => ({
+        value: id,
+        label: language === 'zh' ? `${label} 校網` : `Net ${label}`,
+      }));
+  }, [schools, language]);
+
   const uniqueDistricts = React.useMemo(() => {
-    // Build a bilingual map of districts from the dataset (deduplicated)
     const map: Record<string, { en?: string; zh?: string }> = {};
 
     schools.forEach((school) => {
@@ -387,11 +401,30 @@ const FilterBar: React.FC = () => {
       if (zh) map[canonicalKey].zh = zh;
     });
 
-    // ensure both en/zh labels exist where possible using fallbacks
+    const fallbackEnToZh: Record<string, string> = {
+      'CENTRAL AND WESTERN': '中西區',
+      'WAN CHAI': '灣仔',
+      'EASTERN': '東區',
+      'SOUTHERN': '南區',
+      'ISLANDS': '離島',
+      'YAU TSIM MONG': '油尖旺',
+      'KOWLOON CITY': '九龍城',
+      'SHAM SHUI PO': '深水埗',
+      'WONG TAI SIN': '黃大仙',
+      'KWUN TONG': '觀塘',
+      'TSUEN WAN': '荃灣',
+      'KWAI TSING': '葵青',
+      'TUEN MUN': '屯門',
+      'YUEN LONG': '元朗',
+      'NORTH': '北區',
+      'TAI PO': '大埔',
+      'SHA TIN': '沙田',
+      'SAI KUNG': '西貢'
+    };
+
     Object.keys(map).forEach((k) => {
       const entry = map[k];
       if (!entry.en && entry.zh) {
-        // try reverse lookup in fallback
         const match = Object.entries(fallbackEnToZh).find(([, v]) => normalizeFilterKey(v) === k);
         if (match) entry.en = match[0];
       }
@@ -401,7 +434,6 @@ const FilterBar: React.FC = () => {
       }
     });
 
-    // Define ordered groups with canonical member order (use EN keys as canonical)
     const groups = [
       { key: 'HK_ISLAND', label: { en: '---HONG KONG ISLAND---', zh: '---港島---' }, members: ['CENTRAL AND WESTERN', 'WAN CHAI', 'EASTERN', 'SOUTHERN'] },
       { key: 'KOWLOON', label: { en: '---KOWLOON---', zh: '---九龍---' }, members: ['YAU TSIM MONG', 'KOWLOON CITY', 'SHAM SHUI PO', 'WONG TAI SIN', 'KWUN TONG'] },
@@ -412,9 +444,7 @@ const FilterBar: React.FC = () => {
     const added = new Set<string>();
     const result: Array<{ value: string; label: string; disabled?: boolean }> = [];
 
-    // Insert groups in order, adding members if present in map
     groups.forEach((g) => {
-      // check if group has any members in dataset
       const groupMembersPresent = g.members.some((m) => map[normalizeFilterKey(m)]);
       if (!groupMembersPresent) return;
 
@@ -431,7 +461,6 @@ const FilterBar: React.FC = () => {
       });
     });
 
-    // Append any remaining districts not covered by groups, sorted by label
     const remaining = Object.keys(map).filter(k => !added.has(k)).map(k => ({ value: k, label: language === 'zh' ? (map[k].zh || map[k].en) : (map[k].en || map[k].zh) }));
     remaining.sort((a, b) => a.label.localeCompare(b.label, language === 'zh' ? 'zh' : 'en'));
     result.push(...remaining);
@@ -439,20 +468,45 @@ const FilterBar: React.FC = () => {
     return result;
   }, [schools, language]);
 
+  const genderLocalizedLabels: Record<string, string> = {
+    'BOYS': language === 'zh' ? '男' : 'Boys',
+    'GIRLS': language === 'zh' ? '女' : 'Girls',
+    'CO-ED': language === 'zh' ? '男女' : 'Co-ed',
+    'NOT_APPLICABLE': t.notApplicable,
+  };
+
+  const financingLocalizedLabels: Record<string, string> = {};
+  uniqueFinancingTypes.forEach(opt => {
+    financingLocalizedLabels[opt.value] = language === 'zh' ? localizeFinancingValue(opt.label, language) : opt.label;
+  });
+
+  const religionLocalizedLabels: Record<string, string> = {};
+  uniqueReligions.forEach(opt => {
+    religionLocalizedLabels[opt.value] = language === 'zh' ? localizeReligionValue(opt.label, language) : opt.label;
+  });
+
+  const pillButtonClass = (isActive: boolean) =>
+    `px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg font-semibold text-[10px] sm:text-xs transition-all min-h-8 sm:min-h-10 cursor-pointer ${
+      isActive
+        ? 'text-white shadow-md bg-indigo-500'
+        : 'text-slate-200 bg-slate-800 hover:bg-slate-700 active:scale-95'
+    }`;
+
   const panelContent = (
     <div className="p-2.5 sm:p-3 md:p-4 space-y-2.5 sm:space-y-3 md:space-y-4">
           <div className="flex justify-end">
             <button
               type="button"
               onClick={clearFilters}
-              className="text-[10px] sm:text-xs font-medium px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-outline text-on-surface-variant hover:bg-surface-container-high transition-colors cursor-pointer"
+              className="text-[10px] sm:text-xs font-semibold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-slate-600 text-slate-200 hover:bg-slate-800 transition-colors cursor-pointer active:scale-95"
             >
               {t.clearFilters}
             </button>
           </div>
 
+          {/* School Level Filter */}
           <div>
-            <p className="text-[10px] sm:text-xs font-medium text-on-surface-variant mb-1.5 sm:mb-2">{t.level}</p>
+            <p className="text-[10px] sm:text-xs font-semibold text-slate-300 uppercase mb-1.5 sm:mb-2">{t.level}</p>
             <div className="flex flex-wrap gap-1.5 sm:gap-2">
               {(() => {
                 const allLevels = ['KINDERGARTEN', 'PRIMARY', 'SECONDARY'];
@@ -461,10 +515,10 @@ const FilterBar: React.FC = () => {
                   <button
                     key="ALL_LEVELS"
                     onClick={() => setLevelFilter(allLevels)}
-                    className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-full font-medium text-[10px] sm:text-xs transition-all min-h-8 sm:min-h-10 cursor-pointer ${
+                    className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg font-semibold text-[10px] sm:text-xs transition-all min-h-8 sm:min-h-10 cursor-pointer ${
                       isAllSelected
-                        ? 'text-on-primary bg-primary'
-                        : 'text-on-surface-variant bg-surface-container-high hover:bg-surface-container-highest'
+                        ? 'text-white shadow-md bg-slate-700'
+                        : 'text-slate-200 bg-slate-800 hover:bg-slate-700 active:scale-95'
                     }`}
                   >
                     {language === 'zh' ? '全部' : 'All'}
@@ -472,7 +526,7 @@ const FilterBar: React.FC = () => {
                 );
               })()}
 
-              {levelOptions.map(({ label, value, color, textColor }) => {
+              {levelOptions.map(({ label, value, color }) => {
                 const isActive = levelFilter.includes(value);
                 const isLast = isActive && levelFilter.length === 1;
                 return (
@@ -480,10 +534,10 @@ const FilterBar: React.FC = () => {
                     key={value}
                     onClick={() => toggleLevel(value)}
                     disabled={isLast}
-                    className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-full font-medium text-[10px] sm:text-xs transition-all min-h-8 sm:min-h-10 ${
+                    className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg font-semibold text-[10px] sm:text-xs transition-all min-h-8 sm:min-h-10 ${
                       isLast ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
-                    } ${isActive ? '' : 'text-on-surface-variant bg-surface-container-high hover:bg-surface-container-highest'}`}
-                    style={isActive ? { backgroundColor: color, color: textColor } : undefined}
+                    } ${isActive ? 'text-white shadow-md' : 'text-slate-200 bg-slate-800 hover:bg-slate-700 active:scale-95'}`}
+                    style={isActive ? { backgroundColor: color } : undefined}
                   >
                     {label}
                   </button>
@@ -492,18 +546,19 @@ const FilterBar: React.FC = () => {
             </div>
           </div>
 
+          {/* Distance Filter */}
           {userLocation && (
             <div>
-              <p className="text-[10px] sm:text-xs font-medium text-on-surface-variant mb-1.5 sm:mb-2">{t.distance}</p>
+              <p className="text-[10px] sm:text-xs font-semibold text-slate-300 uppercase mb-1.5 sm:mb-2">{t.distance}</p>
               <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 {distanceOptions.map(({ label, value }) => (
                   <button
                     key={label}
                     onClick={() => setDistanceFilter(value)}
-                    className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-full font-medium text-[10px] sm:text-xs transition-all min-h-8 sm:min-h-10 cursor-pointer ${
+                    className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg font-semibold text-[10px] sm:text-xs transition-all min-h-8 sm:min-h-10 cursor-pointer ${
                       distanceFilter === value
-                        ? 'bg-primary text-on-primary'
-                        : 'bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest'
+                        ? 'bg-indigo-500 text-white shadow-md shadow-indigo-900/40'
+                        : 'bg-slate-800 text-slate-200 hover:bg-slate-700 active:scale-95'
                     }`}
                   >
                     {label}
@@ -514,11 +569,11 @@ const FilterBar: React.FC = () => {
           )}
 
           <div>
-            <p className="text-[10px] sm:text-xs font-medium text-on-surface-variant mb-1.5 sm:mb-2">{t.district}</p>
+            <p className="text-[10px] sm:text-xs font-semibold text-slate-300 uppercase mb-1.5 sm:mb-2">{t.district}</p>
             <select
               value={districtFilter ?? ''}
               onChange={(e) => setDistrictFilter(e.target.value || null)}
-              className="w-full bg-surface-container-high border border-outline-variant rounded-xl px-2.5 sm:px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm text-on-surface cursor-pointer hover:border-outline transition-colors"
+              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm text-slate-100 cursor-pointer hover:border-slate-600 transition-colors"
             >
               <option value="">{t.all}</option>
               {uniqueDistricts.map((option) => (
@@ -529,58 +584,94 @@ const FilterBar: React.FC = () => {
             </select>
           </div>
 
+          {/* School Net Filter */}
           <div>
-            <p className="text-[10px] sm:text-xs font-medium text-on-surface-variant mb-1.5 sm:mb-2">{t.gender}</p>
+            <p className="text-[10px] sm:text-xs font-semibold text-slate-300 uppercase mb-1.5 sm:mb-2">{t.schoolNet}</p>
             <select
-              value={genderFilter ?? ''}
-              onChange={(e) => setGenderFilter(e.target.value || null)}
-              className="w-full bg-surface-container-high border border-outline-variant rounded-xl px-2.5 sm:px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm text-on-surface cursor-pointer hover:border-outline transition-colors"
+              value={schoolNetFilter ?? ''}
+              onChange={(e) => setSchoolNetFilter(e.target.value || null)}
+              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm text-slate-100 cursor-pointer hover:border-slate-600 transition-colors"
             >
               <option value="">{t.all}</option>
-              {uniqueGenders.map((option) => (
-                <option key={option.value} value={option.value}>{option.label}</option>
+              {uniqueSchoolNets.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
               ))}
             </select>
           </div>
 
+          {/* Gender Filter - Multi-select */}
           <div>
-            <p className="text-[10px] sm:text-xs font-medium text-on-surface-variant mb-1.5 sm:mb-2">{t.financing}</p>
-            <select
-              value={financingTypeFilter ?? ''}
-              onChange={(e) => setFinancingTypeFilter(e.target.value || null)}
-              className="w-full bg-surface-container-high border border-outline-variant rounded-xl px-2.5 sm:px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm text-on-surface cursor-pointer hover:border-outline transition-colors"
-            >
-              <option value="">{t.all}</option>
-              {uniqueFinancingTypes.map((option) => (
-                <option key={option.value} value={option.value}>{language === 'zh' ? localizeFinancingValue(option.label, language) : option.label}</option>
-              ))}
-            </select>
+            <p className="text-[10px] sm:text-xs font-semibold text-slate-300 uppercase mb-1.5 sm:mb-2">{t.gender}</p>
+            <div className="flex flex-wrap gap-1.5 sm:gap-2">
+              {uniqueGenders.map(({ value, label }) => {
+                const isActive = genderFilter.includes(value);
+                const localizedLabel = genderLocalizedLabels[value] || label;
+                return (
+                  <button
+                    key={value}
+                    onClick={() => toggleMultiFilter(value, genderFilter, setGenderFilter)}
+                    className={pillButtonClass(isActive)}
+                  >
+                    {localizedLabel}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
+          {/* Financing Type Filter - Multi-select */}
           <div>
-            <p className="text-[10px] sm:text-xs font-medium text-on-surface-variant mb-1.5 sm:mb-2">{t.religion}</p>
-            <select
-              value={religionFilter ?? ''}
-              onChange={(e) => setReligionFilter(e.target.value || null)}
-              className="w-full bg-surface-container-high border border-outline-variant rounded-xl px-2.5 sm:px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm text-on-surface cursor-pointer hover:border-outline transition-colors"
-            >
-              <option value="">{t.all}</option>
-              {uniqueReligions.map((option) => (
-                <option key={option.value} value={option.value}>{language === 'zh' ? localizeReligionValue(option.label, language) : option.label}</option>
-              ))}
-            </select>
+            <p className="text-[10px] sm:text-xs font-semibold text-slate-300 uppercase mb-1.5 sm:mb-2">{t.financing}</p>
+            <div className="flex flex-wrap gap-1.5 sm:gap-2">
+              {uniqueFinancingTypes.map(({ value, label }) => {
+                const isActive = financingTypeFilter.includes(value);
+                const localizedLabel = financingLocalizedLabels[value] || label;
+                return (
+                  <button
+                    key={value}
+                    onClick={() => toggleMultiFilter(value, financingTypeFilter, setFinancingTypeFilter)}
+                    className={pillButtonClass(isActive)}
+                  >
+                    {localizedLabel}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
+          {/* Religion Filter - Multi-select */}
+          <div>
+            <p className="text-[10px] sm:text-xs font-semibold text-slate-300 uppercase mb-1.5 sm:mb-2">{t.religion}</p>
+            <div className="flex flex-wrap gap-1.5 sm:gap-2">
+              {uniqueReligions.map(({ value, label }) => {
+                const isActive = religionFilter.includes(value);
+                const localizedLabel = religionLocalizedLabels[value] || label;
+                return (
+                  <button
+                    key={value}
+                    onClick={() => toggleMultiFilter(value, religionFilter, setReligionFilter)}
+                    className={pillButtonClass(isActive)}
+                  >
+                    {localizedLabel}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Locate Me Button */}
           <div>
             <button
               onClick={handleLocateMe}
               disabled={isLocating}
-              className={`w-full py-2 sm:py-2.5 rounded-full font-medium text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer ${
+              className={`w-full py-2 sm:py-2.5 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer ${
                 isLocating
-                  ? 'bg-surface-container-high text-on-surface-variant cursor-not-allowed'
+                  ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
                   : userLocation
-                  ? 'bg-primary text-on-primary'
-                  : 'bg-primary text-on-primary'
+                  ? 'bg-emerald-500 hover:bg-emerald-600 text-white active:scale-95'
+                  : 'bg-indigo-500 hover:bg-indigo-600 text-white active:scale-95'
               }`}
             >
               <Locate className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
@@ -588,22 +679,24 @@ const FilterBar: React.FC = () => {
             </button>
           </div>
 
+          {/* Location Status */}
           {userLocation && (
-            <div className="bg-primary/10 rounded-xl px-2.5 sm:px-3 py-1.5 sm:py-2">
+            <div className="bg-emerald-500/10 border border-emerald-500/25 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2">
               <div className="flex items-center gap-1.5 sm:gap-2">
-                <MapPin className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-primary flex-shrink-0" />
-                <p className="text-xs sm:text-sm text-primary font-medium">{t.locationDetected}</p>
+                <MapPin className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-emerald-600 flex-shrink-0" />
+                <p className="text-xs sm:text-sm text-emerald-300 font-medium">{t.locationDetected}</p>
               </div>
             </div>
           )}
 
           {locationError && (
-            <div className="bg-error/10 rounded-xl px-2.5 sm:px-3 py-1.5 sm:py-2">
-              <p className="text-xs sm:text-sm text-error font-medium">{locationError}</p>
+            <div className="bg-red-500/10 border border-red-500/25 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2">
+              <p className="text-xs sm:text-sm text-red-300 font-medium">{locationError}</p>
             </div>
           )}
 
-          <p className="text-[9px] sm:text-[10px] text-on-surface-variant mt-2 sm:mt-3">
+          {/* Info text */}
+          <p className="text-[9px] sm:text-[10px] text-slate-400 mt-2 sm:mt-3">
             {t.tips}
           </p>
       </div>
@@ -612,9 +705,9 @@ const FilterBar: React.FC = () => {
   return (
     <>
       <div className="hidden md:block absolute top-20 right-3 z-20 max-w-sm w-full mx-2 md:mx-0">
-        <div className="rounded-2xl overflow-hidden bg-surface-container">
-          <div className="px-4 py-3 border-b border-outline-variant bg-surface-container-high">
-            <p className="text-xs font-medium text-on-surface-variant">{t.title}</p>
+        <div className="rounded-3xl shadow-2xl border border-slate-700 overflow-hidden bg-slate-900/95">
+          <div className="px-4 py-3 border-b border-slate-700 bg-slate-800/70">
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-300">{t.title}</p>
           </div>
           {panelContent}
         </div>
@@ -623,10 +716,10 @@ const FilterBar: React.FC = () => {
       <div className="md:hidden absolute top-32 sm:top-36 right-2 sm:right-3 z-40">
         <button
           onClick={() => setIsMobileOpen(true)}
-          className="h-10 sm:h-12 px-3 sm:px-4 rounded-full bg-surface-container-high text-on-surface flex items-center gap-1.5 sm:gap-2 cursor-pointer transition-colors"
+          className="h-10 sm:h-12 px-3 sm:px-4 rounded-lg sm:rounded-xl bg-slate-900/98 border border-indigo-400/25 text-slate-100 shadow-[0_16px_40px_rgba(2,6,23,0.55)] flex items-center gap-1.5 sm:gap-2 cursor-pointer hover:border-indigo-400/40 transition-colors active:scale-95"
         >
           <SlidersHorizontal className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
-          <span className="text-sm sm:text-base font-medium">{t.filtersBtn}</span>
+          <span className="text-sm sm:text-base font-semibold">{t.filtersBtn}</span>
         </button>
       </div>
 
@@ -635,23 +728,25 @@ const FilterBar: React.FC = () => {
           <button
             type="button"
             aria-label="Close filters"
-            className="fixed inset-0 z-40 bg-black/60"
+            className="fixed inset-0 z-40 bg-black/45"
             onClick={() => setIsMobileOpen(false)}
           />
           <div className="fixed bottom-0 left-0 right-0 z-50 px-2 sm:px-3 pb-2 sm:pb-3">
-            <div className="bg-surface-container rounded-t-2xl rounded-b-2xl overflow-hidden max-h-[75vh]">
-              <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 border-b border-outline-variant">
-                <p className="text-xs sm:text-sm font-medium text-on-surface">{t.title}</p>
+            <div className="bg-slate-900 border border-slate-700 rounded-t-xl sm:rounded-t-2xl rounded-b-xl sm:rounded-b-2xl overflow-hidden shadow-2xl max-h-[75vh]">
+              <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 border-b border-slate-700">
+                <p className="text-xs sm:text-sm font-bold text-slate-100 tracking-wide uppercase">{t.title}</p>
                 <button
                   type="button"
                   onClick={() => setIsMobileOpen(false)}
-                  className="w-8 sm:w-9 h-8 sm:h-9 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center cursor-pointer transition-colors flex-shrink-0"
+                  className="w-8 sm:w-9 h-8 sm:h-9 rounded-full bg-slate-800 text-slate-200 flex items-center justify-center cursor-pointer hover:bg-slate-700 transition-colors flex-shrink-0"
                 >
                   <X className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
                 </button>
               </div>
               <div className="max-h-[calc(75vh-50px)] overflow-y-auto p-2 sm:p-3">
-                {panelContent}
+                <div className="rounded-lg sm:rounded-2xl border border-slate-700 bg-slate-900/95">
+                  {panelContent}
+                </div>
               </div>
             </div>
           </div>

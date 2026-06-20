@@ -15,6 +15,9 @@ import {
   getLocalizedLevelLabel,
   getLocalizedDistrictLabel,
   getSchoolLevelByLanguage,
+  getSchoolSessionByLanguage,
+  getLocalizedSessionLabel,
+  getSchoolNetId,
 } from '../utils';
 
 const MAX_MTR_DISTANCE_KM = 1.5;
@@ -29,7 +32,11 @@ const BottomSheet: React.FC = () => {
         level: '學校級別',
         district: '地區',
         religion: '宗教',
+        session: '授課時間',
+        schoolNet: '校網',
         noReligion: '未提供',
+        noSession: '未提供',
+        noNet: '未提供',
         website: '學校網站',
         call: '致電學校',
         directions: '導航',
@@ -47,7 +54,11 @@ const BottomSheet: React.FC = () => {
         level: 'School Level',
         district: 'District',
         religion: 'Religion',
+        session: 'Session',
+        schoolNet: 'School Net',
         noReligion: 'Not Provided',
+        noSession: 'Not Provided',
+        noNet: 'Not Provided',
         website: 'Website',
         call: 'Call',
         directions: 'Directions',
@@ -157,6 +168,16 @@ const BottomSheet: React.FC = () => {
               <div className="bg-surface-container-high rounded-lg sm:rounded-xl p-2.5 sm:p-3 transition-colors">
                 <p className="text-[9px] sm:text-[10px] uppercase tracking-wider text-on-surface-variant font-medium mb-0.5 sm:mb-1">{t.religion}</p>
                 <p className="text-xs font-medium text-on-surface break-words leading-snug">{getLocalizedReligionLabel(selectedSchool, language) || t.noReligion}</p>
+              </div>
+              <div className="bg-surface-container-high rounded-lg sm:rounded-xl p-2.5 sm:p-3 transition-colors">
+                <p className="text-[9px] sm:text-[10px] uppercase tracking-wider text-on-surface-variant font-medium mb-0.5 sm:mb-1">{t.session}</p>
+                <p className="text-xs font-medium text-on-surface break-words leading-snug">{getLocalizedSessionLabel(getSchoolSessionByLanguage(selectedSchool, 'en'), language) || t.noSession}</p>
+              </div>
+              <div className="bg-surface-container-high rounded-lg sm:rounded-xl p-2.5 sm:p-3 transition-colors">
+                <p className="text-[9px] sm:text-[10px] uppercase tracking-wider text-on-surface-variant font-medium mb-0.5 sm:mb-1">{t.schoolNet}</p>
+                <p className="text-xs font-medium text-on-surface break-words leading-snug">
+                  {getSchoolNetId(selectedSchool) ? (language === 'zh' ? `${getSchoolNetId(selectedSchool)} 校網` : `Net ${getSchoolNetId(selectedSchool)}`) : t.noNet}
+                </p>
               </div>
             </div>
 
