@@ -8,7 +8,7 @@ const StatsTab = React.lazy(() => import('./components/StatsTab'));
 const FavoritesView = React.lazy(() => import('./components/FavoritesView'));
 import { fetchSchools } from './services';
 import { useStore } from './store';
-import { AlertCircle, Info, X } from 'lucide-react';
+import { AlertCircle, Info, X, Github } from 'lucide-react';
 import Loading from './components/Loading';
 
 export default function App() {
@@ -36,6 +36,8 @@ export default function App() {
           favorites: '收藏',
           noFavorites: '尚未收藏任何學校',
           favoritesHint: '在學校詳情頁點擊 ☆ 即可收藏',
+          authorBy: '開發者',
+          githubProfile: 'GitHub 個人頁面',
         }
       : {
           appName: 'HK School Finder',
@@ -54,6 +56,8 @@ export default function App() {
           favorites: 'Favorites',
           noFavorites: 'No favorites yet',
           favoritesHint: 'Tap ☆ on any school detail to save it here',
+          authorBy: 'Built by',
+          githubProfile: 'GitHub Profile',
         }
   ), [language]);
 
@@ -219,6 +223,18 @@ export default function App() {
               <p>{t.aboutOrigin}</p>
               <p>{t.aboutHowTo}</p>
               <p>{t.aboutMap}</p>
+              <div className="border-t border-outline/20 pt-3 mt-3">
+                <p className="text-xs text-outline mb-2">{t.authorBy} scmlewis</p>
+                <a
+                  href="https://github.com/scmlewis"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline"
+                >
+                  <Github className="w-3.5 h-3.5" />
+                  {t.githubProfile}
+                </a>
+              </div>
             </div>
           </div>
         </>
