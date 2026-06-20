@@ -13,9 +13,9 @@ import {
   getSchoolNetId,
   getLevelBadgeColor,
   getSchoolLevelByLanguage,
-  localizeDistrictValue,
-  localizeFinancingValue,
-  localizeGenderValue,
+  getLocalizedDistrictLabel,
+  getLocalizedFinancingLabel,
+  getLocalizedGenderLabel,
   getLocalizedSessionLabel,
   AppLanguage,
 } from '../utils';
@@ -26,91 +26,96 @@ const SchoolCard: React.FC<{ school: School; language: AppLanguage; isFavorited:
 
   return (
     <div
-      className="bg-slate-800/80 border border-slate-700/50 rounded-xl p-3 sm:p-4 hover:border-indigo-500/40 transition-all cursor-pointer active:scale-[0.98]"
+      className="rounded-2xl bg-surface-container p-4 sm:p-5 cursor-pointer transition-colors hover:bg-surface-container-high active:scale-[0.99]"
       onClick={() => setSelectedSchool(school)}
     >
-      <div className="flex items-start gap-3">
-        <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 font-bold text-xs ${levelBadge.bg} ${levelBadge.text}`}>
-          {levelBadge.label}
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-0.5">
-            <h3 className="text-sm font-semibold text-slate-100 truncate">{getSchoolNameByLanguage(school, language)}</h3>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleFavorite(school['School No.']);
-              }}
-              className="flex-shrink-0 p-0.5 cursor-pointer"
-            >
-              <Star className={`w-4 h-4 ${isFavorited ? 'text-amber-400 fill-amber-400' : 'text-slate-500'}`} />
-            </button>
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center flex-shrink-0 font-medium text-xs ${levelBadge.bg} ${levelBadge.text}`}>
+            {levelBadge.label}
           </div>
-          <p className="text-xs text-slate-400 truncate mb-1.5">{getSchoolSecondaryNameByLanguage(school, language)}</p>
-          <div className="flex flex-wrap gap-1.5 text-[10px] text-slate-400">
-            <span className="bg-slate-700/60 px-1.5 py-0.5 rounded">
-              {localizeDistrictValue(getSchoolDistrictByLanguage(school, 'en'), language)}
-            </span>
-            <span className="bg-slate-700/60 px-1.5 py-0.5 rounded">
-              {localizeFinancingValue(getSchoolFinancingByLanguage(school, 'en'), language)}
-            </span>
-            <span className="bg-slate-700/60 px-1.5 py-0.5 rounded">
-              {localizeGenderValue(getSchoolGenderByLanguage(school, 'en'), language)}
-            </span>
-            {getSchoolSessionByLanguage(school, 'en') && (
-              <span className="bg-slate-700/60 px-1.5 py-0.5 rounded">
-                {getLocalizedSessionLabel(getSchoolSessionByLanguage(school, 'en'), language)}
-              </span>
-            )}
-            {getSchoolNetId(school) && (
-              <span className="bg-slate-700/60 px-1.5 py-0.5 rounded">
-                {language === 'zh' ? `${getSchoolNetId(school)} 校網` : `Net ${getSchoolNetId(school)}`}
-              </span>
-            )}
+          <div className="min-w-0">
+            <h3 className="text-sm sm:text-base font-semibold text-on-surface truncate">
+              {getSchoolNameByLanguage(school, language)}
+            </h3>
+            <p className="text-[11px] sm:text-xs text-on-surface-variant truncate">
+              {getSchoolSecondaryNameByLanguage(school, language)}
+            </p>
           </div>
         </div>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleFavorite(school['School No.']);
+          }}
+          className="p-1.5 text-primary transition-colors cursor-pointer flex-shrink-0"
+        >
+          <Star className={`w-5 h-5 ${isFavorited ? 'fill-current' : ''}`} />
+        </button>
       </div>
-      <div className="flex items-center gap-3 mt-2.5 pt-2.5 border-t border-slate-700/40">
-        <div className="flex items-center gap-1 text-[10px] text-slate-500">
-          <MapPin className="w-3 h-3" />
-          <span className="truncate max-w-[160px]">{getSchoolAddressByLanguage(school, language)}</span>
-        </div>
-        <div className="flex items-center gap-1.5 ml-auto">
-          {school.Longitude && school.Latitude && (
-            <a
-              href={`https://www.google.com/maps/dir/?api=1&destination=${school.Latitude},${school.Longitude}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="p-1.5 rounded-lg bg-slate-700/60 text-slate-400 hover:text-indigo-400 transition-colors"
-              title={language === 'zh' ? '導航' : 'Directions'}
-            >
-              <Navigation className="w-3 h-3" />
-            </a>
-          )}
-          {school.Website && (
-            <a
-              href={school.Website.startsWith('http') ? school.Website : `https://${school.Website}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="p-1.5 rounded-lg bg-slate-700/60 text-slate-400 hover:text-indigo-400 transition-colors"
-              title={language === 'zh' ? '網站' : 'Website'}
-            >
-              <Globe className="w-3 h-3" />
-            </a>
-          )}
-          {school.Telephone && (
-            <a
-              href={`tel:${school.Telephone}`}
-              onClick={(e) => e.stopPropagation()}
-              className="p-1.5 rounded-lg bg-slate-700/60 text-slate-400 hover:text-indigo-400 transition-colors"
-              title={language === 'zh' ? '致電' : 'Call'}
-            >
-              <Phone className="w-3 h-3" />
-            </a>
-          )}
-        </div>
+
+      <div className="flex flex-wrap gap-2 mb-3">
+        <span className="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant">
+          {getLocalizedDistrictLabel(school, language) || '-'}
+        </span>
+        <span className="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant">
+          {getLocalizedFinancingLabel(school, language)}
+        </span>
+        <span className="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant">
+          {getLocalizedGenderLabel(school, language)}
+        </span>
+        {getSchoolSessionByLanguage(school, 'en') && (
+          <span className="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant">
+            {getLocalizedSessionLabel(getSchoolSessionByLanguage(school, 'en'), language)}
+          </span>
+        )}
+        {getSchoolNetId(school) && (
+          <span className="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant">
+            {language === 'zh' ? `${getSchoolNetId(school)} 校網` : `Net ${getSchoolNetId(school)}`}
+          </span>
+        )}
+      </div>
+
+      <div className="flex items-center gap-2 text-[10px] sm:text-xs text-on-surface-variant mb-3">
+        <MapPin className="w-3 h-3 flex-shrink-0" />
+        <span className="truncate">{getSchoolAddressByLanguage(school, language)}</span>
+      </div>
+
+      <div className="flex gap-2">
+        {school.Longitude && school.Latitude && (
+          <a
+            href={`https://www.google.com/maps/dir/?api=1&destination=${school.Latitude},${school.Longitude}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="flex-1 flex items-center justify-center gap-1.5 bg-primary text-on-primary py-2 rounded-full font-medium text-[10px] sm:text-xs"
+          >
+            <Navigation className="w-3 h-3" />
+            {language === 'zh' ? '導航' : 'Directions'}
+          </a>
+        )}
+        {school.Website && (
+          <a
+            href={school.Website.startsWith('http') ? school.Website : `https://${school.Website}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="flex-1 flex items-center justify-center gap-1.5 bg-surface-container-high text-on-surface py-2 rounded-full font-medium text-[10px] sm:text-xs"
+          >
+            <Globe className="w-3 h-3" />
+            {language === 'zh' ? '網站' : 'Website'}
+          </a>
+        )}
+        {school.Telephone && (
+          <a
+            href={`tel:${school.Telephone}`}
+            onClick={(e) => e.stopPropagation()}
+            className="flex-1 flex items-center justify-center gap-1.5 bg-surface-container-high text-on-surface py-2 rounded-full font-medium text-[10px] sm:text-xs"
+          >
+            <Phone className="w-3 h-3" />
+            {language === 'zh' ? '致電' : 'Call'}
+          </a>
+        )}
       </div>
     </div>
   );
@@ -124,20 +129,18 @@ const SchoolListView: React.FC = () => {
     : { schools: 'schools', noResults: 'No schools match your filters', tryAdjusting: 'Try adjusting your filters' };
 
   return (
-    <div className="absolute inset-0 z-10 overflow-y-auto bg-slate-900 pt-16 sm:pt-20 pb-20 md:pb-4">
-      <div className="px-2 sm:px-4 max-w-2xl mx-auto">
-        <div className="flex items-center gap-2 mb-3 sm:mb-4">
-          <p className="text-xs sm:text-sm font-semibold text-slate-300">
-            {filteredSchools.length.toLocaleString()} {t.schools}
-          </p>
-        </div>
+    <div className="absolute inset-0 pt-40 sm:pt-44 md:pt-28 px-3 sm:px-4 md:px-6 pb-24 md:pb-8 overflow-y-auto overflow-x-hidden">
+      <div className="max-w-2xl mx-auto">
+        <p className="text-sm text-on-surface-variant font-medium mb-3 sm:mb-4">
+          {filteredSchools.length.toLocaleString()} {t.schools}
+        </p>
         {filteredSchools.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <p className="text-slate-400 text-sm font-medium mb-1">{t.noResults}</p>
-            <p className="text-slate-500 text-xs">{t.tryAdjusting}</p>
+          <div className="rounded-2xl bg-surface-container p-8 text-center">
+            <p className="text-on-surface-variant font-medium">{t.noResults}</p>
+            <p className="text-outline text-sm mt-1">{t.tryAdjusting}</p>
           </div>
         ) : (
-          <div className="space-y-2 sm:space-y-2.5">
+          <div className="space-y-3 sm:space-y-4">
             {filteredSchools.map((school) => {
               const id = school['School No.'] || '';
               return (
