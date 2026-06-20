@@ -124,7 +124,7 @@ const SchoolListView: React.FC = () => {
     : { schools: 'schools', noResults: 'No schools match your filters', tryAdjusting: 'Try adjusting your filters' };
 
   return (
-    <div className="h-full w-full overflow-y-auto bg-slate-900 pt-16 sm:pt-20 pb-20 md:pb-4">
+    <div className="absolute inset-0 z-10 overflow-y-auto bg-slate-900 pt-16 sm:pt-20 pb-20 md:pb-4">
       <div className="px-2 sm:px-4 max-w-2xl mx-auto">
         <div className="flex items-center gap-2 mb-3 sm:mb-4">
           <p className="text-xs sm:text-sm font-semibold text-slate-300">
