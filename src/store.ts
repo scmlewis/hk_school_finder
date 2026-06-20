@@ -62,7 +62,6 @@ export const useStore = create<AppState>()(persist((set) => ({
   religionFilter: [] as string[],
   districtFilter: null,
   schoolNetFilter: null,
-  showListView: false,
   favorites: [],
 
   setSchools: (schools) => set((state) => {
@@ -128,7 +127,6 @@ export const useStore = create<AppState>()(persist((set) => ({
     schoolNetFilter: net,
     filteredSchools: filterSchools(state.schools, getFilterOptions({ ...state, schoolNetFilter: net }))
   })),
-  setShowListView: (show) => set({ showListView: show }),
   toggleFavorite: (schoolId) => set((state) => {
     if (!schoolId) return {};
     const exists = state.favorites.includes(schoolId);

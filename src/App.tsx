@@ -6,14 +6,13 @@ import FilterBar from './components/FilterBar';
 import BottomSheet from './components/BottomSheet';
 const StatsTab = React.lazy(() => import('./components/StatsTab'));
 const FavoritesView = React.lazy(() => import('./components/FavoritesView'));
-const SchoolListView = React.lazy(() => import('./components/SchoolListView'));
 import { fetchSchools } from './services';
 import { useStore } from './store';
-import { AlertCircle, Info, X, List, MapIcon } from 'lucide-react';
+import { AlertCircle, Info, X } from 'lucide-react';
 import Loading from './components/Loading';
 
 export default function App() {
-  const { setSchools, setLoading, setError, loading, error, schools, language, setLanguage, favorites, filteredSchools, showListView, setShowListView } = useStore();
+  const { setSchools, setLoading, setError, loading, error, schools, language, setLanguage, favorites } = useStore();
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [activeView, setActiveView] = useState<'map' | 'stats' | 'favorites'>('map');
   const [deferMap, setDeferMap] = useState(false);
@@ -37,9 +36,6 @@ export default function App() {
           favorites: '收藏',
           noFavorites: '尚未收藏任何學校',
           favoritesHint: '在學校詳情頁點擊 ☆ 即可收藏',
-          schoolsMatch: '所學校',
-          mapView: '地圖',
-          listView: '列表',
         }
       : {
           appName: 'HK School Finder',
@@ -58,9 +54,6 @@ export default function App() {
           favorites: 'Favorites',
           noFavorites: 'No favorites yet',
           favoritesHint: 'Tap ☆ on any school detail to save it here',
-          schoolsMatch: 'schools match',
-          mapView: 'Map',
-          listView: 'List',
         }
   ), [language]);
 
@@ -190,34 +183,6 @@ export default function App() {
           ) : (
             <div className="w-full h-full flex items-center justify-center text-on-surface-variant">{language === 'zh' ? '載入地圖中...' : 'Preparing map...'}</div>
           )}
-          {/* Result count + List/Map toggle */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2">
-            <div className="bg-slate-900/95 border border-slate-700/60 rounded-full px-3 py-1.5 flex items-center gap-2 shadow-lg">
-              <span className="text-xs font-semibold text-slate-200">
-                {filteredSchools.length.toLocaleString()} {t.schoolsMatch}
-              </span>
-              <div className="w-px h-4 bg-slate-600" />
-              <button
-                onClick={() => setShowListView(false)}
-                className={`p-1 rounded transition-colors ${!showListView ? 'text-indigo-400' : 'text-slate-400 hover:text-slate-200'}`}
-                title={t.mapView}
-              >
-                <MapIcon className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setShowListView(true)}
-                className={`p-1 rounded transition-colors ${showListView ? 'text-indigo-400' : 'text-slate-400 hover:text-slate-200'}`}
-                title={t.listView}
-              >
-                <List className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-          {showListView && (
-            <Suspense fallback={<div className="p-4 text-on-surface-variant">{language === 'zh' ? '載入列表...' : 'Loading list...'}</div>}>
-              <SchoolListView />
-            </Suspense>
-          )}
           <BottomSheet />
         </>
       ) : activeView === 'favorites' ? (
@@ -258,7 +223,17 @@ export default function App() {
           </div>
         </>
       )}
-      
+
+      <div className="absolute bottom-4 left-4 z-10 pointer-events-none">
+        <div className="space-y-2">
+          <p className="text-xs text-on-surface-variant font-medium uppercase tracking-widest bg-surface-container px-2.5 py-1.5 rounded-lg">
+            {schools.length.toLocaleString()} {language === 'zh' ? '所學校' : 'schools indexed'}
+          </p>
+          <p className="text-[10px] text-outline font-medium bg-surface-container-low px-2 py-1 rounded">
+            {t.data}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
