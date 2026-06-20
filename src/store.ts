@@ -172,6 +172,14 @@ export const useStore = create<AppState>()(persist((set) => ({
 }), {
   name: 'hk-school-finder-preferences',
   storage: createJSONStorage(() => localStorage),
+  merge: (persistedState: any, currentState: AppState) => {
+    // Migrate old null values to arrays for multi-select filters
+    const merged = { ...currentState, ...persistedState };
+    if (!Array.isArray(merged.genderFilter)) merged.genderFilter = [];
+    if (!Array.isArray(merged.financingTypeFilter)) merged.financingTypeFilter = [];
+    if (!Array.isArray(merged.religionFilter)) merged.religionFilter = [];
+    return merged;
+  },
   partialize: (state) => ({
     language: state.language,
     searchQuery: state.searchQuery,
