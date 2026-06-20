@@ -253,9 +253,9 @@ const FilterBar: React.FC = () => {
   };
 
   const levelOptions = [
-    { label: language === 'zh' ? '幼稚園' : 'Kindergarten', value: 'KINDERGARTEN', color: '#ec4899' },
-    { label: language === 'zh' ? '小學' : 'Primary', value: 'PRIMARY', color: '#3b82f6' },
-    { label: language === 'zh' ? '中學' : 'Secondary', value: 'SECONDARY', color: '#10b981' }
+    { label: language === 'zh' ? '幼稚園' : 'Kindergarten', value: 'KINDERGARTEN', color: '#5c1535', textColor: '#ffb1c8' },
+    { label: language === 'zh' ? '小學' : 'Primary', value: 'PRIMARY', color: '#003d5c', textColor: '#a8c8ff' },
+    { label: language === 'zh' ? '中學' : 'Secondary', value: 'SECONDARY', color: '#003d2e', textColor: '#72dba7' }
   ];
 
   const distanceOptions = [
@@ -472,7 +472,7 @@ const FilterBar: React.FC = () => {
                 );
               })()}
 
-              {levelOptions.map(({ label, value, color }) => {
+              {levelOptions.map(({ label, value, color, textColor }) => {
                 const isActive = levelFilter.includes(value);
                 const isLast = isActive && levelFilter.length === 1;
                 return (
@@ -482,8 +482,8 @@ const FilterBar: React.FC = () => {
                     disabled={isLast}
                     className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-full font-medium text-[10px] sm:text-xs transition-all min-h-8 sm:min-h-10 ${
                       isLast ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
-                    } ${isActive ? 'text-on-primary' : 'text-on-surface-variant bg-surface-container-high hover:bg-surface-container-highest'}`}
-                    style={isActive ? { backgroundColor: color } : undefined}
+                    } ${isActive ? '' : 'text-on-surface-variant bg-surface-container-high hover:bg-surface-container-highest'}`}
+                    style={isActive ? { backgroundColor: color, color: textColor } : undefined}
                   >
                     {label}
                   </button>

@@ -34,6 +34,7 @@ const BottomSheet: React.FC = () => {
         call: '致電學校',
         directions: '導航',
         share: '分享',
+        favorite: '收藏',
         nearbyMtr: '附近港鐵站',
         noMtr: '附近無港鐵站',
         walk: '步行',
@@ -47,10 +48,11 @@ const BottomSheet: React.FC = () => {
         district: 'District',
         religion: 'Religion',
         noReligion: 'Not Provided',
-        website: 'Visit Website',
-        call: 'Call School',
+        website: 'Website',
+        call: 'Call',
         directions: 'Directions',
         share: 'Share',
+        favorite: 'Save',
         nearbyMtr: 'Nearby MTR Stations',
         noMtr: 'No nearby MTR stations',
         walk: 'walk',
@@ -96,7 +98,13 @@ const BottomSheet: React.FC = () => {
             className="fixed bottom-0 left-0 right-0 z-50 mx-auto max-w-lg max-h-[90vh] md:max-h-screen overflow-y-auto w-full"
           >
             <div className="rounded-t-2xl p-4 sm:p-5 md:p-6 pb-8 sm:pb-9 md:pb-10 bg-surface-container">
-              <div className="w-10 h-1 sm:w-12 sm:h-1.5 bg-outline-variant rounded-full mx-auto mb-4 sm:mb-5 md:mb-6" />
+              <button 
+                onClick={() => setSelectedSchool(null)}
+                className="w-full flex justify-center py-2 cursor-pointer"
+                aria-label={language === 'zh' ? '收起' : 'Collapse'}
+              >
+                <div className="w-10 h-1 sm:w-12 sm:h-1.5 bg-outline-variant rounded-full" />
+              </button>
             
             <div className="flex justify-between items-start mb-3 sm:mb-4 md:mb-5">
               <div className="flex-1">
@@ -164,7 +172,7 @@ const BottomSheet: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-5 gap-1.5 sm:gap-2 pt-1 sm:pt-2">
+              <div className="grid grid-cols-4 gap-1.5 sm:gap-2 pt-1 sm:pt-2">
                 {selectedSchool.Longitude && selectedSchool.Latitude && (
                   <a
                     href={`https://www.google.com/maps/dir/?api=1&destination=${selectedSchool.Latitude},${selectedSchool.Longitude}`}
@@ -197,20 +205,6 @@ const BottomSheet: React.FC = () => {
                   </a>
                 )}
                 <button
-                  onClick={() => {
-                    const url = `${window.location.origin}?school=${selectedSchool['School No.'] || ''}`;
-                    if (navigator.share) {
-                      navigator.share({ title: getSchoolNameByLanguage(selectedSchool, language), url });
-                    } else {
-                      navigator.clipboard.writeText(url);
-                    }
-                  }}
-                  className="flex flex-col items-center justify-center gap-0.5 sm:gap-1 bg-surface-container-high text-on-surface py-2 sm:py-2.5 rounded-full font-medium text-[10px] sm:text-xs"
-                >
-                  <Share2 className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
-                  {t.share}
-                </button>
-                <button
                   onClick={() => toggleFavorite(selectedSchool['School No.'])}
                   className={`flex flex-col items-center justify-center gap-0.5 sm:gap-1 py-2 sm:py-2.5 rounded-full font-medium text-[10px] sm:text-xs transition-colors ${
                     isFavorited
@@ -219,8 +213,23 @@ const BottomSheet: React.FC = () => {
                   }`}
                 >
                   <Star className={`w-3.5 sm:w-4 h-3.5 sm:h-4 ${isFavorited ? 'fill-current' : ''}`} />
+                  {t.favorite}
                 </button>
               </div>
+              <button
+                onClick={() => {
+                  const url = `${window.location.origin}?school=${selectedSchool['School No.'] || ''}`;
+                  if (navigator.share) {
+                    navigator.share({ title: getSchoolNameByLanguage(selectedSchool, language), url });
+                  } else {
+                    navigator.clipboard.writeText(url);
+                  }
+                }}
+                className="w-full flex items-center justify-center gap-1.5 bg-surface-container-high text-on-surface-variant py-2 sm:py-2.5 rounded-full font-medium text-[10px] sm:text-xs mt-1.5 sm:mt-2"
+              >
+                <Share2 className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
+                {t.share}
+              </button>
             <div className="mt-4 sm:mt-5">
               <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
                 <Train className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-on-surface-variant" />
