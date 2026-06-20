@@ -44,7 +44,6 @@ export interface AppState {
   financingTypeFilter: string[];
   religionFilter: string[];
   districtFilter: string | null;
-  schoolNetFilter: string | null;
   favorites: string[];
   
   setSchools: (schools: School[]) => void;
@@ -62,7 +61,6 @@ export interface AppState {
   setFinancingTypeFilter: (financingType: string[]) => void;
   setReligionFilter: (religion: string[]) => void;
   setDistrictFilter: (district: string | null) => void;
-  setSchoolNetFilter: (net: string | null) => void;
   toggleFavorite: (schoolId: string | undefined) => void;
   clearFilters: () => void;
 }

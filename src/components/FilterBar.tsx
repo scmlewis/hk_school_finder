@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { MapPin, Locate, SlidersHorizontal, X } from 'lucide-react';
 import { useStore } from '../store';
-import { getSchoolFinancingByLanguage, getSchoolGenderByLanguage, getSchoolReligionByLanguage, getSchoolDistrictByLanguage, getSchoolNetId, localizeFinancingValue, localizeReligionValue, localizeDistrictValue, localizeGenderValue } from '../utils';
+import { getSchoolFinancingByLanguage, getSchoolGenderByLanguage, getSchoolReligionByLanguage, getSchoolDistrictByLanguage, localizeFinancingValue, localizeReligionValue, localizeDistrictValue, localizeGenderValue } from '../utils';
 
 const FilterBar: React.FC = () => {
   const {
@@ -20,8 +20,6 @@ const FilterBar: React.FC = () => {
     setReligionFilter,
     districtFilter,
     setDistrictFilter,
-    schoolNetFilter,
-    setSchoolNetFilter,
     clearFilters,
     language,
   } = useStore();
@@ -45,7 +43,6 @@ const FilterBar: React.FC = () => {
         filtersBtn: '篩選',
         tips: '💡 建議先用學校級別和地區關鍵字，再搭配宗教/資助類別縮小結果。',
         district: '地區',
-        schoolNet: '校網',
         noLimit: '不限',
         notApplicable: '不適用',
         clearFilters: '清除篩選',
@@ -65,7 +62,6 @@ const FilterBar: React.FC = () => {
         filtersBtn: 'Filters',
         tips: '💡 Start with level + keyword search, then narrow with religion/financing filters.',
         district: 'District',
-        schoolNet: 'School Net',
         noLimit: 'No Limit',
         notApplicable: 'Not Applicable',
         clearFilters: 'Clear Filters',
@@ -257,9 +253,9 @@ const FilterBar: React.FC = () => {
   };
 
   const levelOptions = [
-    { label: language === 'zh' ? '幼稚園' : 'Kindergarten', value: 'KINDERGARTEN', color: '#ec4899' },
-    { label: language === 'zh' ? '小學' : 'Primary', value: 'PRIMARY', color: '#3b82f6' },
-    { label: language === 'zh' ? '中學' : 'Secondary', value: 'SECONDARY', color: '#10b981' }
+    { label: language === 'zh' ? '幼稚園' : 'Kindergarten', value: 'KINDERGARTEN', color: '#be185d' },
+    { label: language === 'zh' ? '小學' : 'Primary', value: 'PRIMARY', color: '#1d4ed8' },
+    { label: language === 'zh' ? '中學' : 'Secondary', value: 'SECONDARY', color: '#047857' }
   ];
 
   const distanceOptions = [
@@ -363,27 +359,6 @@ const FilterBar: React.FC = () => {
       if (v) values.add(v);
     });
     return buildCanonicalOptions(Array.from(values));
-  }, [schools, language]);
-
-  const uniqueSchoolNets = React.useMemo(() => {
-    const netMap = new Map<string, string>();
-    schools.forEach((school) => {
-      const netId = getSchoolNetId(school).trim();
-      if (netId && !netMap.has(netId)) {
-        netMap.set(netId, netId);
-      }
-    });
-    return Array.from(netMap.entries())
-      .sort((a, b) => {
-        const numA = parseInt(a[0], 10);
-        const numB = parseInt(b[0], 10);
-        if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
-        return a[0].localeCompare(b[0]);
-      })
-      .map(([id, label]) => ({
-        value: id,
-        label: language === 'zh' ? `${label} 校網` : `Net ${label}`,
-      }));
   }, [schools, language]);
 
   const uniqueDistricts = React.useMemo(() => {
@@ -579,23 +554,6 @@ const FilterBar: React.FC = () => {
               {uniqueDistricts.map((option) => (
                 <option key={option.value} value={option.value} disabled={(option as any).disabled}>
                   {(option as any).disabled ? option.label : (language === 'zh' ? localizeDistrictValue(option.label, language) : option.label)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* School Net Filter */}
-          <div>
-            <p className="text-[10px] sm:text-xs font-semibold text-on-surface-variant uppercase mb-1.5 sm:mb-2">{t.schoolNet}</p>
-            <select
-              value={schoolNetFilter ?? ''}
-              onChange={(e) => setSchoolNetFilter(e.target.value || null)}
-              className="w-full bg-surface-container-high border border-outline-variant rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm text-on-surface cursor-pointer hover:border-outline transition-colors"
-            >
-              <option value="">{t.all}</option>
-              {uniqueSchoolNets.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
                 </option>
               ))}
             </select>

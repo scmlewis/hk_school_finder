@@ -25,7 +25,6 @@ interface FilterOptions {
   financingTypeFilter: string[];
   districtFilter: string | null;
   religionFilter: string[];
-  schoolNetFilter: string | null;
 }
 
 function getFilterOptions(state: AppState): FilterOptions {
@@ -40,7 +39,6 @@ function getFilterOptions(state: AppState): FilterOptions {
     financingTypeFilter: state.financingTypeFilter,
     districtFilter: state.districtFilter,
     religionFilter: state.religionFilter,
-    schoolNetFilter: state.schoolNetFilter,
   };
 }
 
@@ -61,7 +59,6 @@ export const useStore = create<AppState>()(persist((set) => ({
   financingTypeFilter: [] as string[],
   religionFilter: [] as string[],
   districtFilter: null,
-  schoolNetFilter: null,
   favorites: [],
 
   setSchools: (schools) => set((state) => {
@@ -123,10 +120,6 @@ export const useStore = create<AppState>()(persist((set) => ({
     religionFilter: religion,
     filteredSchools: filterSchools(state.schools, getFilterOptions({ ...state, religionFilter: religion }))
   })),
-  setSchoolNetFilter: (net) => set((state) => ({
-    schoolNetFilter: net,
-    filteredSchools: filterSchools(state.schools, getFilterOptions({ ...state, schoolNetFilter: net }))
-  })),
   toggleFavorite: (schoolId) => set((state) => {
     if (!schoolId) return {};
     const exists = state.favorites.includes(schoolId);
@@ -149,7 +142,6 @@ export const useStore = create<AppState>()(persist((set) => ({
       financingTypeFilter: [],
       religionFilter: [],
       districtFilter: null,
-      schoolNetFilter: null,
       filteredSchools: filterSchools(
         state.schools,
         getFilterOptions({
@@ -162,7 +154,6 @@ export const useStore = create<AppState>()(persist((set) => ({
           financingTypeFilter: [],
           religionFilter: [],
           districtFilter: null,
-          schoolNetFilter: null,
         })
       )
     };
@@ -187,7 +178,6 @@ export const useStore = create<AppState>()(persist((set) => ({
     financingTypeFilter: state.financingTypeFilter,
     religionFilter: state.religionFilter,
     districtFilter: state.districtFilter,
-    schoolNetFilter: state.schoolNetFilter,
     favorites: state.favorites,
   }),
 }));
@@ -231,7 +221,6 @@ function filterSchools(
     const matchesFinancing = matchesMultiFilter(school.__financingUpper, opts.financingTypeFilter);
     const matchesReligion = matchesMultiFilter(school.__religionUpper, opts.religionFilter);
     const matchesDistrict = matchesCategoryFilter((school as any).__districtUpper || '', opts.districtFilter);
-    const matchesSchoolNet = !opts.schoolNetFilter || school.__netId === opts.schoolNetFilter;
 
     let matchesDistance = true;
     if (shouldCheckDistance) {
@@ -245,7 +234,7 @@ function filterSchools(
       }
     }
 
-    return matchesQuery && matchesLevel && matchesNet && matchesDistance && matchesGender && matchesFinancing && matchesDistrict && matchesReligion && matchesSchoolNet;
+    return matchesQuery && matchesLevel && matchesNet && matchesDistance && matchesGender && matchesFinancing && matchesDistrict && matchesReligion;
   });
 
   return filtered;
