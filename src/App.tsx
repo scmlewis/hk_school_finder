@@ -38,6 +38,7 @@ export default function App() {
           favoritesHint: '在學校詳情頁點擊 ☆ 即可收藏',
           authorBy: '開發者',
           githubProfile: 'GitHub 個人頁面',
+          githubRepo: '專案倉庫',
         }
       : {
           appName: 'HK School Finder',
@@ -58,6 +59,7 @@ export default function App() {
           favoritesHint: 'Tap ☆ on any school detail to save it here',
           authorBy: 'Built by',
           githubProfile: 'GitHub Profile',
+          githubRepo: 'Project Repo',
         }
   ), [language]);
 
@@ -225,15 +227,26 @@ export default function App() {
               <p>{t.aboutMap}</p>
               <div className="border-t border-outline/20 pt-3 mt-3">
                 <p className="text-xs text-outline mb-2">{t.authorBy} scmlewis</p>
-                <a
-                  href="https://github.com/scmlewis"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline"
-                >
-                  <Github className="w-3.5 h-3.5" />
-                  {t.githubProfile}
-                </a>
+                <div className="flex items-center gap-3">
+                  <a
+                    href="https://github.com/scmlewis"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline"
+                  >
+                    <Github className="w-3.5 h-3.5" />
+                    {t.githubProfile}
+                  </a>
+                  <a
+                    href="https://github.com/scmlewis/hk_school_finder"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline"
+                  >
+                    <Github className="w-3.5 h-3.5" />
+                    {t.githubRepo}
+                  </a>
+                </div>
               </div>
             </div>
           </div>
