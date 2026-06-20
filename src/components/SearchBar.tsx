@@ -112,14 +112,13 @@ const SearchBar: React.FC = () => {
 
   return (
     <div className="absolute top-16 sm:top-20 left-2 right-2 z-40 flex flex-col gap-1.5 sm:gap-2 max-w-xl mx-auto md:max-w-lg">
-      {/* Search Input */}
-      <div className="rounded-2xl sm:rounded-3xl shadow-[0_12px_28px_rgba(2,6,23,0.5)] flex items-center px-3 sm:px-4 py-2 sm:py-2.5 bg-slate-900/98 border border-indigo-400/25">
-        <Search className="text-slate-300 w-4 sm:w-5 h-4 sm:h-5 mr-2 sm:mr-3 flex-shrink-0" />
+      <div className="rounded-full flex items-center px-3 sm:px-4 py-2 sm:py-2.5 bg-surface-container-high">
+        <Search className="text-on-surface-variant w-4 sm:w-5 h-4 sm:h-5 mr-2 sm:mr-3 flex-shrink-0" />
         <input
           ref={inputRef}
           type="text"
           placeholder={language === 'zh' ? '搜尋學校...（例如：小學、Primary）' : 'Search school... (e.g., 小學, Primary)'}
-          className="bg-transparent border-none outline-none flex-1 text-slate-100 placeholder:text-slate-500 font-semibold py-1 text-sm sm:text-base md:text-lg"
+          className="bg-transparent border-none outline-none flex-1 text-on-surface placeholder:text-on-surface-variant font-medium py-1 text-sm sm:text-base md:text-lg"
           value={localQuery}
           onChange={(e) => setLocalQuery(e.target.value)}
           onFocus={() => localQuery.length > 0 && setShowDropdown(true)}
@@ -134,7 +133,7 @@ const SearchBar: React.FC = () => {
         {localQuery && (
           <button
             onClick={handleClearSearch}
-            className="p-1.5 sm:p-2 hover:bg-slate-800 rounded-full transition-colors text-slate-300 flex-shrink-0"
+            className="p-1.5 sm:p-2 hover:bg-surface-container-highest rounded-full transition-colors text-on-surface-variant flex-shrink-0"
             title={language === 'zh' ? '清除' : 'Clear'}
             aria-label={language === 'zh' ? '清除搜尋' : 'Clear search'}
           >
@@ -143,7 +142,6 @@ const SearchBar: React.FC = () => {
         )}
       </div>
 
-      {/* Autocomplete Dropdown */}
       <AnimatePresence>
         {showDropdown && matchingSchools.length > 0 && (
           <motion.div
@@ -152,7 +150,7 @@ const SearchBar: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.15 }}
-            className="rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden border border-slate-700 bg-slate-900/95 max-h-48 sm:max-h-72 overflow-y-auto"
+            className="rounded-2xl overflow-hidden border border-outline-variant bg-surface-container max-h-48 sm:max-h-72 overflow-y-auto"
             id="school-listbox"
             role="listbox"
             aria-label={language === 'zh' ? '學校列表' : 'Schools list'}
@@ -172,39 +170,36 @@ const SearchBar: React.FC = () => {
                   onClick={() => handleSelectSchool(school)}
                   onMouseEnter={() => setSelectedIndex(index)}
                   className={cn(
-                    "w-full px-2.5 sm:px-4 py-2 sm:py-3 border-b border-slate-700 text-left hover:bg-slate-800 transition-colors flex items-start gap-2 sm:gap-3 cursor-pointer group",
-                    isHighlighted && "bg-slate-700",
-                    isSelected && "bg-indigo-500/20"
+                    "w-full px-2.5 sm:px-4 py-2 sm:py-3 border-b border-outline-variant/50 text-left transition-colors flex items-start gap-2 sm:gap-3 cursor-pointer group",
+                    isHighlighted && "bg-surface-container-high",
+                    isSelected && "bg-primary/10"
                   )}
-                  whileHover={{ backgroundColor: 'rgba(30,41,59,1)' }}
                 >
-                  {/* Level Badge */}
-                  <div className={cn('w-7 sm:w-8 h-7 sm:h-8 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 font-bold text-[10px] sm:text-xs border-2', levelBadge.bg, levelBadge.text, 'border-current/30')}>
+                  <div className={cn('w-7 sm:w-8 h-7 sm:h-8 rounded-lg flex items-center justify-center flex-shrink-0 font-semibold text-[10px] sm:text-xs', levelBadge.bg, levelBadge.text)}>
                     {levelBadge.label}
                   </div>
 
-                  {/* School Info */}
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-slate-100 text-xs sm:text-sm truncate group-hover:text-indigo-300 transition-colors">
+                    <p className="font-medium text-on-surface text-xs sm:text-sm truncate group-hover:text-primary transition-colors">
                       {getSchoolNameByLanguage(school, language)}
                     </p>
-                    <p className="text-[11px] sm:text-xs text-slate-400 truncate">
+                    <p className="text-[11px] sm:text-xs text-on-surface-variant truncate">
                       {getSchoolSecondaryNameByLanguage(school, language)}
                     </p>
-                    <p className="text-[9px] sm:text-[11px] text-slate-500 mt-0.5">
+                    <p className="text-[9px] sm:text-[11px] text-outline mt-0.5">
                       {localizeDistrictValue(getSchoolDistrictByLanguage(school, 'en'), language)} · {localizeFinancingValue(getSchoolFinancingByLanguage(school, 'en'), language)}
                     </p>
                   </div>
 
                   {isSelected && (
-                    <div className="text-indigo-400 flex-shrink-0 font-bold text-lg sm:text-base">✓</div>
+                    <div className="text-primary flex-shrink-0 font-semibold text-lg sm:text-base">✓</div>
                   )}
                 </motion.button>
               );
             })}
 
             {matchingSchools.length > 0 && (
-              <div className="px-2.5 sm:px-4 py-1.5 sm:py-2 bg-slate-800/50 text-[10px] sm:text-[11px] text-slate-300 text-center border-t border-slate-700">
+              <div className="px-2.5 sm:px-4 py-1.5 sm:py-2 bg-surface-container-high text-[10px] sm:text-[11px] text-on-surface-variant text-center border-t border-outline-variant/50">
                 {language === 'zh'
                   ? `顯示 ${matchingSchools.length} 個結果`
                   : `Showing ${matchingSchools.length} result${matchingSchools.length !== 1 ? 's' : ''}`}

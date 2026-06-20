@@ -75,13 +75,13 @@ export function getSchoolLevelByLanguage(school: School, language: AppLanguage):
 export function getLevelBadgeColor(level: string): { bg: string; text: string; label: string } {
   const upper = level.toUpperCase();
   if (upper.includes('KINDERGARTEN')) {
-    return { bg: 'bg-pink-500/15', text: 'text-pink-400', label: 'K' };
+    return { bg: 'bg-pink-900/40', text: 'text-pink-300', label: 'K' };
   } else if (upper.includes('PRIMARY')) {
-    return { bg: 'bg-indigo-500/15', text: 'text-indigo-400', label: 'P' };
+    return { bg: 'bg-blue-900/40', text: 'text-blue-300', label: 'P' };
   } else if (upper.includes('SECONDARY')) {
-    return { bg: 'bg-purple-500/15', text: 'text-purple-400', label: 'S' };
+    return { bg: 'bg-emerald-900/40', text: 'text-emerald-300', label: 'S' };
   }
-  return { bg: 'bg-slate-500/15', text: 'text-slate-400', label: 'O' };
+  return { bg: 'bg-surface-container-high', text: 'text-on-surface-variant', label: 'O' };
 }
 
 

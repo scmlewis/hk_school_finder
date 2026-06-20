@@ -98,15 +98,15 @@ export default function App() {
 
   if (error) {
     return (
-      <div className="h-full w-full flex flex-col items-center justify-center bg-slate-950 p-3 sm:p-6 text-center">
-        <div className="w-12 sm:w-16 h-12 sm:h-16 bg-red-500/20 rounded-full flex items-center justify-center mb-2 sm:mb-4 border border-red-500/30">
-          <AlertCircle className="w-6 sm:w-8 h-6 sm:h-8 text-red-300" />
+      <div className="h-full w-full flex flex-col items-center justify-center bg-surface p-3 sm:p-6 text-center">
+        <div className="w-12 sm:w-16 h-12 sm:h-16 bg-error-container rounded-full flex items-center justify-center mb-2 sm:mb-4">
+          <AlertCircle className="w-6 sm:w-8 h-6 sm:h-8 text-error" />
         </div>
-        <h2 className="text-lg sm:text-xl font-bold text-slate-100 mb-1 sm:mb-2">{t.errorTitle}</h2>
-        <p className="text-xs sm:text-sm text-slate-400 max-w-xs mb-4 sm:mb-6">{error}</p>
+        <h2 className="text-lg sm:text-xl font-semibold text-on-surface mb-1 sm:mb-2">{t.errorTitle}</h2>
+        <p className="text-xs sm:text-sm text-on-surface-variant max-w-xs mb-4 sm:mb-6">{error}</p>
         <button 
           onClick={() => window.location.reload()}
-          className="px-4 sm:px-6 py-1.5 sm:py-2 text-sm sm:text-base bg-orange-500 text-white rounded-lg sm:rounded-xl font-bold hover:bg-orange-600 transition-colors cursor-pointer"
+          className="px-4 sm:px-6 py-1.5 sm:py-2 text-sm sm:text-base bg-primary text-on-primary rounded-full font-semibold transition-colors cursor-pointer"
         >
           {t.retry}
         </button>
@@ -118,45 +118,45 @@ export default function App() {
     <div className="h-full w-full relative overflow-hidden overflow-x-hidden font-sans">
       <Loading visible={loading} />
       <div className="absolute top-1 sm:top-2 md:top-3 left-1 sm:left-2 md:left-3 right-1 sm:right-2 md:right-3 z-50 flex items-center justify-between gap-1.5 sm:gap-2">
-        <div className="bg-slate-900/98 border border-indigo-400/30 shadow-[0_10px_30px_rgba(79,70,229,0.18)] rounded-lg sm:rounded-xl px-2.5 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5">
-          <p className="text-xs sm:text-base md:text-xl font-display font-bold text-slate-100 tracking-wide">
+        <div className="bg-surface-container-high px-2.5 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5 rounded-full">
+          <p className="text-xs sm:text-base md:text-xl font-semibold text-on-surface tracking-wide">
             {t.appName}
           </p>
         </div>
         <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2">
-          <div className="rounded-lg sm:rounded-xl bg-slate-900/98 border border-blue-400/25 p-1 sm:p-1.5 flex gap-0.5 sm:gap-1 shadow-[0_8px_24px_rgba(30,41,59,0.45)]">
+          <div className="rounded-full bg-surface-container-high p-1 sm:p-1.5 flex gap-0.5 sm:gap-1">
             <button
               onClick={() => setActiveView('map')}
-              className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-bold transition-colors ${activeView === 'map' ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:text-white'}`}
+              className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-semibold transition-colors ${activeView === 'map' ? 'bg-primary text-on-primary' : 'text-on-surface-variant hover:text-on-surface'}`}
             >
               {t.map}
             </button>
             <button
               onClick={() => setActiveView('stats')}
-              className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-bold transition-colors ${activeView === 'stats' ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:text-white'}`}
+              className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-semibold transition-colors ${activeView === 'stats' ? 'bg-primary text-on-primary' : 'text-on-surface-variant hover:text-on-surface'}`}
             >
               {t.stats}
             </button>
             <button
               onClick={() => setActiveView('favorites')}
-              className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-bold transition-colors ${activeView === 'favorites' ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:text-white'} relative`}
+              className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-semibold transition-colors relative ${activeView === 'favorites' ? 'bg-primary text-on-primary' : 'text-on-surface-variant hover:text-on-surface'}`}
             >
               {t.favorites}
               {favorites.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-yellow-500 rounded-full text-[8px] font-bold text-white flex items-center justify-center">{favorites.length}</span>
+                <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-error rounded-full text-[8px] font-bold text-on-error-container flex items-center justify-center">{favorites.length}</span>
               )}
             </button>
           </div>
-          <div className="rounded-lg sm:rounded-xl bg-slate-900/98 border border-blue-400/25 p-1 sm:p-1.5 flex gap-0.5 sm:gap-1 shadow-[0_8px_24px_rgba(30,41,59,0.45)]">
+          <div className="rounded-full bg-surface-container-high p-1 sm:p-1.5 flex gap-0.5 sm:gap-1">
             <button
               onClick={() => setLanguage('en')}
-              className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-bold transition-colors ${language === 'en' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:text-white'}`}
+              className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-semibold transition-colors ${language === 'en' ? 'bg-primary text-on-primary' : 'text-on-surface-variant hover:text-on-surface'}`}
             >
               EN
             </button>
             <button
               onClick={() => setLanguage('zh')}
-              className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-bold transition-colors ${language === 'zh' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:text-white'}`}
+              className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-semibold transition-colors ${language === 'zh' ? 'bg-primary text-on-primary' : 'text-on-surface-variant hover:text-on-surface'}`}
             >
               繁中
             </button>
@@ -164,11 +164,10 @@ export default function App() {
           <button
             type="button"
             onClick={() => setIsAboutOpen(true)}
-            className="h-8 sm:h-10 px-2 sm:px-3.5 rounded-lg sm:rounded-xl bg-slate-900/98 border border-blue-400/25 text-slate-100 text-xs sm:text-sm font-semibold flex items-center gap-1 sm:gap-1.5 shadow-[0_8px_24px_rgba(30,41,59,0.45)]"
+            className="h-8 sm:h-10 px-2 sm:px-3.5 rounded-full bg-surface-container-high text-on-surface text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-1.5"
           >
             <Info className="w-3 sm:w-4 h-3 sm:h-4" />
             <span className="hidden sm:inline">{t.about}</span>
-            <span className="sm:hidden">ℹ️</span>
           </button>
         </div>
       </div>
@@ -178,20 +177,20 @@ export default function App() {
           <SearchBar />
           <FilterBar />
           {deferMap ? (
-            <Suspense fallback={<div className="p-4 text-slate-300">{language === 'zh' ? '載入地圖...' : 'Loading map...'}</div>}>
+            <Suspense fallback={<div className="p-4 text-on-surface-variant">{language === 'zh' ? '載入地圖...' : 'Loading map...'}</div>}>
               <Map />
             </Suspense>
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-slate-400">{language === 'zh' ? '載入地圖中...' : 'Preparing map...'}</div>
+            <div className="w-full h-full flex items-center justify-center text-on-surface-variant">{language === 'zh' ? '載入地圖中...' : 'Preparing map...'}</div>
           )}
           <BottomSheet />
         </>
       ) : activeView === 'favorites' ? (
-        <Suspense fallback={<div className="p-4 text-slate-300">{language === 'zh' ? '載入收藏...' : 'Loading favorites...'}</div>}>
+        <Suspense fallback={<div className="p-4 text-on-surface-variant">{language === 'zh' ? '載入收藏...' : 'Loading favorites...'}</div>}>
           <FavoritesView onBack={() => setActiveView('map')} />
         </Suspense>
       ) : (
-        <Suspense fallback={<div className="p-4 text-slate-300">{language === 'zh' ? '載入統計資料...' : 'Loading statistics...'}</div>}>
+        <Suspense fallback={<div className="p-4 text-on-surface-variant">{language === 'zh' ? '載入統計資料...' : 'Loading statistics...'}</div>}>
           <StatsTab />
         </Suspense>
       )}
@@ -201,22 +200,22 @@ export default function App() {
           <button
             type="button"
             aria-label={t.close}
-            className="fixed inset-0 z-[60] bg-black/55"
+            className="fixed inset-0 z-[60] bg-black/60"
             onClick={() => setIsAboutOpen(false)}
           />
-          <div className="fixed inset-x-0 top-20 z-[61] mx-auto w-[calc(100%-2rem)] max-w-xl rounded-2xl border border-slate-700 bg-slate-900/95 p-5 shadow-2xl">
+          <div className="fixed inset-x-0 top-20 z-[61] mx-auto w-[calc(100%-2rem)] max-w-xl rounded-2xl bg-surface-container p-5 shadow-2xl">
             <div className="flex items-start justify-between mb-3">
-              <h2 className="text-lg font-bold text-slate-100">{t.aboutTitle}</h2>
+              <h2 className="text-lg font-semibold text-on-surface">{t.aboutTitle}</h2>
               <button
                 type="button"
                 aria-label={t.close}
                 onClick={() => setIsAboutOpen(false)}
-                className="w-8 h-8 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center"
+                className="w-8 h-8 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
-            <div className="space-y-3 text-sm text-slate-300 leading-relaxed">
+            <div className="space-y-3 text-sm text-on-surface-variant leading-relaxed">
               <p>{t.aboutOrigin}</p>
               <p>{t.aboutHowTo}</p>
               <p>{t.aboutMap}</p>
@@ -225,13 +224,12 @@ export default function App() {
         </>
       )}
       
-      {/* Attribution / Info - Credibility & Trust */}
       <div className="absolute bottom-4 left-4 z-10 pointer-events-none">
         <div className="space-y-2">
-          <p className="text-xs text-slate-400 font-bold uppercase tracking-widest bg-slate-900/80 border border-slate-700 px-2.5 py-1.5 rounded-lg ">
-            📊 {schools.length.toLocaleString()} {language === 'zh' ? '所學校' : 'schools indexed'}
+          <p className="text-xs text-on-surface-variant font-medium uppercase tracking-widest bg-surface-container px-2.5 py-1.5 rounded-lg">
+            {schools.length.toLocaleString()} {language === 'zh' ? '所學校' : 'schools indexed'}
           </p>
-          <p className="text-[10px] text-slate-500 font-medium bg-slate-900/60 border border-slate-700 px-2 py-1 rounded">
+          <p className="text-[10px] text-outline font-medium bg-surface-container-low px-2 py-1 rounded">
             {t.data}
           </p>
         </div>

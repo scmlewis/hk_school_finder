@@ -97,13 +97,13 @@ function buildReligionDistribution(values: string[], fallback: string, noneLabel
   return none ? [...regular, none] : regular;
 }
 
-const cardClass = 'rounded-2xl border border-slate-700 bg-slate-900/90 shadow-[0_12px_36px_rgba(2,6,23,0.45)]';
+const cardClass = 'rounded-2xl bg-surface-container';
 
 function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
     <div className={`${cardClass} p-4 sm:p-5`}>
-      <p className="text-[11px] sm:text-xs uppercase tracking-wider text-slate-400 font-semibold">{label}</p>
-      <p className="text-2xl sm:text-3xl font-bold text-slate-100 mt-1">{value}</p>
+      <p className="text-[11px] sm:text-xs text-on-surface-variant font-medium">{label}</p>
+      <p className="text-2xl sm:text-3xl font-semibold text-on-surface mt-1">{value}</p>
     </div>
   );
 }
@@ -111,7 +111,7 @@ function StatCard({ label, value }: { label: string; value: string | number }) {
 function ChartCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className={`${cardClass} p-4 sm:p-5`}>
-      <h3 className="text-sm sm:text-base font-bold text-slate-100 mb-3">{title}</h3>
+      <h3 className="text-sm sm:text-base font-semibold text-on-surface mb-3">{title}</h3>
       {children}
     </section>
   );
@@ -121,10 +121,10 @@ function LocalizedTooltip({ active, payload, label, valueLabel }: TooltipProps) 
   if (!active || !payload || payload.length === 0) return null;
 
   return (
-    <div className="rounded-xl border border-slate-700 bg-slate-950/95 px-4 py-3 shadow-xl">
-      <p className="text-slate-100 font-semibold text-base">{label}</p>
-      <p className="text-cyan-400 text-2xl mt-1">
-        {valueLabel} : <span className="font-semibold">{Number(payload[0].value || 0).toLocaleString()}</span>
+    <div className="rounded-xl bg-surface-container-high px-4 py-3 shadow-xl">
+      <p className="text-on-surface font-medium text-base">{label}</p>
+      <p className="text-primary text-2xl mt-1">
+        {valueLabel} : <span className="font-medium">{Number(payload[0].value || 0).toLocaleString()}</span>
       </p>
     </div>
   );
@@ -135,18 +135,18 @@ function DistributionChart({ data, color, valueLabel }: { data: ChartDatum[]; co
     <div className="h-72">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 40 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(144,148,153,0.15)" />
           <XAxis
             dataKey="name"
             angle={-25}
             textAnchor="end"
             interval={0}
             height={54}
-            tick={{ fill: '#cbd5e1', fontSize: 11 }}
+            tick={{ fill: '#c0c3c8', fontSize: 11 }}
           />
-          <YAxis allowDecimals={false} tick={{ fill: '#cbd5e1', fontSize: 11 }} />
+          <YAxis allowDecimals={false} tick={{ fill: '#c0c3c8', fontSize: 11 }} />
           <Tooltip
-            cursor={{ fill: 'rgba(30, 41, 59, 0.35)' }}
+            cursor={{ fill: 'rgba(50,53,58,0.4)' }}
             content={<LocalizedTooltip valueLabel={valueLabel} />}
           />
           <Bar dataKey="value" fill={color} radius={[8, 8, 0, 0]} />
@@ -163,11 +163,11 @@ function DistrictChart({ data, color, valueLabel }: { data: ChartDatum[]; color:
     <div style={{ height: chartHeight }} className="w-full overflow-x-hidden">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} layout="vertical" margin={{ top: 4, right: 12, left: 12, bottom: 4 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" />
-          <XAxis type="number" allowDecimals={false} tick={{ fill: '#cbd5e1', fontSize: 11 }} />
-          <YAxis type="category" dataKey="name" width={110} tick={{ fill: '#cbd5e1', fontSize: 11 }} />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(144,148,153,0.15)" />
+          <XAxis type="number" allowDecimals={false} tick={{ fill: '#c0c3c8', fontSize: 11 }} />
+          <YAxis type="category" dataKey="name" width={110} tick={{ fill: '#c0c3c8', fontSize: 11 }} />
           <Tooltip
-            cursor={{ fill: 'rgba(30, 41, 59, 0.35)' }}
+            cursor={{ fill: 'rgba(50,53,58,0.4)' }}
             content={<LocalizedTooltip valueLabel={valueLabel} />}
           />
           <Bar dataKey="value" fill={color} radius={[0, 8, 8, 0]} />
@@ -304,7 +304,7 @@ const StatsTab: React.FC = () => {
       <div className="absolute inset-0 pt-40 sm:pt-44 md:pt-28 px-3 sm:px-4 md:px-6 pb-6 md:pb-8 overflow-y-auto overflow-x-hidden">
         <div className="max-w-6xl mx-auto">
           <div className={`${cardClass} p-8 text-center`}>
-            <p className="text-slate-300 font-semibold">{t.empty}</p>
+            <p className="text-on-surface-variant font-medium">{t.empty}</p>
           </div>
         </div>
       </div>
@@ -315,29 +315,29 @@ const StatsTab: React.FC = () => {
     <div className="absolute inset-0 pt-40 sm:pt-44 md:pt-28 px-3 sm:px-4 md:px-6 pb-6 md:pb-8 overflow-y-auto overflow-x-hidden">
       <div className="max-w-6xl mx-auto space-y-4 sm:space-y-5">
         <div className={`${cardClass} p-4 sm:p-5`}>
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-100">{t.title}</h2>
-          <p className="text-sm text-slate-400 mt-1">{t.subtitle}</p>
+          <h2 className="text-xl sm:text-2xl font-semibold text-on-surface">{t.title}</h2>
+          <p className="text-sm text-on-surface-variant mt-1">{t.subtitle}</p>
           <div className="mt-3 flex items-center gap-2">
-            <span className="text-[11px] sm:text-xs uppercase tracking-wider text-slate-400 font-semibold">
+            <span className="text-[11px] sm:text-xs text-on-surface-variant font-medium">
               {useFiltered ? t.scopeFiltered : t.scopeAll}
             </span>
             <button
               type="button"
               onClick={() => setUseFiltered((prev) => !prev)}
-              className={`px-2.5 py-1 rounded-lg text-xs font-semibold border transition-colors ${
+              className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${
                 useFiltered
-                  ? "bg-emerald-600 border-emerald-500 text-white"
-                  : "bg-slate-800 border-slate-600 text-slate-300 hover:text-white"
+                  ? "bg-primary border-primary text-on-primary"
+                  : "bg-surface-container-high border-outline-variant text-on-surface-variant hover:text-on-surface"
               }`}
             >
               {useFiltered ? t.scopeFiltered : t.scopeAll}
             </button>
           </div>
           <div className="mt-4 flex flex-wrap items-center gap-2">
-            <span className="text-[11px] sm:text-xs uppercase tracking-wider text-slate-400 font-semibold">
+            <span className="text-[11px] sm:text-xs text-on-surface-variant font-medium">
               {t.levelFilterLabel}
             </span>
-            <span className="text-[10px] sm:text-xs text-slate-500">({t.levelFilterHint})</span>
+            <span className="text-[10px] sm:text-xs text-outline">({t.levelFilterHint})</span>
             {levelOptions.map((option) => {
               const active = selectedLevels.includes(option.key);
               return (
@@ -345,7 +345,7 @@ const StatsTab: React.FC = () => {
                   key={option.key}
                   type="button"
                   onClick={() => toggleLevel(option.key)}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold border transition-colors ${active ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-slate-800 border-slate-600 text-slate-300 hover:text-white'}`}
+                  className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${active ? 'bg-primary border-primary text-on-primary' : 'bg-surface-container-high border-outline-variant text-on-surface-variant hover:text-on-surface'}`}
                 >
                   {option.label}
                 </button>
@@ -361,23 +361,23 @@ const StatsTab: React.FC = () => {
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 sm:gap-4">
           <ChartCard title={t.byLevel}>
-            <DistributionChart data={levelDistribution} color="#6366f1" valueLabel={t.countLabel} />
+            <DistributionChart data={levelDistribution} color="#80cbc4" valueLabel={t.countLabel} />
           </ChartCard>
 
           <ChartCard title={t.byFinancing}>
-            <DistributionChart data={financingDistribution} color="#f97316" valueLabel={t.countLabel} />
+            <DistributionChart data={financingDistribution} color="#4db6ac" valueLabel={t.countLabel} />
           </ChartCard>
 
           <ChartCard title={t.byGender}>
-            <DistributionChart data={genderDistribution} color="#22c55e" valueLabel={t.countLabel} />
+            <DistributionChart data={genderDistribution} color="#26a69a" valueLabel={t.countLabel} />
           </ChartCard>
 
           <ChartCard title={t.byReligion}>
-            <DistributionChart data={religionDistribution} color="#a855f7" valueLabel={t.countLabel} />
+            <DistributionChart data={religionDistribution} color="#009688" valueLabel={t.countLabel} />
           </ChartCard>
 
           <ChartCard title={t.byDistrict}>
-            <DistrictChart data={districtDistribution} color="#0ea5e9" valueLabel={t.countLabel} />
+            <DistrictChart data={districtDistribution} color="#00897b" valueLabel={t.countLabel} />
           </ChartCard>
         </div>
       </div>

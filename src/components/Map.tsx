@@ -188,7 +188,7 @@ const Map: React.FC = () => {
             type: 'fill',
             source: 'school-nets',
             paint: {
-              'fill-color': '#3b82f6',
+              'fill-color': '#80cbc4',
               'fill-opacity': [
                 'case',
                 ['boolean', ['feature-state', 'active'], false],
@@ -203,7 +203,7 @@ const Map: React.FC = () => {
             type: 'line',
             source: 'school-nets',
             paint: {
-              'line-color': '#60a5fa',
+              'line-color': '#80cbc4',
               'line-width': [
                 'case',
                 ['boolean', ['feature-state', 'active'], false],
@@ -236,7 +236,7 @@ const Map: React.FC = () => {
             source: SCHOOLS_SOURCE_ID,
             filter: ['has', 'point_count'],
             paint: {
-              'circle-color': '#2563eb',
+              'circle-color': '#005048',
               'circle-radius': [
                 'step',
                 ['get', 'point_count'],
@@ -247,7 +247,7 @@ const Map: React.FC = () => {
                 24,
               ],
               'circle-opacity': 0.82,
-              'circle-stroke-color': '#bfdbfe',
+              'circle-stroke-color': '#80cbc4',
               'circle-stroke-width': 2,
             },
           });
@@ -273,9 +273,9 @@ const Map: React.FC = () => {
             source: SCHOOLS_SOURCE_ID,
             filter: ['!', ['has', 'point_count']],
             paint: {
-              'circle-color': ['coalesce', ['get', 'color'], '#64748b'],
+              'circle-color': ['coalesce', ['get', 'color'], '#909499'],
               'circle-radius': 7,
-              'circle-stroke-color': '#e2e8f0',
+              'circle-stroke-color': '#e2e3e5',
               'circle-stroke-width': 1.5,
               'circle-opacity': 0.95,
             },
@@ -506,10 +506,10 @@ const Map: React.FC = () => {
 
 function getMarkerColor(schoolLevel: string): string {
   const level = (schoolLevel || '').toUpperCase();
-  if (level.includes('KINDERGARTEN')) return '#f472b6';
-  if (level.includes('PRIMARY')) return '#60a5fa';
-  if (level.includes('SECONDARY')) return '#34d399';
-  return '#94a3b8';
+  if (level.includes('KINDERGARTEN')) return '#f48fb1';
+  if (level.includes('PRIMARY')) return '#90caf9';
+  if (level.includes('SECONDARY')) return '#80cbc4';
+  return '#909499';
 }
 
 function getSchoolId(school: School): string {
@@ -531,11 +531,11 @@ function createPopupContent(school: School, lang: 'en' | 'zh'): HTMLDivElement {
   const container = document.createElement('div');
   container.style.padding = '10px';
   container.style.maxWidth = '240px';
-  container.style.fontFamily = 'system-ui';
-  container.style.color = '#e2e8f0';
+  container.style.fontFamily = 'Inter, system-ui, sans-serif';
+  container.style.color = '#e2e3e5';
 
   const nameEl = document.createElement('p');
-  nameEl.style.fontWeight = '700';
+  nameEl.style.fontWeight = '600';
   nameEl.style.margin = '0 0 2px 0';
   nameEl.style.fontSize = '13px';
   nameEl.textContent = getSchoolNameByLanguage(school, lang);
@@ -543,14 +543,14 @@ function createPopupContent(school: School, lang: 'en' | 'zh'): HTMLDivElement {
 
   const secondaryEl = document.createElement('p');
   secondaryEl.style.fontSize = '11px';
-  secondaryEl.style.color = '#94a3b8';
+  secondaryEl.style.color = '#c0c3c8';
   secondaryEl.style.margin = '0';
   secondaryEl.textContent = getSchoolSecondaryNameByLanguage(school, lang);
   container.appendChild(secondaryEl);
 
   const infoEl = document.createElement('p');
   infoEl.style.fontSize = '11px';
-  infoEl.style.color = '#94a3b8';
+  infoEl.style.color = '#909499';
   infoEl.style.margin = '6px 0 0 0';
   infoEl.textContent = `${localizeDistrictValue(getSchoolDistrictByLanguage(school, 'en'), lang)} · ${localizeFinancingValue(getSchoolFinancingByLanguage(school, 'en'), lang)}`;
   container.appendChild(infoEl);

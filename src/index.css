@@ -1,9 +1,30 @@
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Fredoka", sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --color-surface-dim: #0e1015;
+  --color-surface: #191c20;
+  --color-surface-container-low: #1d2024;
+  --color-surface-container: #272a2f;
+  --color-surface-container-high: #32353a;
+  --color-surface-container-highest: #3d4045;
+
+  --color-on-surface: #e2e3e5;
+  --color-on-surface-variant: #c0c3c8;
+
+  --color-primary: #80cbc4;
+  --color-on-primary: #003731;
+  --color-primary-container: #005048;
+  --color-on-primary-container: #9cf2eb;
+
+  --color-outline: #909499;
+  --color-outline-variant: #4e5854;
+
+  --color-error: #ffb4ab;
+  --color-error-container: #93000a;
+  --color-on-error-container: #ffb4ab;
 }
 
 html, body, #root {
@@ -12,25 +33,24 @@ html, body, #root {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background: #020617;
-  color: #e2e8f0;
+  background: var(--color-surface);
+  color: var(--color-on-surface);
 }
 
 .maplibregl-ctrl-bottom-right, .maplibregl-ctrl-bottom-left {
   display: none;
 }
 
-/* MapLibre popup dark theme styling */
 .school-popup.maplibregl-popup {
   filter: none;
 }
 
 .school-popup .maplibregl-popup-content {
-  background: #0f172a !important;
+  background: var(--color-surface-container) !important;
   border-radius: 12px;
-  border: 1px solid #1e293b !important;
+  border: 1px solid var(--color-outline-variant) !important;
   padding: 0 !important;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 .school-popup .maplibregl-popup-close-button {
@@ -38,10 +58,9 @@ html, body, #root {
 }
 
 .school-popup .maplibregl-popup-tip {
-  border-top-color: #0f172a;
+  border-top-color: var(--color-surface-container);
 }
 
-/* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
   .animate-spin,
   .animate-pulse {
