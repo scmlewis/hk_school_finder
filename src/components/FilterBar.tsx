@@ -283,13 +283,16 @@ const FilterBar: React.FC = () => {
       '資助': 'AIDED',
       '英基': 'ENGLISH SCHOOLS FOUNDATION',
       'PRIVATE': 'PRIVATE',
+      'PRIVATE INDEPENDENT': 'PRIVATE',
+      'PRIVATE INDEPENDENT SCH SCHEME': 'PRIVATE',
       'DIRECT SUBSIDY': 'DIRECT SUBSIDY',
+      'DIRECT SUBSIDY SCHEME': 'DIRECT SUBSIDY',
       'GOVERNMENT': 'GOVERNMENT',
       'AIDED': 'AIDED',
-      'ENGLISH SCHOOLS FOUNDATION': 'ENGLISH SCHOOLS FOUNDATION',
-      'PRIVATE INDEPENDENT': 'PRIVATE',
       'SUBVENTED': 'AIDED',
       'AIDED / SUBVENTED': 'AIDED',
+      'CAPUT': 'AIDED',
+      'ENGLISH SCHOOLS FOUNDATION': 'ENGLISH SCHOOLS FOUNDATION',
     };
 
     values.forEach((raw) => {
@@ -299,7 +302,7 @@ const FilterBar: React.FC = () => {
       if (corrected === '基督��') corrected = '基督教';
       if (corrected === '不適���' || corrected === '不��用') corrected = '不適用';
 
-      const normalized = corrected.replace(/[\s\uFEFF\u00A0\u200B-\u200D]/g, '').normalize('NFKC').toUpperCase();
+      const normalized = corrected.trim().toUpperCase();
 
       let key = toCanonical[normalized] || '';
       if (!key) {
