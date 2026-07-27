@@ -6,15 +6,16 @@ import FilterBar from './components/FilterBar';
 import BottomSheet from './components/BottomSheet';
 const StatsTab = React.lazy(() => import('./components/StatsTab'));
 const FavoritesView = React.lazy(() => import('./components/FavoritesView'));
+const CompareView = React.lazy(() => import('./components/CompareView'));
 import { fetchSchools } from './services';
 import { useStore } from './store';
 import { AlertCircle, Info, X, Github } from 'lucide-react';
 import Loading from './components/Loading';
 
 export default function App() {
-  const { setSchools, setLoading, setError, loading, error, schools, language, setLanguage, favorites } = useStore();
+  const { setSchools, setLoading, setError, loading, error, schools, language, setLanguage, favorites, comparisonList } = useStore();
   const [isAboutOpen, setIsAboutOpen] = useState(false);
-  const [activeView, setActiveView] = useState<'map' | 'stats' | 'favorites'>('map');
+  const [activeView, setActiveView] = useState<'map' | 'stats' | 'favorites' | 'compare'>('map');
   const [deferMap, setDeferMap] = useState(false);
 
   const t = useMemo(() => (
@@ -33,6 +34,7 @@ export default function App() {
           data: '資料來源：教育局與Data.gov.hk',
           map: '地圖',
           stats: '統計',
+          compare: '比較',
           favorites: '收藏',
           noFavorites: '尚未收藏任何學校',
           favoritesHint: '在學校詳情頁點擊 ☆ 即可收藏',
@@ -54,6 +56,7 @@ export default function App() {
           data: 'Data: EDB & Data.gov.hk',
           map: 'Map',
           stats: 'Stats',
+          compare: 'Compare',
           favorites: 'Favorites',
           noFavorites: 'No favorites yet',
           favoritesHint: 'Tap ☆ on any school detail to save it here',
@@ -144,6 +147,15 @@ export default function App() {
               {t.stats}
             </button>
             <button
+              onClick={() => setActiveView('compare')}
+              className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-semibold transition-colors relative ${activeView === 'compare' ? 'bg-primary text-on-primary' : 'text-on-surface-variant hover:text-on-surface'}`}
+            >
+              {t.compare}
+              {comparisonList.length > 0 && (
+                <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-error rounded-full text-[8px] font-bold text-on-error-container flex items-center justify-center">{comparisonList.length}</span>
+              )}
+            </button>
+            <button
               onClick={() => setActiveView('favorites')}
               className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-semibold transition-colors relative ${activeView === 'favorites' ? 'bg-primary text-on-primary' : 'text-on-surface-variant hover:text-on-surface'}`}
             >
@@ -191,6 +203,10 @@ export default function App() {
           )}
           <BottomSheet />
         </>
+      ) : activeView === 'compare' ? (
+        <Suspense fallback={<div className="p-4 text-on-surface-variant">{language === 'zh' ? '載入比較...' : 'Loading comparison...'}</div>}>
+          <CompareView onBack={() => setActiveView('map')} />
+        </Suspense>
       ) : activeView === 'favorites' ? (
         <Suspense fallback={<div className="p-4 text-on-surface-variant">{language === 'zh' ? '載入收藏...' : 'Loading favorites...'}</div>}>
           <FavoritesView onBack={() => setActiveView('map')} />
