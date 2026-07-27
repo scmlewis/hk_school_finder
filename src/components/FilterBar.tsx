@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapPin, Locate, SlidersHorizontal, X } from 'lucide-react';
+import { MapPin, Locate, SlidersHorizontal, X, BookmarkPlus, Check, Home } from 'lucide-react';
 import { useStore } from '../store';
 import { getSchoolFinancingByLanguage, getSchoolGenderByLanguage, getSchoolReligionByLanguage, getSchoolDistrictByLanguage, localizeFinancingValue, localizeReligionValue, localizeDistrictValue, localizeGenderValue } from '../utils';
 
@@ -22,10 +22,22 @@ const FilterBar: React.FC = () => {
     setDistrictFilter,
     clearFilters,
     language,
+    filterPresets,
+    saveFilterPreset,
+    loadFilterPreset,
+    deleteFilterPreset,
+    homeAddress,
+    setHomeAddress,
   } = useStore();
   const [isLocating, setIsLocating] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isPresetInputOpen, setIsPresetInputOpen] = useState(false);
+  const [presetName, setPresetName] = useState('');
+  const [isHomeInputOpen, setIsHomeInputOpen] = useState(false);
+  const [homeInput, setHomeInput] = useState('');
+  const [isGeocoding, setIsGeocoding] = useState(false);
+  const [geocodingError, setGeocodingError] = useState<string | null>(null);
 
   const t = language === 'zh'
     ? {
@@ -46,6 +58,17 @@ const FilterBar: React.FC = () => {
         noLimit: '不限',
         notApplicable: '不適用',
         clearFilters: '清除篩選',
+        savePreset: '儲存篩選',
+        presetName: '篩選名稱',
+        noPresets: '尚未儲存篩選',
+        setHome: '設置地址',
+        useCurrentLocation: '使用目前位置',
+        enterAddress: '輸入地址',
+        findAddress: '搜尋',
+        homeSet: '地址已設定',
+        clearHome: '清除',
+        geocodingError: '找不到地址',
+        geocodingLoading: '搜尋中...',
       }
     : {
         title: 'Filters',
@@ -65,6 +88,17 @@ const FilterBar: React.FC = () => {
         noLimit: 'No Limit',
         notApplicable: 'Not Applicable',
         clearFilters: 'Clear Filters',
+        savePreset: 'Save Preset',
+        presetName: 'Preset name',
+        noPresets: 'No saved presets',
+        setHome: 'Set Home',
+        useCurrentLocation: 'Use current location',
+        enterAddress: 'Enter address',
+        findAddress: 'Find',
+        homeSet: 'Home set',
+        clearHome: 'Clear',
+        geocodingError: 'Address not found',
+        geocodingLoading: 'Searching...',
       };
 
   const normalizeFilterKey = (value: string): string => {
@@ -249,6 +283,48 @@ const FilterBar: React.FC = () => {
         timeout: 10000,
         enableHighAccuracy: false
       }
+    );
+  };
+
+  const handleSetHomeFromAddress = async () => {
+    if (!homeInput.trim()) return;
+    setIsGeocoding(true);
+    setGeocodingError(null);
+    try {
+      const query = encodeURIComponent(homeInput.trim());
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${query}&format=json&limit=1&countrycodes=hk`,
+        { headers: { 'User-Agent': 'HKSchoolFinder/1.0' } }
+      );
+      const results = await res.json();
+      if (results.length > 0) {
+        setHomeAddress({ lat: parseFloat(results[0].lat), lng: parseFloat(results[0].lon) });
+        setIsHomeInputOpen(false);
+        setHomeInput('');
+      } else {
+        setGeocodingError(t.geocodingError);
+      }
+    } catch {
+      setGeocodingError(t.geocodingError);
+    } finally {
+      setIsGeocoding(false);
+    }
+  };
+
+  const handleSetHomeFromLocation = () => {
+    if (!navigator.geolocation) return;
+    setIsGeocoding(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setHomeAddress({ lat: position.coords.latitude, lng: position.coords.longitude });
+        setIsGeocoding(false);
+        setIsHomeInputOpen(false);
+      },
+      () => {
+        setGeocodingError(t.geocodingError);
+        setIsGeocoding(false);
+      },
+      { timeout: 10000, enableHighAccuracy: false }
     );
   };
 
@@ -482,6 +558,94 @@ const FilterBar: React.FC = () => {
             </button>
           </div>
 
+          {/* Filter Presets */}
+          <div className="border-t border-outline-variant pt-3">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[10px] sm:text-xs font-semibold text-on-surface-variant uppercase">
+                {language === 'zh' ? '篩選預設' : 'Filter Presets'}
+              </p>
+              <button
+                type="button"
+                onClick={() => setIsPresetInputOpen(!isPresetInputOpen)}
+                className="text-[10px] sm:text-xs font-semibold px-2 py-1 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-high transition-colors cursor-pointer flex items-center gap-1"
+              >
+                <BookmarkPlus className="w-3 h-3" />
+                {t.savePreset}
+              </button>
+            </div>
+
+            {isPresetInputOpen && (
+              <div className="flex gap-1.5 mb-2">
+                <input
+                  type="text"
+                  value={presetName}
+                  onChange={(e) => setPresetName(e.target.value)}
+                  placeholder={t.presetName}
+                  className="flex-1 bg-surface-container-high border border-outline-variant rounded-lg px-2.5 py-1.5 text-xs text-on-surface placeholder:text-outline"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && presetName.trim()) {
+                      saveFilterPreset(presetName.trim());
+                      setPresetName('');
+                      setIsPresetInputOpen(false);
+                    }
+                  }}
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (presetName.trim()) {
+                      saveFilterPreset(presetName.trim());
+                      setPresetName('');
+                      setIsPresetInputOpen(false);
+                    }
+                  }}
+                  className="p-1.5 bg-primary text-on-primary rounded-lg cursor-pointer"
+                >
+                  <Check className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsPresetInputOpen(false);
+                    setPresetName('');
+                  }}
+                  className="p-1.5 bg-surface-container-high text-on-surface-variant rounded-lg cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+
+            {filterPresets.length > 0 ? (
+              <div className="flex flex-wrap gap-1.5">
+                {filterPresets.map((preset) => (
+                  <div
+                    key={preset.id}
+                    className="flex items-center gap-1 bg-surface-container-high rounded-lg pl-2.5 pr-1 py-1"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => loadFilterPreset(preset.id)}
+                      className="text-[10px] sm:text-xs font-medium text-on-surface hover:text-primary transition-colors cursor-pointer"
+                    >
+                      {preset.name}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => deleteFilterPreset(preset.id)}
+                      className="p-0.5 text-on-surface-variant hover:text-error transition-colors cursor-pointer"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-[9px] sm:text-[10px] text-outline italic">{t.noPresets}</p>
+            )}
+          </div>
+
           {/* School Level Filter */}
           <div>
             <p className="text-[10px] sm:text-xs font-semibold text-on-surface-variant uppercase mb-1.5 sm:mb-2">{t.level}</p>
@@ -655,6 +819,71 @@ const FilterBar: React.FC = () => {
               <p className="text-xs sm:text-sm text-error font-medium">{locationError}</p>
             </div>
           )}
+
+          {/* Home Address */}
+          <div>
+            <button
+              onClick={() => setIsHomeInputOpen(!isHomeInputOpen)}
+              className="w-full py-2 sm:py-2.5 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer bg-surface-container-high text-on-surface hover:bg-surface-container-highest active:scale-95"
+            >
+              <Home className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
+              {homeAddress ? t.homeSet : t.setHome}
+            </button>
+
+            {isHomeInputOpen && !homeAddress && (
+              <div className="mt-2 space-y-2">
+                <button
+                  type="button"
+                  onClick={handleSetHomeFromLocation}
+                  disabled={isGeocoding}
+                  className="w-full py-2 rounded-lg font-medium text-xs bg-primary text-on-primary cursor-pointer disabled:opacity-50"
+                >
+                  {isGeocoding ? t.geocodingLoading : t.useCurrentLocation}
+                </button>
+                <div className="flex gap-1.5">
+                  <input
+                    type="text"
+                    value={homeInput}
+                    onChange={(e) => setHomeInput(e.target.value)}
+                    placeholder={t.enterAddress}
+                    className="flex-1 bg-surface-container-high border border-outline-variant rounded-lg px-2.5 py-1.5 text-xs text-on-surface placeholder:text-outline"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSetHomeFromAddress();
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleSetHomeFromAddress}
+                    disabled={isGeocoding || !homeInput.trim()}
+                    className="px-3 py-1.5 bg-primary text-on-primary rounded-lg text-xs font-medium cursor-pointer disabled:opacity-50"
+                  >
+                    {isGeocoding ? t.geocodingLoading : t.findAddress}
+                  </button>
+                </div>
+                {geocodingError && (
+                  <p className="text-[10px] sm:text-xs text-error">{geocodingError}</p>
+                )}
+              </div>
+            )}
+
+            {homeAddress && (
+              <div className="mt-2 flex items-center justify-between bg-secondary-container/20 border border-secondary-container/30 rounded-lg px-2.5 py-1.5">
+                <div className="flex items-center gap-1.5">
+                  <Home className="w-3.5 h-3.5 text-secondary-container" />
+                  <p className="text-[10px] sm:text-xs text-secondary-container font-medium">
+                    {homeAddress.lat.toFixed(4)}, {homeAddress.lng.toFixed(4)}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setHomeAddress(null)}
+                  className="text-[10px] sm:text-xs text-error hover:underline cursor-pointer"
+                >
+                  {t.clearHome}
+                </button>
+              </div>
+            )}
+          </div>
 
           {/* Info text */}
           <p className="text-[9px] sm:text-[10px] text-outline mt-2 sm:mt-3">
