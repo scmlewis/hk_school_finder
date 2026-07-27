@@ -22,6 +22,21 @@ export interface School {
   [key: string]: any;
 }
 
+export interface FilterState {
+  levelFilter: string[];
+  genderFilter: string[];
+  financingTypeFilter: string[];
+  religionFilter: string[];
+  districtFilter: string | null;
+  distanceFilter: number | null;
+}
+
+export interface FilterPreset {
+  id: string;
+  name: string;
+  filters: FilterState;
+}
+
 export type CachedPayload<T> = {
   data: T;
   updatedAt: number;
@@ -45,6 +60,9 @@ export interface AppState {
   religionFilter: string[];
   districtFilter: string | null;
   favorites: string[];
+  comparisonList: string[];
+  filterPresets: FilterPreset[];
+  homeAddress: { lat: number; lng: number } | null;
   
   setSchools: (schools: School[]) => void;
   setLoading: (loading: boolean) => void;
@@ -63,4 +81,11 @@ export interface AppState {
   setDistrictFilter: (district: string | null) => void;
   toggleFavorite: (schoolId: string | undefined) => void;
   clearFilters: () => void;
+  addToComparison: (schoolId: string | undefined) => void;
+  removeFromComparison: (schoolId: string) => void;
+  clearComparison: () => void;
+  saveFilterPreset: (name: string) => void;
+  loadFilterPreset: (id: string) => void;
+  deleteFilterPreset: (id: string) => void;
+  setHomeAddress: (location: { lat: number; lng: number } | null) => void;
 }

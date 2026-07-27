@@ -60,6 +60,9 @@ export const useStore = create<AppState>()(persist((set) => ({
   religionFilter: [] as string[],
   districtFilter: null,
   favorites: [],
+  comparisonList: [],
+  filterPresets: [],
+  homeAddress: null,
 
   setSchools: (schools) => set((state) => {
     if (!Array.isArray(schools)) {
@@ -129,6 +132,54 @@ export const useStore = create<AppState>()(persist((set) => ({
         : [...state.favorites, schoolId],
     };
   }),
+  addToComparison: (schoolId) => set((state) => {
+    if (!schoolId) return {};
+    if (state.comparisonList.includes(schoolId)) return {};
+    if (state.comparisonList.length >= 2) return {};
+    return { comparisonList: [...state.comparisonList, schoolId] };
+  }),
+  removeFromComparison: (schoolId) => set((state) => ({
+    comparisonList: state.comparisonList.filter((id) => id !== schoolId),
+  })),
+  clearComparison: () => set({ comparisonList: [] }),
+  saveFilterPreset: (name) => set((state) => {
+    const newPreset = {
+      id: crypto.randomUUID(),
+      name,
+      filters: {
+        levelFilter: state.levelFilter,
+        genderFilter: state.genderFilter,
+        financingTypeFilter: state.financingTypeFilter,
+        religionFilter: state.religionFilter,
+        districtFilter: state.districtFilter,
+        distanceFilter: state.distanceFilter,
+      },
+    };
+    const updated = [...state.filterPresets, newPreset];
+    const trimmed = updated.length > 10 ? updated.slice(updated.length - 10) : updated;
+    return { filterPresets: trimmed };
+  }),
+  loadFilterPreset: (id) => set((state) => {
+    const preset = state.filterPresets.find((p) => p.id === id);
+    if (!preset) return {};
+    const f = preset.filters;
+    const next = {
+      levelFilter: f.levelFilter,
+      genderFilter: f.genderFilter,
+      financingTypeFilter: f.financingTypeFilter,
+      religionFilter: f.religionFilter,
+      districtFilter: f.districtFilter,
+      distanceFilter: f.distanceFilter,
+    };
+    return {
+      ...next,
+      filteredSchools: filterSchools(state.schools, getFilterOptions({ ...state, ...next })),
+    };
+  }),
+  deleteFilterPreset: (id) => set((state) => ({
+    filterPresets: state.filterPresets.filter((p) => p.id !== id),
+  })),
+  setHomeAddress: (location) => set({ homeAddress: location }),
   clearFilters: () => set((state) => {
     const nextLevelFilter = ['KINDERGARTEN', 'PRIMARY', 'SECONDARY'];
     const nextQuery = '';
@@ -179,6 +230,9 @@ export const useStore = create<AppState>()(persist((set) => ({
     religionFilter: state.religionFilter,
     districtFilter: state.districtFilter,
     favorites: state.favorites,
+    comparisonList: state.comparisonList,
+    filterPresets: state.filterPresets,
+    homeAddress: state.homeAddress,
   }),
 }));
 
