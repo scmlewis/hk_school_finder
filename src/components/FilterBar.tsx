@@ -343,7 +343,7 @@ const FilterBar: React.FC = () => {
       const enQuery = zhToEnAddress[input] || input;
       const query = encodeURIComponent(enQuery);
       const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${query}&format=json&limit=1&countrycodes=hk`,
+        `https://nominatim.openstreetmap.org/search?q=${query}&format=json&limit=1`,
         { headers: { 'User-Agent': 'HKSchoolFinder/1.0' } }
       );
       const results = await res.json();
