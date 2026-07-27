@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { MapPin, Locate, SlidersHorizontal, X, BookmarkPlus, Check, Home } from 'lucide-react';
 import { useStore } from '../store';
 import { getSchoolFinancingByLanguage, getSchoolGenderByLanguage, getSchoolReligionByLanguage, getSchoolDistrictByLanguage, localizeFinancingValue, localizeReligionValue, localizeDistrictValue, localizeGenderValue } from '../utils';
@@ -38,6 +38,33 @@ const FilterBar: React.FC = () => {
   const [homeInput, setHomeInput] = useState('');
   const [isGeocoding, setIsGeocoding] = useState(false);
   const [geocodingError, setGeocodingError] = useState<string | null>(null);
+  const [suggestions, setSuggestions] = useState<Array<{ display_name: string; lat: string; lon: string }>>([]);
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Debounced autocomplete search
+  useEffect(() => {
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    if (!homeInput.trim() || homeInput.trim().length < 2) {
+      setSuggestions([]);
+      return;
+    }
+    debounceTimer.current = setTimeout(async () => {
+      try {
+        const input = homeInput.trim();
+        const enQuery = zhToEnAddress[input] || input;
+        const query = encodeURIComponent(enQuery);
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?q=${query}&format=json&limit=5`,
+          { headers: { 'User-Agent': 'HKSchoolFinder/1.0' } }
+        );
+        const results = await res.json();
+        setSuggestions(results);
+      } catch {
+        setSuggestions([]);
+      }
+    }, 400);
+    return () => { if (debounceTimer.current) clearTimeout(debounceTimer.current); };
+  }, [homeInput]);
 
   const t = language === 'zh'
     ? {
@@ -61,11 +88,11 @@ const FilterBar: React.FC = () => {
         savePreset: '儲存篩選',
         presetName: '篩選名稱',
         noPresets: '尚未儲存篩選',
-        setHome: '設置地址',
+        setHome: '設置住家位置',
         useCurrentLocation: '使用目前位置',
-        enterAddress: '輸入地址或地區',
+        searchHome: '輸入地址或地區',
         findAddress: '搜尋',
-        homeSet: '地址已設定',
+        homeSet: '住家位置已設定',
         clearHome: '清除',
         geocodingError: '找不到地址',
         geocodingLoading: '搜尋中...',
@@ -91,11 +118,11 @@ const FilterBar: React.FC = () => {
         savePreset: 'Save Preset',
         presetName: 'Preset name',
         noPresets: 'No saved presets',
-        setHome: 'Set Home',
+        setHome: 'Set Home Location',
         useCurrentLocation: 'Use current location',
-        enterAddress: 'Address or district name',
+        searchHome: 'Search address or area',
         findAddress: 'Find',
-        homeSet: 'Home set',
+        homeSet: 'Home location set',
         clearHome: 'Clear',
         geocodingError: 'Address not found',
         geocodingLoading: 'Searching...',
@@ -359,6 +386,13 @@ const FilterBar: React.FC = () => {
     } finally {
       setIsGeocoding(false);
     }
+  };
+
+  const selectSuggestion = (s: { display_name: string; lat: string; lon: string }) => {
+    setHomeAddress({ lat: parseFloat(s.lat), lng: parseFloat(s.lon) });
+    setIsHomeInputOpen(false);
+    setHomeInput('');
+    setSuggestions([]);
   };
 
   const handleSetHomeFromLocation = () => {
@@ -890,25 +924,33 @@ const FilterBar: React.FC = () => {
                 >
                   {isGeocoding ? t.geocodingLoading : t.useCurrentLocation}
                 </button>
-                <div className="flex gap-1.5">
+                <div className="relative">
                   <input
                     type="text"
                     value={homeInput}
-                    onChange={(e) => setHomeInput(e.target.value)}
-                    placeholder={t.enterAddress}
-                    className="flex-1 bg-surface-container-high border border-outline-variant rounded-lg px-2.5 py-1.5 text-xs text-on-surface placeholder:text-outline"
+                    onChange={(e) => { setHomeInput(e.target.value); setGeocodingError(null); }}
+                    placeholder={t.searchHome}
+                    className="w-full bg-surface-container-high border border-outline-variant rounded-lg px-2.5 py-1.5 text-xs text-on-surface placeholder:text-outline"
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter') handleSetHomeFromAddress();
+                      if (e.key === 'Enter' && suggestions.length > 0) {
+                        selectSuggestion(suggestions[0]);
+                      }
                     }}
                   />
-                  <button
-                    type="button"
-                    onClick={handleSetHomeFromAddress}
-                    disabled={isGeocoding || !homeInput.trim()}
-                    className="px-3 py-1.5 bg-primary text-on-primary rounded-lg text-xs font-medium cursor-pointer disabled:opacity-50"
-                  >
-                    {isGeocoding ? t.geocodingLoading : t.findAddress}
-                  </button>
+                  {suggestions.length > 0 && (
+                    <div className="absolute z-10 left-0 right-0 mt-1 bg-surface-container-high border border-outline-variant rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                      {suggestions.map((s, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => selectSuggestion(s)}
+                          className="w-full text-left px-2.5 py-2 text-[10px] sm:text-xs text-on-surface hover:bg-surface-container-highest border-b border-outline-variant/30 last:border-0 cursor-pointer"
+                        >
+                          {s.display_name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 {geocodingError && (
                   <p className="text-[10px] sm:text-xs text-error">{geocodingError}</p>
