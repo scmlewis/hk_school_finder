@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Globe, Phone, MapPin, Train, Navigation, Share2, Star } from 'lucide-react';
+import { X, Globe, Phone, MapPin, Train, Navigation, Share2, Star, GitCompare } from 'lucide-react';
 import { useStore } from '../store';
 import { MTR_STATIONS, getDistance } from '../services';
 import { School } from '../types';
@@ -17,13 +17,12 @@ import {
   getSchoolLevelByLanguage,
   getSchoolSessionByLanguage,
   getLocalizedSessionLabel,
-  getSchoolNetId,
 } from '../utils';
 
 const MAX_MTR_DISTANCE_KM = 1.5;
 
 const BottomSheet: React.FC = () => {
-  const { selectedSchool, setSelectedSchool, language, favorites, toggleFavorite } = useStore();
+  const { selectedSchool, setSelectedSchool, language, favorites, toggleFavorite, addToComparison, comparisonList } = useStore();
 
   const t = language === 'zh'
     ? {
@@ -33,15 +32,14 @@ const BottomSheet: React.FC = () => {
         district: '地區',
         religion: '宗教',
         session: '授課時間',
-        schoolNet: '校網',
         noReligion: '未提供',
         noSession: '未提供',
-        noNet: '未提供',
         website: '學校網站',
         call: '致電學校',
         directions: '導航',
         share: '分享',
         favorite: '收藏',
+        compare: '比較',
         nearbyMtr: '附近港鐵站',
         noMtr: '附近無港鐵站',
         walk: '步行',
@@ -55,15 +53,14 @@ const BottomSheet: React.FC = () => {
         district: 'District',
         religion: 'Religion',
         session: 'Session',
-        schoolNet: 'School Net',
         noReligion: 'Not Provided',
         noSession: 'Not Provided',
-        noNet: 'Not Provided',
         website: 'Website',
         call: 'Call',
         directions: 'Directions',
         share: 'Share',
         favorite: 'Save',
+        compare: 'Compare',
         nearbyMtr: 'Nearby MTR Stations',
         noMtr: 'No nearby MTR stations',
         walk: 'walk',
@@ -156,7 +153,7 @@ const BottomSheet: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3 mb-4 sm:mb-5 md:mb-6">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-4 sm:mb-5 md:mb-6">
               <div className="bg-surface-container-high rounded-lg sm:rounded-xl p-2.5 sm:p-3 transition-colors">
                 <p className="text-[9px] sm:text-[10px] uppercase tracking-wider text-on-surface-variant font-medium mb-0.5 sm:mb-1">{t.level}</p>
                 <p className="text-xs font-medium text-on-surface break-words leading-snug">{getLocalizedLevelLabel(selectedSchool, language)}</p>
@@ -173,12 +170,6 @@ const BottomSheet: React.FC = () => {
                 <p className="text-[9px] sm:text-[10px] uppercase tracking-wider text-on-surface-variant font-medium mb-0.5 sm:mb-1">{t.session}</p>
                 <p className="text-xs font-medium text-on-surface break-words leading-snug">{getLocalizedSessionLabel(getSchoolSessionByLanguage(selectedSchool, 'en'), language) || t.noSession}</p>
               </div>
-              <div className="bg-surface-container-high rounded-lg sm:rounded-xl p-2.5 sm:p-3 transition-colors">
-                <p className="text-[9px] sm:text-[10px] uppercase tracking-wider text-on-surface-variant font-medium mb-0.5 sm:mb-1">{t.schoolNet}</p>
-                <p className="text-xs font-medium text-on-surface break-words leading-snug">
-                  {getSchoolNetId(selectedSchool) ? (language === 'zh' ? `${getSchoolNetId(selectedSchool)} 校網` : `Net ${getSchoolNetId(selectedSchool)}`) : t.noNet}
-                </p>
-              </div>
             </div>
 
             <div className="space-y-3 sm:space-y-4">
@@ -193,7 +184,7 @@ const BottomSheet: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-4 gap-1.5 sm:gap-2 pt-1 sm:pt-2">
+              <div className="grid grid-cols-5 gap-1.5 sm:gap-2 pt-1 sm:pt-2">
                 {selectedSchool.Longitude && selectedSchool.Latitude && (
                   <a
                     href={`https://www.google.com/maps/dir/?api=1&destination=${selectedSchool.Latitude},${selectedSchool.Longitude}`}
@@ -235,6 +226,17 @@ const BottomSheet: React.FC = () => {
                 >
                   <Star className={`w-3.5 sm:w-4 h-3.5 sm:h-4 ${isFavorited ? 'fill-current' : ''}`} />
                   {t.favorite}
+                </button>
+                <button
+                  onClick={() => addToComparison(selectedSchool['School No.'])}
+                  className={`flex flex-col items-center justify-center gap-0.5 sm:gap-1 py-2 sm:py-2.5 rounded-full font-medium text-[10px] sm:text-xs transition-colors ${
+                    comparisonList.includes(selectedSchool['School No.'])
+                      ? 'bg-primary text-on-primary'
+                      : 'bg-surface-container-high text-on-surface'
+                  }`}
+                >
+                  <GitCompare className={`w-3.5 sm:w-4 h-3.5 sm:h-4 ${comparisonList.includes(selectedSchool['School No.']) ? 'fill-current' : ''}`} />
+                  {t.compare}
                 </button>
               </div>
               <button
