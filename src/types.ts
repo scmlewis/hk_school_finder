@@ -60,7 +60,6 @@ export interface AppState {
   religionFilter: string[];
   districtFilter: string | null;
   favorites: string[];
-  comparisonList: string[];
   filterPresets: FilterPreset[];
   homeAddress: { lat: number; lng: number } | null;
   
@@ -81,9 +80,6 @@ export interface AppState {
   setDistrictFilter: (district: string | null) => void;
   toggleFavorite: (schoolId: string | undefined) => void;
   clearFilters: () => void;
-  addToComparison: (schoolId: string | undefined) => void;
-  removeFromComparison: (schoolId: string) => void;
-  clearComparison: () => void;
   saveFilterPreset: (name: string) => void;
   loadFilterPreset: (id: string) => void;
   deleteFilterPreset: (id: string) => void;

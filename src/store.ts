@@ -60,7 +60,6 @@ export const useStore = create<AppState>()(persist((set) => ({
   religionFilter: [] as string[],
   districtFilter: null,
   favorites: [],
-  comparisonList: [],
   filterPresets: [],
   homeAddress: null,
 
@@ -132,16 +131,6 @@ export const useStore = create<AppState>()(persist((set) => ({
         : [...state.favorites, schoolId],
     };
   }),
-  addToComparison: (schoolId) => set((state) => {
-    if (!schoolId) return {};
-    if (state.comparisonList.includes(schoolId)) return {};
-    if (state.comparisonList.length >= 2) return {};
-    return { comparisonList: [...state.comparisonList, schoolId] };
-  }),
-  removeFromComparison: (schoolId) => set((state) => ({
-    comparisonList: state.comparisonList.filter((id) => id !== schoolId),
-  })),
-  clearComparison: () => set({ comparisonList: [] }),
   saveFilterPreset: (name) => set((state) => {
     const newPreset = {
       id: crypto.randomUUID(),
@@ -230,7 +219,6 @@ export const useStore = create<AppState>()(persist((set) => ({
     religionFilter: state.religionFilter,
     districtFilter: state.districtFilter,
     favorites: state.favorites,
-    comparisonList: state.comparisonList,
     filterPresets: state.filterPresets,
     homeAddress: state.homeAddress,
   }),

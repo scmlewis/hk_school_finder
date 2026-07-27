@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Globe, Phone, MapPin, Train, Navigation, Share2, Star, GitCompare } from 'lucide-react';
+import { X, Globe, Phone, MapPin, Train, Navigation, Share2, Star } from 'lucide-react';
 import { useStore } from '../store';
 import { MTR_STATIONS, getDistance } from '../services';
 import { School } from '../types';
@@ -22,7 +22,7 @@ import {
 const MAX_MTR_DISTANCE_KM = 1.5;
 
 const BottomSheet: React.FC = () => {
-  const { selectedSchool, setSelectedSchool, language, favorites, toggleFavorite, addToComparison, comparisonList, homeAddress } = useStore();
+  const { selectedSchool, setSelectedSchool, language, favorites, toggleFavorite, homeAddress } = useStore();
 
   const t = language === 'zh'
     ? {
@@ -39,7 +39,6 @@ const BottomSheet: React.FC = () => {
         directions: '導航',
         share: '分享',
         favorite: '收藏',
-        compare: '比較',
         nearbyMtr: '附近港鐵站',
         noMtr: '附近無港鐵站',
         walk: '步行',
@@ -60,7 +59,6 @@ const BottomSheet: React.FC = () => {
         directions: 'Directions',
         share: 'Share',
         favorite: 'Save',
-        compare: 'Compare',
         nearbyMtr: 'Nearby MTR Stations',
         noMtr: 'No nearby MTR stations',
         walk: 'walk',
@@ -184,7 +182,7 @@ const BottomSheet: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-5 gap-1.5 sm:gap-2 pt-1 sm:pt-2">
+              <div className="grid grid-cols-4 gap-1.5 sm:gap-2 pt-1 sm:pt-2">
                 {selectedSchool.Longitude && selectedSchool.Latitude && (
                   <a
                     href={homeAddress
@@ -229,17 +227,6 @@ const BottomSheet: React.FC = () => {
                 >
                   <Star className={`w-3.5 sm:w-4 h-3.5 sm:h-4 ${isFavorited ? 'fill-current' : ''}`} />
                   {t.favorite}
-                </button>
-                <button
-                  onClick={() => addToComparison(selectedSchool['School No.'])}
-                  className={`flex flex-col items-center justify-center gap-0.5 sm:gap-1 py-2 sm:py-2.5 rounded-full font-medium text-[10px] sm:text-xs transition-colors ${
-                    comparisonList.includes(selectedSchool['School No.'])
-                      ? 'bg-primary text-on-primary'
-                      : 'bg-surface-container-high text-on-surface'
-                  }`}
-                >
-                  <GitCompare className={`w-3.5 sm:w-4 h-3.5 sm:h-4 ${comparisonList.includes(selectedSchool['School No.']) ? 'fill-current' : ''}`} />
-                  {t.compare}
                 </button>
               </div>
               <button
