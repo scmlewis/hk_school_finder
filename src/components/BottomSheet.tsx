@@ -22,7 +22,7 @@ import {
 const MAX_MTR_DISTANCE_KM = 1.5;
 
 const BottomSheet: React.FC = () => {
-  const { selectedSchool, setSelectedSchool, language, favorites, toggleFavorite, addToComparison, comparisonList } = useStore();
+  const { selectedSchool, setSelectedSchool, language, favorites, toggleFavorite, addToComparison, comparisonList, homeAddress } = useStore();
 
   const t = language === 'zh'
     ? {
@@ -187,7 +187,10 @@ const BottomSheet: React.FC = () => {
               <div className="grid grid-cols-5 gap-1.5 sm:gap-2 pt-1 sm:pt-2">
                 {selectedSchool.Longitude && selectedSchool.Latitude && (
                   <a
-                    href={`https://www.google.com/maps/dir/?api=1&destination=${selectedSchool.Latitude},${selectedSchool.Longitude}`}
+                    href={homeAddress
+                      ? `https://www.google.com/maps/dir/?api=1&origin=${homeAddress.lat},${homeAddress.lng}&destination=${selectedSchool.Latitude},${selectedSchool.Longitude}`
+                      : `https://www.google.com/maps/dir/?api=1&destination=${selectedSchool.Latitude},${selectedSchool.Longitude}`
+                    }
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex flex-col items-center justify-center gap-0.5 sm:gap-1 bg-primary text-on-primary py-2 sm:py-2.5 rounded-full font-medium text-[10px] sm:text-xs"

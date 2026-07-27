@@ -16,7 +16,7 @@ interface FavoritesViewProps {
 }
 
 const FavoritesView: React.FC<FavoritesViewProps> = ({ onBack }) => {
-  const { schools, favorites, toggleFavorite, setSelectedSchool, language } = useStore();
+  const { schools, favorites, toggleFavorite, setSelectedSchool, language, homeAddress } = useStore();
 
   const t = language === 'zh'
     ? {
@@ -122,7 +122,10 @@ const FavoritesView: React.FC<FavoritesViewProps> = ({ onBack }) => {
               <div className="flex gap-2">
                 {school.Longitude && school.Latitude && (
                   <a
-                    href={`https://www.google.com/maps/dir/?api=1&destination=${school.Latitude},${school.Longitude}`}
+                    href={homeAddress
+                      ? `https://www.google.com/maps/dir/?api=1&origin=${homeAddress.lat},${homeAddress.lng}&destination=${school.Latitude},${school.Longitude}`
+                      : `https://www.google.com/maps/dir/?api=1&destination=${school.Latitude},${school.Longitude}`
+                    }
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex-1 flex items-center justify-center gap-1.5 bg-primary text-on-primary py-2 rounded-full font-medium text-[10px] sm:text-xs"
