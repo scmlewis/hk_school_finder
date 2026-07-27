@@ -25,6 +25,7 @@ const CompareView: React.FC<CompareViewProps> = ({ onBack }) => {
     clearComparison,
     language,
     setSelectedSchool,
+    homeAddress,
   } = useStore();
 
   const t = language === 'zh'
@@ -162,7 +163,10 @@ const CompareView: React.FC<CompareViewProps> = ({ onBack }) => {
                     </div>
                     {school.Longitude && school.Latitude && (
                       <a
-                        href={`https://www.google.com/maps/dir/?api=1&destination=${school.Latitude},${school.Longitude}`}
+                        href={homeAddress
+                          ? `https://www.google.com/maps/dir/?api=1&origin=${homeAddress.lat},${homeAddress.lng}&destination=${school.Latitude},${school.Longitude}`
+                          : `https://www.google.com/maps/dir/?api=1&destination=${school.Latitude},${school.Longitude}`
+                        }
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 text-[10px] sm:text-xs text-primary hover:underline"
