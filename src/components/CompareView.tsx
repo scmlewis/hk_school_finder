@@ -73,7 +73,21 @@ const CompareView: React.FC<CompareViewProps> = ({ onBack }) => {
     { label: t.district, getValue: (s: any) => getLocalizedDistrictLabel(s, language) || t.noValue },
     { label: t.religion, getValue: (s: any) => getLocalizedReligionLabel(s, language) || t.noValue },
     { label: t.session, getValue: (s: any) => getLocalizedSessionLabel(getSchoolSessionByLanguage(s, 'en'), language) || t.noValue },
-    { label: t.schoolType, getValue: (s: any) => s['School Type'] || t.noValue },
+    { label: t.schoolType, getValue: (s: any) => {
+      const raw = s['School Type'] || '';
+      if (!raw) return t.noValue;
+      if (language === 'zh') {
+        const map: Record<string, string> = {
+          'Aided': '資助',
+          'Government': '政府',
+          'Private': '私立',
+          'Direct Subsidy': '直資',
+        };
+        const key = Object.keys(map).find((k) => raw.includes(k));
+        return key ? `${map[key]}${raw.replace(key, '').trim()}` : raw;
+      }
+      return raw;
+    }},
   ];
 
   if (comparedSchools.length === 0) {
@@ -181,9 +195,9 @@ const CompareView: React.FC<CompareViewProps> = ({ onBack }) => {
             </div>
 
             {/* Comparison Rows */}
-            <div className={`grid ${comparedSchools.length === 1 ? 'grid-cols-1' : 'grid-cols-2'} divide-x divide-outline-variant border-t border-outline-variant`}>
+            <div className="divide-y divide-outline-variant border-t border-outline-variant">
               {rows.map((row, i) => (
-                <div key={i} className={`grid ${comparedSchools.length === 1 ? 'grid-cols-1' : 'grid-cols-2'} divide-x divide-outline-variant ${i % 2 === 0 ? 'bg-surface-container-high/30' : ''}`}>
+                <div key={i} className={`grid ${comparedSchools.length === 1 ? 'grid-cols-1' : 'grid-cols-2'} ${i % 2 === 0 ? 'bg-surface-container-high/30' : ''}`}>
                   {comparedSchools.map((school) => (
                     <div key={school['School No.']} className="px-4 py-3">
                       <p className="text-[9px] sm:text-[10px] uppercase tracking-wider text-on-surface-variant font-medium mb-0.5">{row.label}</p>
