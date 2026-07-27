@@ -63,7 +63,7 @@ const FilterBar: React.FC = () => {
         noPresets: '尚未儲存篩選',
         setHome: '設置地址',
         useCurrentLocation: '使用目前位置',
-        enterAddress: '輸入地址',
+        enterAddress: '輸入地址或地區',
         findAddress: '搜尋',
         homeSet: '地址已設定',
         clearHome: '清除',
@@ -93,7 +93,7 @@ const FilterBar: React.FC = () => {
         noPresets: 'No saved presets',
         setHome: 'Set Home',
         useCurrentLocation: 'Use current location',
-        enterAddress: 'Enter address',
+        enterAddress: 'Address or district name',
         findAddress: 'Find',
         homeSet: 'Home set',
         clearHome: 'Clear',
@@ -286,12 +286,62 @@ const FilterBar: React.FC = () => {
     );
   };
 
+  const zhToEnAddress: Record<string, string> = {
+    '銅鑼灣': 'Causeway Bay, Hong Kong',
+    '旺角': 'Mong Kok, Hong Kong',
+    '尖沙咀': 'Tsim Sha Tsui, Hong Kong',
+    '中環': 'Central, Hong Kong',
+    '灣仔': 'Wan Chai, Hong Kong',
+    '上環': 'Sheung Wan, Hong Kong',
+    '西營盤': 'Sai Ying Pun, Hong Kong',
+    '北角': 'North Point, Hong Kong',
+    '鰂魚涌': 'Quarry Bay, Hong Kong',
+    '太古城': 'Tai Koo Shing, Hong Kong',
+    '沙田': 'Sha Tin, Hong Kong',
+    '大埔': 'Tai Po, Hong Kong',
+    '屯門': 'Tuen Mun, Hong Kong',
+    '元朗': 'Yuen Long, Hong Kong',
+    '荃灣': 'Tsuen Wan, Hong Kong',
+    '葵涌': 'Kwai Chung, Hong Kong',
+    '觀塘': 'Kwun Tong, Hong Kong',
+    '九龍城': 'Kowloon City, Hong Kong',
+    '黃大仙': 'Wong Tai Sin, Hong Kong',
+    '深水埗': 'Sham Shui Po, Hong Kong',
+    '油尖旺': 'Yau Tsim Mong, Hong Kong',
+    '將軍澳': 'Tseung Kwan O, Hong Kong',
+    '馬鞍山': 'Ma On Shan, Hong Kong',
+    '東涌': 'Tung Chung, Hong Kong',
+    '薄扶林': 'Pok Fu Lam, Hong Kong',
+    '香港仔': 'Aberdeen, Hong Kong',
+    '赤柱': 'Stanley, Hong Kong',
+    '淺水灣': 'Repulse Bay, Hong Kong',
+    '西貢': 'Sai Kung, Hong Kong',
+    '紅磡': 'Hung Hom, Hong Kong',
+    '土瓜灣': 'To Kwa Wan, Hong Kong',
+    '鑽石山': 'Diamond Hill, Hong Kong',
+    '石硤尾': 'Shek Kip Mei, Hong Kong',
+    '九龍塘': 'Kowloon Tong, Hong Kong',
+    '何文田': 'Ho Man Tin, Hong Kong',
+    '青衣': 'Tsing Yi, Hong Kong',
+    '天水圍': 'Tin Shui Wai, Hong Kong',
+    '粉嶺': 'Fanling, Hong Kong',
+    '上水': 'Sheung Shui, Hong Kong',
+    '沙頭角': 'Sha Tau Kok, Hong Kong',
+    '大圍': 'Tai Wai, Hong Kong',
+    '石門': 'Shek Mun, Hong Kong',
+    '火炭': 'Fo Tan, Hong Kong',
+    '馬料水': 'Ma Liu Shui, Hong Kong',
+  };
+
   const handleSetHomeFromAddress = async () => {
     if (!homeInput.trim()) return;
     setIsGeocoding(true);
     setGeocodingError(null);
     try {
-      const query = encodeURIComponent(homeInput.trim());
+      const input = homeInput.trim();
+      // Try Chinese-to-English mapping first for common HK locations
+      const enQuery = zhToEnAddress[input] || input;
+      const query = encodeURIComponent(enQuery);
       const res = await fetch(
         `https://nominatim.openstreetmap.org/search?q=${query}&format=json&limit=1&countrycodes=hk`,
         { headers: { 'User-Agent': 'HKSchoolFinder/1.0' } }
