@@ -84,4 +84,6 @@ export interface AppState {
   loadFilterPreset: (id: string) => void;
   deleteFilterPreset: (id: string) => void;
   setHomeAddress: (location: { lat: number; lng: number } | null) => void;
+  listPanelOpen: boolean;
+  setListPanelOpen: (open: boolean) => void;
 }

@@ -62,6 +62,7 @@ export const useStore = create<AppState>()(persist((set) => ({
   favorites: [],
   filterPresets: [],
   homeAddress: null,
+  listPanelOpen: false,
 
   setSchools: (schools) => set((state) => {
     if (!Array.isArray(schools)) {
@@ -169,6 +170,7 @@ export const useStore = create<AppState>()(persist((set) => ({
     filterPresets: state.filterPresets.filter((p) => p.id !== id),
   })),
   setHomeAddress: (location) => set({ homeAddress: location }),
+  setListPanelOpen: (open) => set({ listPanelOpen: open }),
   clearFilters: () => set((state) => {
     const nextLevelFilter = ['KINDERGARTEN', 'PRIMARY', 'SECONDARY'];
     const nextQuery = '';
@@ -221,6 +223,7 @@ export const useStore = create<AppState>()(persist((set) => ({
     favorites: state.favorites,
     filterPresets: state.filterPresets,
     homeAddress: state.homeAddress,
+    listPanelOpen: state.listPanelOpen,
   }),
 }));
 
