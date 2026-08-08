@@ -17,6 +17,7 @@ import {
   getSchoolLevelByLanguage,
   getSchoolSessionByLanguage,
   getLocalizedSessionLabel,
+  safeHref,
 } from '../utils';
 
 const MAX_MTR_DISTANCE_KM = 1.5;
@@ -186,8 +187,8 @@ const BottomSheet: React.FC = () => {
                 {selectedSchool.Longitude && selectedSchool.Latitude && (
                   <a
                     href={homeAddress
-                      ? `https://www.google.com/maps/dir/?api=1&origin=${homeAddress.lat},${homeAddress.lng}&destination=${selectedSchool.Latitude},${selectedSchool.Longitude}`
-                      : `https://www.google.com/maps/dir/?api=1&destination=${selectedSchool.Latitude},${selectedSchool.Longitude}`
+                      ? `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(`${homeAddress.lat},${homeAddress.lng}`)}&destination=${encodeURIComponent(`${selectedSchool.Latitude},${selectedSchool.Longitude}`)}`
+                      : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${selectedSchool.Latitude},${selectedSchool.Longitude}`)}`
                     }
                     target="_blank"
                     rel="noopener noreferrer"
@@ -197,9 +198,9 @@ const BottomSheet: React.FC = () => {
                     {t.directions}
                   </a>
                 )}
-                {selectedSchool.Website && (
+                {selectedSchool.Website && safeHref(selectedSchool.Website) && (
                   <a
-                    href={selectedSchool.Website.startsWith('http') ? selectedSchool.Website : `https://${selectedSchool.Website}`}
+                    href={safeHref(selectedSchool.Website)!}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex flex-col items-center justify-center gap-0.5 sm:gap-1 bg-surface-container-high text-on-surface py-2 sm:py-2.5 rounded-full font-medium text-[10px] sm:text-xs"
@@ -210,7 +211,7 @@ const BottomSheet: React.FC = () => {
                 )}
                 {selectedSchool.Telephone && (
                   <a
-                    href={`tel:${selectedSchool.Telephone}`}
+                    href={`tel:${selectedSchool.Telephone.replace(/[^+\d]/g, '')}`}
                     className="flex flex-col items-center justify-center gap-0.5 sm:gap-1 bg-surface-container-high text-on-surface py-2 sm:py-2.5 rounded-full font-medium text-[10px] sm:text-xs"
                   >
                     <Phone className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
@@ -231,7 +232,8 @@ const BottomSheet: React.FC = () => {
               </div>
               <button
                 onClick={() => {
-                  const url = `${window.location.origin}?school=${selectedSchool['School No.'] || ''}`;
+                  const schoolId = selectedSchool['School No.'] || '';
+                  const url = `${window.location.origin}?school=${encodeURIComponent(schoolId)}`;
                   if (navigator.share) {
                     navigator.share({ title: getSchoolNameByLanguage(selectedSchool, language), url });
                   } else {

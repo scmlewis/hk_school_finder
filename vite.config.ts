@@ -53,4 +53,7 @@ export default defineConfig({
   server: {
     hmr: process.env.DISABLE_HMR !== 'true',
   },
+  esbuild: {
+    drop: process.env.NODE_ENV === 'production' ? ['console'] : [],
+  },
 });

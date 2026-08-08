@@ -6,6 +6,33 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+const SAFE_URL_SCHEMES = ["http:", "https:"];
+const BLOCKED_URL_SCHEMES = ["javascript:", "data:", "vbscript:", "file:"];
+
+export function isSafeUrl(url: string): boolean {
+  if (!url) return false;
+  const trimmed = url.trim().toLowerCase();
+  for (const blocked of BLOCKED_URL_SCHEMES) {
+    if (trimmed.startsWith(blocked)) return false;
+  }
+  try {
+    const parsed = new URL(url);
+    return SAFE_URL_SCHEMES.includes(parsed.protocol);
+  } catch {
+    return false;
+  }
+}
+
+export function safeHref(url: string | undefined | null): string | undefined {
+  if (!url) return undefined;
+  const trimmed = url.trim();
+  if (!trimmed) return undefined;
+  if (isSafeUrl(trimmed)) return trimmed;
+  const withHttps = `https://${trimmed}`;
+  if (isSafeUrl(withHttps)) return withHttps;
+  return undefined;
+}
+
 export type AppLanguage = 'en' | 'zh';
 
 function firstNonEmpty(values: Array<unknown>): string {
