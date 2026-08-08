@@ -3,6 +3,7 @@ import axios from 'axios';
 const Map = React.lazy(() => import('./components/Map'));
 import SearchBar from './components/SearchBar';
 import FilterBar from './components/FilterBar';
+import ActiveFilters from './components/ActiveFilters';
 import BottomSheet from './components/BottomSheet';
 const StatsTab = React.lazy(() => import('./components/StatsTab'));
 const FavoritesView = React.lazy(() => import('./components/FavoritesView'));
@@ -182,6 +183,7 @@ export default function App() {
         <>
           <SearchBar />
           <FilterBar />
+          <ActiveFilters />
           {deferMap ? (
             <Suspense fallback={<div className="p-4 text-on-surface-variant">{language === 'zh' ? '載入地圖...' : 'Loading map...'}</div>}>
               <Map />
