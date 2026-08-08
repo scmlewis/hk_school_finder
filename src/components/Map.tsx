@@ -335,7 +335,9 @@ const Map: React.FC = () => {
             map.current.flyTo({
               center: coordinates,
               zoom: Math.max(map.current.getZoom(), 16),
-              duration: 650,
+              duration: 1200,
+              curve: 1.5,
+              easing: (t) => 1 - Math.pow(1 - t, 3),
               offset: getSelectionOffset(),
             });
           });
@@ -412,6 +414,29 @@ const Map: React.FC = () => {
 
             if (netId) {
               setActiveSchoolNet(String(netId));
+
+              const netFeature = geojsonData.current?.features?.find(
+                (f: any) => String(f.properties?.NET_ID || f.properties?.Net_ID || f.properties?.NET_NO) === String(netId)
+              );
+              if (netFeature && map.current) {
+                const bounds = new maplibregl.LngLatBounds();
+                const geom = netFeature.geometry;
+                if (geom.type === 'Polygon') {
+                  geom.coordinates[0].forEach((coord: number[]) => bounds.extend(coord as [number, number]));
+                } else if (geom.type === 'MultiPolygon') {
+                  geom.coordinates.forEach((polygon: number[][][]) =>
+                    polygon[0].forEach((coord: number[]) => bounds.extend(coord as [number, number]))
+                  );
+                }
+                if (!bounds.isEmpty()) {
+                  map.current.easeTo({
+                    center: bounds.getCenter(),
+                    zoom: Math.min(Math.max(bounds.getNorthEast().lng - bounds.getSouthWest().lng > 0.05 ? 11 : 13, 10), 16),
+                    duration: 800,
+                    easing: (t) => 1 - Math.pow(1 - t, 2),
+                  });
+                }
+              }
             }
           });
 
@@ -484,7 +509,9 @@ const Map: React.FC = () => {
       map.current.flyTo({
         center: [lng, lat],
         zoom: Math.max(map.current.getZoom(), 16),
-        duration: 650,
+        duration: 1200,
+        curve: 1.5,
+        easing: (t) => 1 - Math.pow(1 - t, 3),
         offset: getSelectionOffset(),
       });
     }
