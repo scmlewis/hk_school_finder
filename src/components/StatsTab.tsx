@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Bar,
   BarChart,
@@ -20,6 +20,7 @@ import {
   localizeReligionValue,
   localizeDistrictValue,
 } from '../utils';
+import { SkeletonStats } from './Skeleton';
 
 type ChartDatum = {
   name: string;
@@ -185,6 +186,13 @@ const StatsTab: React.FC = () => {
     'PRIMARY',
     'SECONDARY',
   ]);
+  const [isStatsLoaded, setIsStatsLoaded] = useState(false);
+
+  React.useEffect(() => {
+    setIsStatsLoaded(false);
+    const timer = setTimeout(() => setIsStatsLoaded(true), 200);
+    return () => clearTimeout(timer);
+  }, [filteredSchools]);
 
   const t = language === 'zh'
     ? {
@@ -314,72 +322,78 @@ const StatsTab: React.FC = () => {
   return (
     <div className="absolute inset-0 pt-40 sm:pt-44 md:pt-28 px-3 sm:px-4 md:px-6 pb-6 md:pb-8 overflow-y-auto overflow-x-hidden">
       <div className="max-w-6xl mx-auto space-y-4 sm:space-y-5">
-        <div className={`${cardClass} p-4 sm:p-5`}>
-          <h2 className="text-xl sm:text-2xl font-semibold text-on-surface">{t.title}</h2>
-          <p className="text-sm text-on-surface-variant mt-1">{t.subtitle}</p>
-          <div className="mt-3 flex items-center gap-2">
-            <span className="text-[11px] sm:text-xs text-on-surface-variant font-medium">
-              {useFiltered ? t.scopeFiltered : t.scopeAll}
-            </span>
-            <button
-              type="button"
-              onClick={() => setUseFiltered((prev) => !prev)}
-              className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${
-                useFiltered
-                  ? "bg-primary border-primary text-on-primary"
-                  : "bg-surface-container-high border-outline-variant text-on-surface-variant hover:text-on-surface"
-              }`}
-            >
-              {useFiltered ? t.scopeFiltered : t.scopeAll}
-            </button>
-          </div>
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            <span className="text-[11px] sm:text-xs text-on-surface-variant font-medium">
-              {t.levelFilterLabel}
-            </span>
-            <span className="text-[10px] sm:text-xs text-outline">({t.levelFilterHint})</span>
-            {levelOptions.map((option) => {
-              const active = selectedLevels.includes(option.key);
-              return (
+        {!isStatsLoaded ? (
+          <SkeletonStats />
+        ) : (
+          <>
+            <div className={`${cardClass} p-4 sm:p-5`}>
+              <h2 className="text-xl sm:text-2xl font-semibold text-on-surface">{t.title}</h2>
+              <p className="text-sm text-on-surface-variant mt-1">{t.subtitle}</p>
+              <div className="mt-3 flex items-center gap-2">
+                <span className="text-[11px] sm:text-xs text-on-surface-variant font-medium">
+                  {useFiltered ? t.scopeFiltered : t.scopeAll}
+                </span>
                 <button
-                  key={option.key}
                   type="button"
-                  onClick={() => toggleLevel(option.key)}
-                  className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${active ? 'bg-primary border-primary text-on-primary' : 'bg-surface-container-high border-outline-variant text-on-surface-variant hover:text-on-surface'}`}
+                  onClick={() => setUseFiltered((prev) => !prev)}
+                  className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${
+                    useFiltered
+                      ? "bg-primary border-primary text-on-primary"
+                      : "bg-surface-container-high border-outline-variant text-on-surface-variant hover:text-on-surface"
+                  }`}
                 >
-                  {option.label}
+                  {useFiltered ? t.scopeFiltered : t.scopeAll}
                 </button>
-              );
-            })}
-          </div>
-        </div>
+              </div>
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                <span className="text-[11px] sm:text-xs text-on-surface-variant font-medium">
+                  {t.levelFilterLabel}
+                </span>
+                <span className="text-[10px] sm:text-xs text-outline">({t.levelFilterHint})</span>
+                {levelOptions.map((option) => {
+                  const active = selectedLevels.includes(option.key);
+                  return (
+                    <button
+                      key={option.key}
+                      type="button"
+                      onClick={() => toggleLevel(option.key)}
+                      className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${active ? 'bg-primary border-primary text-on-primary' : 'bg-surface-container-high border-outline-variant text-on-surface-variant hover:text-on-surface'}`}
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-          <StatCard label={t.totalSchools} value={filteredStatsSchools.length.toLocaleString()} />
-          <StatCard label={t.districts} value={representedDistricts.toLocaleString()} />
-        </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <StatCard label={t.totalSchools} value={filteredStatsSchools.length.toLocaleString()} />
+              <StatCard label={t.districts} value={representedDistricts.toLocaleString()} />
+            </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 sm:gap-4">
-          <ChartCard title={t.byLevel}>
-            <DistributionChart data={levelDistribution} color="#80cbc4" valueLabel={t.countLabel} />
-          </ChartCard>
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 sm:gap-4">
+              <ChartCard title={t.byLevel}>
+                <DistributionChart data={levelDistribution} color="#80cbc4" valueLabel={t.countLabel} />
+              </ChartCard>
 
-          <ChartCard title={t.byFinancing}>
-            <DistributionChart data={financingDistribution} color="#4db6ac" valueLabel={t.countLabel} />
-          </ChartCard>
+              <ChartCard title={t.byFinancing}>
+                <DistributionChart data={financingDistribution} color="#4db6ac" valueLabel={t.countLabel} />
+              </ChartCard>
 
-          <ChartCard title={t.byGender}>
-            <DistributionChart data={genderDistribution} color="#26a69a" valueLabel={t.countLabel} />
-          </ChartCard>
+              <ChartCard title={t.byGender}>
+                <DistributionChart data={genderDistribution} color="#26a69a" valueLabel={t.countLabel} />
+              </ChartCard>
 
-          <ChartCard title={t.byReligion}>
-            <DistributionChart data={religionDistribution} color="#009688" valueLabel={t.countLabel} />
-          </ChartCard>
+              <ChartCard title={t.byReligion}>
+                <DistributionChart data={religionDistribution} color="#009688" valueLabel={t.countLabel} />
+              </ChartCard>
 
-          <ChartCard title={t.byDistrict}>
-            <DistrictChart data={districtDistribution} color="#00897b" valueLabel={t.countLabel} />
-          </ChartCard>
-        </div>
+              <ChartCard title={t.byDistrict}>
+                <DistrictChart data={districtDistribution} color="#00897b" valueLabel={t.countLabel} />
+              </ChartCard>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
