@@ -4,16 +4,17 @@ const Map = React.lazy(() => import('./components/Map'));
 import SearchBar from './components/SearchBar';
 import FilterBar from './components/FilterBar';
 import ActiveFilters from './components/ActiveFilters';
+import ListPanel from './components/ListPanel';
 import BottomSheet from './components/BottomSheet';
 const StatsTab = React.lazy(() => import('./components/StatsTab'));
 const FavoritesView = React.lazy(() => import('./components/FavoritesView'));
 import { fetchSchools } from './services';
 import { useStore } from './store';
-import { AlertCircle, Info, X, Github } from 'lucide-react';
+import { AlertCircle, Info, X, Github, List } from 'lucide-react';
 import Loading from './components/Loading';
 
 export default function App() {
-  const { setSchools, setLoading, setError, loading, error, schools, language, setLanguage, favorites } = useStore();
+  const { setSchools, setLoading, setError, loading, error, schools, language, setLanguage, favorites, listPanelOpen, setListPanelOpen } = useStore();
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [activeView, setActiveView] = useState<'map' | 'stats' | 'favorites'>('map');
   const [deferMap, setDeferMap] = useState(false);
@@ -154,6 +155,15 @@ export default function App() {
               )}
             </button>
           </div>
+          <div className="rounded-full bg-surface-container-high p-1 sm:p-1.5">
+            <button
+              onClick={() => setListPanelOpen(!listPanelOpen)}
+              className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-semibold transition-colors ${listPanelOpen ? 'bg-primary text-on-primary' : 'text-on-surface-variant hover:text-on-surface'}`}
+              aria-label={language === 'zh' ? '列表模式' : 'List view'}
+            >
+              <List className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            </button>
+          </div>
           <div className="rounded-full bg-surface-container-high p-1 sm:p-1.5 flex gap-0.5 sm:gap-1">
             <button
               onClick={() => setLanguage('en')}
@@ -184,13 +194,18 @@ export default function App() {
           <SearchBar />
           <FilterBar />
           <ActiveFilters />
-          {deferMap ? (
-            <Suspense fallback={<div className="p-4 text-on-surface-variant">{language === 'zh' ? '載入地圖...' : 'Loading map...'}</div>}>
-              <Map />
-            </Suspense>
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-on-surface-variant">{language === 'zh' ? '載入地圖中...' : 'Preparing map...'}</div>
-          )}
+          <div className="flex w-full h-full">
+            <div className="flex-1 relative">
+              {deferMap ? (
+                <Suspense fallback={<div className="p-4 text-on-surface-variant">{language === 'zh' ? '載入地圖...' : 'Loading map...'}</div>}>
+                  <Map />
+                </Suspense>
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-on-surface-variant">{language === 'zh' ? '載入地圖中...' : 'Preparing map...'}</div>
+              )}
+            </div>
+            {listPanelOpen && <ListPanel />}
+          </div>
           <BottomSheet />
         </>
       ) : activeView === 'favorites' ? (
