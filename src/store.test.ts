@@ -23,6 +23,7 @@ function resetStore() {
     filterPresets: [],
     homeAddress: null,
     listPanelOpen: false,
+    listFilterMode: 'viewport' as 'viewport' | 'all',
   });
 }
 
@@ -44,6 +45,27 @@ describe('listPanelOpen state', () => {
     useStore.getState().setListPanelOpen(true);
     useStore.getState().setListPanelOpen(false);
     expect(useStore.getState().listPanelOpen).toBe(false);
+  });
+});
+
+describe('listFilterMode state', () => {
+  beforeEach(() => {
+    resetStore();
+  });
+
+  it('defaults to viewport', () => {
+    expect(useStore.getState().listFilterMode).toBe('viewport');
+  });
+
+  it('setListFilterMode switches to all', () => {
+    useStore.getState().setListFilterMode('all');
+    expect(useStore.getState().listFilterMode).toBe('all');
+  });
+
+  it('setListFilterMode switches back to viewport', () => {
+    useStore.getState().setListFilterMode('all');
+    useStore.getState().setListFilterMode('viewport');
+    expect(useStore.getState().listFilterMode).toBe('viewport');
   });
 });
 

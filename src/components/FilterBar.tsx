@@ -1,7 +1,56 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MapPin, Locate, SlidersHorizontal, X, BookmarkPlus, Check, Home } from 'lucide-react';
+import { MapPin, Locate, X, BookmarkPlus, Check, Home, ChevronDown, GraduationCap, Map as MapIcon, Users, Building2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useStore } from '../store';
 import { getSchoolFinancingByLanguage, getSchoolGenderByLanguage, getSchoolReligionByLanguage, getSchoolDistrictByLanguage, localizeFinancingValue, localizeReligionValue, localizeDistrictValue, localizeGenderValue } from '../utils';
+
+interface AccordionSectionProps {
+  title: string;
+  icon: React.ReactNode;
+  isOpen: boolean;
+  onToggle: () => void;
+  count?: number;
+  children: React.ReactNode;
+}
+
+function AccordionSection({ title, icon, isOpen, onToggle, count = 0, children }: AccordionSectionProps) {
+  return (
+    <div className="border border-outline-variant/60 rounded-xl overflow-hidden bg-surface-container">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="w-full px-3 py-2.5 flex items-center justify-between bg-surface-container-high hover:bg-surface-container-highest transition-colors cursor-pointer"
+        aria-expanded={isOpen}
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-on-surface-variant">{icon}</span>
+          <span className="text-xs sm:text-sm font-semibold text-on-surface">{title}</span>
+          {count > 0 && (
+            <span className="text-[9px] sm:text-[10px] font-bold bg-primary text-on-primary rounded-full px-1.5 py-0.5 min-w-4 h-4 flex items-center justify-center">
+              {count}
+            </span>
+          )}
+        </div>
+        <ChevronDown
+          className={`w-4 h-4 text-on-surface-variant transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+        />
+      </button>
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2, ease: 'easeInOut' }}
+            className="overflow-hidden"
+          >
+            <div className="p-2.5 sm:p-3">{children}</div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 const FilterBar: React.FC = () => {
   const {
@@ -40,7 +89,18 @@ const FilterBar: React.FC = () => {
   const [isGeocoding, setIsGeocoding] = useState(false);
   const [geocodingError, setGeocodingError] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<Array<{ display_name: string; lat: string; lon: string }>>([]);
+  const [openAccordions, setOpenAccordions] = useState<Record<string, boolean>>({
+    level: true,
+    location: true,
+    student: false,
+    type: false,
+    home: false,
+  });
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const toggleAccordion = (key: string) => {
+    setOpenAccordions((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
 
   // Debounced autocomplete search
   useEffect(() => {
@@ -631,149 +691,185 @@ const FilterBar: React.FC = () => {
         : 'text-on-surface-variant bg-surface-container-high hover:bg-surface-container-highest active:scale-95'
     }`;
 
-  const panelContent = (
-    <div className="p-2.5 sm:p-3 md:p-4 space-y-2.5 sm:space-y-3 md:space-y-4">
-          <div className="flex justify-end">
-            <button
-              type="button"
-              onClick={clearFilters}
-              className="text-[10px] sm:text-xs font-semibold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-high transition-colors cursor-pointer active:scale-95"
-            >
-              {t.clearFilters}
-            </button>
-          </div>
+  const levelActiveCount = levelFilter.length;
+  const locationActiveCount = (districtFilter ? 1 : 0) + (distanceFilter ? 1 : 0);
+  const studentActiveCount = genderFilter.length;
+  const typeActiveCount = financingTypeFilter.length + religionFilter.length;
+  const homeActiveCount = (homeAddress ? 1 : 0) + (userLocation ? 1 : 0);
 
-          {/* Filter Presets */}
-          <div className="border-t border-outline-variant pt-3">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-[10px] sm:text-xs font-semibold text-on-surface-variant uppercase">
-                {language === 'zh' ? '篩選預設' : 'Filter Presets'}
-              </p>
+  const panelContent = (
+    <div className="p-2.5 sm:p-3 md:p-4 space-y-2.5 sm:space-y-3 md:space-y-3">
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={clearFilters}
+          className="text-[10px] sm:text-xs font-semibold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-high transition-colors cursor-pointer active:scale-95"
+        >
+          {t.clearFilters}
+        </button>
+      </div>
+
+      {/* Filter Presets */}
+      <div className="border border-outline-variant/60 rounded-xl overflow-hidden bg-surface-container">
+        <div className="flex items-center justify-between px-3 py-2.5 bg-surface-container-high">
+          <p className="text-xs sm:text-sm font-semibold text-on-surface">
+            {language === 'zh' ? '篩選預設' : 'Filter Presets'}
+          </p>
+          <button
+            type="button"
+            onClick={() => setIsPresetInputOpen(!isPresetInputOpen)}
+            className="text-[10px] sm:text-xs font-semibold px-2 py-1 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-highest transition-colors cursor-pointer flex items-center gap-1"
+          >
+            <BookmarkPlus className="w-3 h-3" />
+            {t.savePreset}
+          </button>
+        </div>
+        <div className="p-2.5 sm:p-3">
+          {isPresetInputOpen && (
+            <div className="flex gap-1.5 mb-2">
+              <input
+                type="text"
+                value={presetName}
+                onChange={(e) => setPresetName(e.target.value)}
+                placeholder={t.presetName}
+                className="flex-1 bg-surface-container-high border border-outline-variant rounded-lg px-2.5 py-1.5 text-xs text-on-surface placeholder:text-outline"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && presetName.trim()) {
+                    saveFilterPreset(presetName.trim());
+                    setPresetName('');
+                    setIsPresetInputOpen(false);
+                  }
+                }}
+                autoFocus
+              />
               <button
                 type="button"
-                onClick={() => setIsPresetInputOpen(!isPresetInputOpen)}
-                className="text-[10px] sm:text-xs font-semibold px-2 py-1 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-high transition-colors cursor-pointer flex items-center gap-1"
+                onClick={() => {
+                  if (presetName.trim()) {
+                    saveFilterPreset(presetName.trim());
+                    setPresetName('');
+                    setIsPresetInputOpen(false);
+                  }
+                }}
+                className="p-1.5 bg-primary text-on-primary rounded-lg cursor-pointer"
               >
-                <BookmarkPlus className="w-3 h-3" />
-                {t.savePreset}
+                <Check className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsPresetInputOpen(false);
+                  setPresetName('');
+                }}
+                className="p-1.5 bg-surface-container-high text-on-surface-variant rounded-lg cursor-pointer"
+              >
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
+          )}
 
-            {isPresetInputOpen && (
-              <div className="flex gap-1.5 mb-2">
-                <input
-                  type="text"
-                  value={presetName}
-                  onChange={(e) => setPresetName(e.target.value)}
-                  placeholder={t.presetName}
-                  className="flex-1 bg-surface-container-high border border-outline-variant rounded-lg px-2.5 py-1.5 text-xs text-on-surface placeholder:text-outline"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && presetName.trim()) {
-                      saveFilterPreset(presetName.trim());
-                      setPresetName('');
-                      setIsPresetInputOpen(false);
-                    }
-                  }}
-                  autoFocus
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (presetName.trim()) {
-                      saveFilterPreset(presetName.trim());
-                      setPresetName('');
-                      setIsPresetInputOpen(false);
-                    }
-                  }}
-                  className="p-1.5 bg-primary text-on-primary rounded-lg cursor-pointer"
+          {filterPresets.length > 0 ? (
+            <div className="flex flex-wrap gap-1.5">
+              {filterPresets.map((preset) => (
+                <div
+                  key={preset.id}
+                  className="flex items-center gap-1 bg-surface-container-high rounded-lg pl-2.5 pr-1 py-1"
                 >
-                  <Check className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsPresetInputOpen(false);
-                    setPresetName('');
-                  }}
-                  className="p-1.5 bg-surface-container-high text-on-surface-variant rounded-lg cursor-pointer"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            )}
-
-            {filterPresets.length > 0 ? (
-              <div className="flex flex-wrap gap-1.5">
-                {filterPresets.map((preset) => (
-                  <div
-                    key={preset.id}
-                    className="flex items-center gap-1 bg-surface-container-high rounded-lg pl-2.5 pr-1 py-1"
-                  >
-                    <button
-                      type="button"
-                      onClick={() => loadFilterPreset(preset.id)}
-                      className="text-[10px] sm:text-xs font-medium text-on-surface hover:text-primary transition-colors cursor-pointer"
-                    >
-                      {preset.name}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => deleteFilterPreset(preset.id)}
-                      className="p-0.5 text-on-surface-variant hover:text-error transition-colors cursor-pointer"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-[9px] sm:text-[10px] text-outline italic">{t.noPresets}</p>
-            )}
-          </div>
-
-          {/* School Level Filter */}
-          <div>
-            <p className="text-[10px] sm:text-xs font-semibold text-on-surface-variant uppercase mb-1.5 sm:mb-2">{t.level}</p>
-            <div className="flex flex-wrap gap-1.5 sm:gap-2">
-              {(() => {
-                const allLevels = ['KINDERGARTEN', 'PRIMARY', 'SECONDARY'];
-                const isAllSelected = allLevels.every(l => levelFilter.includes(l));
-                return (
                   <button
-                    key="ALL_LEVELS"
-                    onClick={() => setLevelFilter(allLevels)}
-                    className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg font-semibold text-[10px] sm:text-xs transition-all min-h-8 sm:min-h-10 cursor-pointer ${
-                      isAllSelected
-                        ? 'text-on-surface shadow-md bg-surface-container-highest'
-                        : 'text-on-surface-variant bg-surface-container-high hover:bg-surface-container-highest active:scale-95'
-                    }`}
+                    type="button"
+                    onClick={() => loadFilterPreset(preset.id)}
+                    className="text-[10px] sm:text-xs font-medium text-on-surface hover:text-primary transition-colors cursor-pointer"
                   >
-                    {language === 'zh' ? '全部' : 'All'}
+                    {preset.name}
                   </button>
-                );
-              })()}
-
-              {levelOptions.map(({ label, value, color }) => {
-                const isActive = levelFilter.includes(value);
-                const isLast = isActive && levelFilter.length === 1;
-                return (
                   <button
-                    key={value}
-                    onClick={() => toggleLevel(value)}
-                    disabled={isLast}
-                    className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg font-semibold text-[10px] sm:text-xs transition-all min-h-8 sm:min-h-10 ${
-                      isLast ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
-                    } ${isActive ? 'text-on-primary shadow-md' : 'text-on-surface-variant bg-surface-container-high hover:bg-surface-container-highest active:scale-95'}`}
-                    style={isActive ? { backgroundColor: color } : undefined}
+                    type="button"
+                    onClick={() => deleteFilterPreset(preset.id)}
+                    className="p-0.5 text-on-surface-variant hover:text-error transition-colors cursor-pointer"
                   >
-                    {label}
+                    <X className="w-3 h-3" />
                   </button>
-                );
-              })}
+                </div>
+              ))}
             </div>
+          ) : (
+            <p className="text-[9px] sm:text-[10px] text-outline italic">{t.noPresets}</p>
+          )}
+        </div>
+      </div>
+
+      {/* Accordion: School Level */}
+      <AccordionSection
+        title={t.level}
+        icon={<GraduationCap className="w-4 h-4" />}
+        isOpen={openAccordions.level}
+        onToggle={() => toggleAccordion('level')}
+        count={levelActiveCount}
+      >
+        <div className="flex flex-wrap gap-1.5 sm:gap-2">
+          {(() => {
+            const allLevels = ['KINDERGARTEN', 'PRIMARY', 'SECONDARY'];
+            const isAllSelected = allLevels.every(l => levelFilter.includes(l));
+            return (
+              <button
+                key="ALL_LEVELS"
+                onClick={() => setLevelFilter(allLevels)}
+                className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg font-semibold text-[10px] sm:text-xs transition-all min-h-8 sm:min-h-10 cursor-pointer ${
+                  isAllSelected
+                    ? 'text-on-surface shadow-md bg-surface-container-highest'
+                    : 'text-on-surface-variant bg-surface-container-high hover:bg-surface-container-highest active:scale-95'
+                }`}
+              >
+                {language === 'zh' ? '全部' : 'All'}
+              </button>
+            );
+          })()}
+
+          {levelOptions.map(({ label, value, color }) => {
+            const isActive = levelFilter.includes(value);
+            const isLast = isActive && levelFilter.length === 1;
+            return (
+              <button
+                key={value}
+                onClick={() => toggleLevel(value)}
+                disabled={isLast}
+                className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg font-semibold text-[10px] sm:text-xs transition-all min-h-8 sm:min-h-10 ${
+                  isLast ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
+                } ${isActive ? 'text-on-primary shadow-md' : 'text-on-surface-variant bg-surface-container-high hover:bg-surface-container-highest active:scale-95'}`}
+                style={isActive ? { backgroundColor: color } : undefined}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+      </AccordionSection>
+
+      {/* Accordion: Location (District + Distance) */}
+      <AccordionSection
+        title={language === 'zh' ? '地點與距離' : 'Location & Distance'}
+        icon={<MapIcon className="w-4 h-4" />}
+        isOpen={openAccordions.location}
+        onToggle={() => toggleAccordion('location')}
+        count={locationActiveCount}
+      >
+        <div className="space-y-3">
+          <div>
+            <p className="text-[10px] sm:text-xs font-semibold text-on-surface-variant uppercase mb-1.5 sm:mb-2">{t.district}</p>
+            <select
+              value={districtFilter ?? ''}
+              onChange={(e) => setDistrictFilter(e.target.value || null)}
+              className="w-full bg-surface-container-high border border-outline-variant rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm text-on-surface cursor-pointer hover:border-outline transition-colors"
+            >
+              <option value="">{t.all}</option>
+              {uniqueDistricts.map((option) => (
+                <option key={option.value} value={option.value} disabled={(option as any).disabled}>
+                  {(option as any).disabled ? option.label : (language === 'zh' ? localizeDistrictValue(option.label, language) : option.label)}
+                </option>
+              ))}
+            </select>
           </div>
 
-          {/* Distance Filter */}
           {userLocation && (
             <div>
               <p className="text-[10px] sm:text-xs font-semibold text-on-surface-variant uppercase mb-1.5 sm:mb-2">{t.distance}</p>
@@ -794,44 +890,43 @@ const FilterBar: React.FC = () => {
               </div>
             </div>
           )}
+        </div>
+      </AccordionSection>
 
-          <div>
-            <p className="text-[10px] sm:text-xs font-semibold text-on-surface-variant uppercase mb-1.5 sm:mb-2">{t.district}</p>
-            <select
-              value={districtFilter ?? ''}
-              onChange={(e) => setDistrictFilter(e.target.value || null)}
-              className="w-full bg-surface-container-high border border-outline-variant rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm text-on-surface cursor-pointer hover:border-outline transition-colors"
-            >
-              <option value="">{t.all}</option>
-              {uniqueDistricts.map((option) => (
-                <option key={option.value} value={option.value} disabled={(option as any).disabled}>
-                  {(option as any).disabled ? option.label : (language === 'zh' ? localizeDistrictValue(option.label, language) : option.label)}
-                </option>
-              ))}
-            </select>
-          </div>
+      {/* Accordion: Student (Gender) */}
+      <AccordionSection
+        title={t.gender}
+        icon={<Users className="w-4 h-4" />}
+        isOpen={openAccordions.student}
+        onToggle={() => toggleAccordion('student')}
+        count={studentActiveCount}
+      >
+        <div className="flex flex-wrap gap-1.5 sm:gap-2">
+          {uniqueGenders.map(({ value, label }) => {
+            const isActive = genderFilter.includes(value);
+            const localizedLabel = genderLocalizedLabels[value] || label;
+            return (
+              <button
+                key={value}
+                onClick={() => toggleMultiFilter(value, genderFilter, setGenderFilter)}
+                className={pillButtonClass(isActive)}
+              >
+                {localizedLabel}
+              </button>
+            );
+          })}
+        </div>
+      </AccordionSection>
 
-          {/* Gender Filter - Multi-select */}
-          <div>
-            <p className="text-[10px] sm:text-xs font-semibold text-on-surface-variant uppercase mb-1.5 sm:mb-2">{t.gender}</p>
-            <div className="flex flex-wrap gap-1.5 sm:gap-2">
-              {uniqueGenders.map(({ value, label }) => {
-                const isActive = genderFilter.includes(value);
-                const localizedLabel = genderLocalizedLabels[value] || label;
-                return (
-                  <button
-                    key={value}
-                    onClick={() => toggleMultiFilter(value, genderFilter, setGenderFilter)}
-                    className={pillButtonClass(isActive)}
-                  >
-                    {localizedLabel}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Financing Type Filter - Multi-select */}
+      {/* Accordion: School Type (Financing + Religion) */}
+      <AccordionSection
+        title={t.financing}
+        icon={<Building2 className="w-4 h-4" />}
+        isOpen={openAccordions.type}
+        onToggle={() => toggleAccordion('type')}
+        count={typeActiveCount}
+      >
+        <div className="space-y-3">
           <div>
             <p className="text-[10px] sm:text-xs font-semibold text-on-surface-variant uppercase mb-1.5 sm:mb-2">{t.financing}</p>
             <div className="flex flex-wrap gap-1.5 sm:gap-2">
@@ -851,7 +946,6 @@ const FilterBar: React.FC = () => {
             </div>
           </div>
 
-          {/* Religion Filter - Multi-select */}
           <div>
             <p className="text-[10px] sm:text-xs font-semibold text-on-surface-variant uppercase mb-1.5 sm:mb-2">{t.religion}</p>
             <div className="flex flex-wrap gap-1.5 sm:gap-2">
@@ -870,26 +964,33 @@ const FilterBar: React.FC = () => {
               })}
             </div>
           </div>
+        </div>
+      </AccordionSection>
 
-          {/* Locate Me Button */}
-          <div>
-            <button
-              onClick={handleLocateMe}
-              disabled={isLocating}
-              className={`w-full py-2 sm:py-2.5 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer ${
-                isLocating
-                  ? 'bg-surface-container-high text-on-surface-variant cursor-not-allowed'
-                  : userLocation
-                  ? 'bg-secondary-container text-on-secondary-container active:scale-95'
-                  : 'bg-primary text-on-primary active:scale-95'
-              }`}
-            >
-              <Locate className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
-              {isLocating ? t.locating : userLocation ? t.updateLocation : t.locate}
-            </button>
-          </div>
+      {/* Accordion: Home (Locate Me + Home Address) */}
+      <AccordionSection
+        title={language === 'zh' ? '住家位置' : 'Home & Location'}
+        icon={<Home className="w-4 h-4" />}
+        isOpen={openAccordions.home}
+        onToggle={() => toggleAccordion('home')}
+        count={homeActiveCount}
+      >
+        <div className="space-y-3">
+          <button
+            onClick={handleLocateMe}
+            disabled={isLocating}
+            className={`w-full py-2 sm:py-2.5 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer ${
+              isLocating
+                ? 'bg-surface-container-high text-on-surface-variant cursor-not-allowed'
+                : userLocation
+                ? 'bg-secondary-container text-on-secondary-container active:scale-95'
+                : 'bg-primary text-on-primary active:scale-95'
+            }`}
+          >
+            <Locate className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
+            {isLocating ? t.locating : userLocation ? t.updateLocation : t.locate}
+          </button>
 
-          {/* Location Status */}
           {userLocation && (
             <div className="bg-secondary-container/20 border border-secondary-container/30 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2">
               <div className="flex items-center gap-1.5 sm:gap-2">
@@ -905,84 +1006,83 @@ const FilterBar: React.FC = () => {
             </div>
           )}
 
-          {/* Home Address */}
-          <div>
-            <button
-              onClick={() => setIsHomeInputOpen(!isHomeInputOpen)}
-              className="w-full py-2 sm:py-2.5 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer bg-surface-container-high text-on-surface hover:bg-surface-container-highest active:scale-95"
-            >
-              <Home className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
-              {homeAddress ? t.homeSet : t.setHome}
-            </button>
+          <button
+            onClick={() => setIsHomeInputOpen(!isHomeInputOpen)}
+            className="w-full py-2 sm:py-2.5 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer bg-surface-container-high text-on-surface hover:bg-surface-container-highest active:scale-95"
+          >
+            <Home className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
+            {homeAddress ? t.homeSet : t.setHome}
+          </button>
 
-            {isHomeInputOpen && !homeAddress && (
-              <div className="mt-2 space-y-2">
-                <button
-                  type="button"
-                  onClick={handleSetHomeFromLocation}
-                  disabled={isGeocoding}
-                  className="w-full py-2 rounded-lg font-medium text-xs bg-primary text-on-primary cursor-pointer disabled:opacity-50"
-                >
-                  {isGeocoding ? t.geocodingLoading : t.useCurrentLocation}
-                </button>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={homeInput}
-                    onChange={(e) => { setHomeInput(e.target.value); setGeocodingError(null); }}
-                    placeholder={t.searchHome}
-                    className="w-full bg-surface-container-high border border-outline-variant rounded-lg px-2.5 py-1.5 text-xs text-on-surface placeholder:text-outline"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && suggestions.length > 0) {
-                        selectSuggestion(suggestions[0]);
-                      }
-                    }}
-                  />
-                  {suggestions.length > 0 && (
-                    <div className="absolute z-10 left-0 right-0 mt-1 bg-surface-container-high border border-outline-variant rounded-lg shadow-lg max-h-48 overflow-y-auto">
-                      {suggestions.map((s, i) => (
-                        <button
-                          key={i}
-                          type="button"
-                          onClick={() => selectSuggestion(s)}
-                          className="w-full text-left px-2.5 py-2 text-[10px] sm:text-xs text-on-surface hover:bg-surface-container-highest border-b border-outline-variant/30 last:border-0 cursor-pointer"
-                        >
-                          {s.display_name}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                {geocodingError && (
-                  <p className="text-[10px] sm:text-xs text-error">{geocodingError}</p>
+          {isHomeInputOpen && !homeAddress && (
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={handleSetHomeFromLocation}
+                disabled={isGeocoding}
+                className="w-full py-2 rounded-lg font-medium text-xs bg-primary text-on-primary cursor-pointer disabled:opacity-50"
+              >
+                {isGeocoding ? t.geocodingLoading : t.useCurrentLocation}
+              </button>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={homeInput}
+                  onChange={(e) => { setHomeInput(e.target.value); setGeocodingError(null); }}
+                  placeholder={t.searchHome}
+                  className="w-full bg-surface-container-high border border-outline-variant rounded-lg px-2.5 py-1.5 text-xs text-on-surface placeholder:text-outline"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && suggestions.length > 0) {
+                      selectSuggestion(suggestions[0]);
+                    }
+                  }}
+                />
+                {suggestions.length > 0 && (
+                  <div className="absolute z-10 left-0 right-0 mt-1 bg-surface-container-high border border-outline-variant rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                    {suggestions.map((s, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => selectSuggestion(s)}
+                        className="w-full text-left px-2.5 py-2 text-[10px] sm:text-xs text-on-surface hover:bg-surface-container-highest border-b border-outline-variant/30 last:border-0 cursor-pointer"
+                      >
+                        {s.display_name}
+                      </button>
+                    ))}
+                  </div>
                 )}
               </div>
-            )}
+              {geocodingError && (
+                <p className="text-[10px] sm:text-xs text-error">{geocodingError}</p>
+              )}
+            </div>
+          )}
 
-            {homeAddress && (
-              <div className="mt-2 flex items-center justify-between bg-secondary-container/20 border border-secondary-container/30 rounded-lg px-2.5 py-1.5">
-                <div className="flex items-center gap-1.5">
-                  <Home className="w-3.5 h-3.5 text-secondary-container" />
-                  <p className="text-[10px] sm:text-xs text-secondary-container font-medium">
-                    {homeAddress.lat.toFixed(4)}, {homeAddress.lng.toFixed(4)}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setHomeAddress(null)}
-                  className="text-[10px] sm:text-xs text-error hover:underline cursor-pointer"
-                >
-                  {t.clearHome}
-                </button>
+          {homeAddress && (
+            <div className="flex items-center justify-between bg-secondary-container/20 border border-secondary-container/30 rounded-lg px-2.5 py-1.5">
+              <div className="flex items-center gap-1.5">
+                <Home className="w-3.5 h-3.5 text-secondary-container" />
+                <p className="text-[10px] sm:text-xs text-secondary-container font-medium">
+                  {homeAddress.lat.toFixed(4)}, {homeAddress.lng.toFixed(4)}
+                </p>
               </div>
-            )}
-          </div>
+              <button
+                type="button"
+                onClick={() => setHomeAddress(null)}
+                className="text-[10px] sm:text-xs text-error hover:underline cursor-pointer"
+              >
+                {t.clearHome}
+              </button>
+            </div>
+          )}
+        </div>
+      </AccordionSection>
 
-          {/* Info text */}
-          <p className="text-[9px] sm:text-[10px] text-outline mt-2 sm:mt-3">
-            {t.tips}
-          </p>
-      </div>
+      {/* Info text */}
+      <p className="text-[9px] sm:text-[10px] text-outline">
+        {t.tips}
+      </p>
+    </div>
   );
 
   return (

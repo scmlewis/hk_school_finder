@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { List } from 'react-window';
 import { motion } from 'motion/react';
-import { X, School as SchoolIcon } from 'lucide-react';
+import { X, School as SchoolIcon, MapPin, List as ListIcon } from 'lucide-react';
 import { useStore } from '../store';
 import { School } from '../types';
 import SchoolCard from './SchoolCard';
 import { SkeletonListCard } from './Skeleton';
+import { cn } from '../utils';
 
 const CARD_HEIGHT = 88;
 const PANEL_WIDTH = 360;
@@ -36,10 +37,10 @@ function ListContent({ availableHeight, isLoaded, filteredSchools, totalCount, t
   isLoaded: boolean;
   filteredSchools: any[];
   totalCount: number;
-  t: { noResults: string; schools: string; title: string; showing: string; of: string; close: string };
+  t: { noResults: string; schools: string; title: string; showing: string; of: string; close: string; viewport: string; all: string };
   onClose: () => void;
 }) {
-  const { selectedSchool, setSelectedSchool, language } = useStore();
+  const { selectedSchool, setSelectedSchool, language, listFilterMode, setListFilterMode } = useStore();
   const listRef = useRef<{ element: HTMLDivElement | null; scrollToRow: (config: { align?: string; behavior?: string; index: number }) => void } | null>(null);
 
   const selectedIndex = filteredSchools.findIndex(
@@ -64,24 +65,54 @@ function ListContent({ availableHeight, isLoaded, filteredSchools, totalCount, t
     onSchoolClick: handleSchoolClick,
   } as any;
 
-  const HEADER_HEIGHT = 48;
+  const HEADER_HEIGHT = 52;
   const COUNT_HEIGHT = 36;
   const listHeight = availableHeight - HEADER_HEIGHT - COUNT_HEIGHT;
 
   return (
     <div className="flex flex-col h-full">
-      <div className="px-4 py-3 border-b border-outline/10 flex items-center justify-between flex-shrink-0 bg-surface-container-high rounded-t-2xl">
+      <div className="px-4 py-2.5 border-b border-outline/10 flex items-center justify-between flex-shrink-0 bg-surface-container-high rounded-t-2xl">
         <div className="flex items-center gap-2">
           <SchoolIcon className="w-4 h-4 text-on-surface-variant" />
           <p className="text-sm font-semibold text-on-surface">{t.title}</p>
         </div>
-        <button
-          onClick={onClose}
-          className="p-1.5 rounded-full hover:bg-surface-container-highest text-on-surface-variant transition-colors"
-          aria-label={t.close}
-        >
-          <X className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-1.5">
+          <div className="rounded-full bg-surface-container p-0.5 flex gap-0.5 border border-outline/10">
+            <button
+              onClick={() => setListFilterMode('viewport')}
+              className={cn(
+                "px-2 py-1 rounded-full text-[10px] font-semibold transition-colors flex items-center gap-1",
+                listFilterMode === 'viewport'
+                  ? 'bg-primary text-on-primary'
+                  : 'text-on-surface-variant hover:text-on-surface'
+              )}
+              title={t.viewport}
+            >
+              <MapPin className="w-3 h-3" />
+              <span className="hidden sm:inline">{t.viewport}</span>
+            </button>
+            <button
+              onClick={() => setListFilterMode('all')}
+              className={cn(
+                "px-2 py-1 rounded-full text-[10px] font-semibold transition-colors flex items-center gap-1",
+                listFilterMode === 'all'
+                  ? 'bg-primary text-on-primary'
+                  : 'text-on-surface-variant hover:text-on-surface'
+              )}
+              title={t.all}
+            >
+              <ListIcon className="w-3 h-3" />
+              <span className="hidden sm:inline">{t.all}</span>
+            </button>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-full hover:bg-surface-container-highest text-on-surface-variant transition-colors"
+            aria-label={t.close}
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       <div className="px-3 py-2 border-b border-outline/10 flex-shrink-0">
@@ -118,7 +149,7 @@ function ListContent({ availableHeight, isLoaded, filteredSchools, totalCount, t
 }
 
 export default function ListPanel() {
-  const { filteredSchools, language, setListPanelOpen } = useStore();
+  const { filteredSchools, language, setListPanelOpen, mapBounds, listFilterMode } = useStore();
   const [isLoaded, setIsLoaded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerHeight, setContainerHeight] = useState(600);
@@ -134,11 +165,26 @@ export default function ListPanel() {
     return Array.from(seen.values());
   }, [filteredSchools]);
 
+  const displayedSchools = useMemo(() => {
+    if (listFilterMode !== 'viewport' || !mapBounds) return dedupedSchools;
+    return dedupedSchools.filter((school) => {
+      const lat = parseFloat(school.Latitude || (school as any).latitude || '');
+      const lng = parseFloat(school.Longitude || (school as any).longitude || '');
+      if (isNaN(lat) || isNaN(lng)) return false;
+      return (
+        lat <= mapBounds.north &&
+        lat >= mapBounds.south &&
+        lng <= mapBounds.east &&
+        lng >= mapBounds.west
+      );
+    });
+  }, [dedupedSchools, listFilterMode, mapBounds]);
+
   useEffect(() => {
     setIsLoaded(false);
     const timer = setTimeout(() => setIsLoaded(true), 200);
     return () => clearTimeout(timer);
-  }, [dedupedSchools]);
+  }, [displayedSchools]);
 
   useEffect(() => {
     const updateHeight = () => {
@@ -152,8 +198,8 @@ export default function ListPanel() {
   }, []);
 
   const t = language === 'zh'
-    ? { noResults: '沒有符合條件的學校', schools: '所學校', title: '學校列表', showing: '顯示', of: '/', close: '關閉列表' }
-    : { noResults: 'No schools match your filters', schools: 'schools', title: 'School List', showing: 'Showing', of: 'of', close: 'Close list' };
+    ? { noResults: '沒有符合條件的學校', schools: '所學校', title: '學校列表', showing: '顯示', of: '/', close: '關閉列表', viewport: '地圖範圍', all: '全部' }
+    : { noResults: 'No schools match your filters', schools: 'schools', title: 'School List', showing: 'Showing', of: 'of', close: 'Close list', viewport: 'Viewport', all: 'All' };
 
   const handleClose = () => setListPanelOpen(false);
 
@@ -168,8 +214,8 @@ export default function ListPanel() {
         <ListContent
           availableHeight={containerHeight}
           isLoaded={isLoaded}
-          filteredSchools={dedupedSchools}
-          totalCount={filteredSchools.length}
+          filteredSchools={displayedSchools}
+          totalCount={dedupedSchools.length}
           t={t}
           onClose={handleClose}
         />
@@ -197,8 +243,8 @@ export default function ListPanel() {
         <ListContent
           availableHeight={Math.floor(window.innerHeight * 0.6) - 32}
           isLoaded={isLoaded}
-          filteredSchools={dedupedSchools}
-          totalCount={filteredSchools.length}
+          filteredSchools={displayedSchools}
+          totalCount={dedupedSchools.length}
           t={t}
           onClose={handleClose}
         />

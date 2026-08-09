@@ -63,6 +63,7 @@ export const useStore = create<AppState>()(persist((set) => ({
   filterPresets: [],
   homeAddress: null,
   listPanelOpen: false,
+  listFilterMode: 'viewport' as 'viewport' | 'all',
   filterBarOpen: false,
   mapBounds: null,
 
@@ -173,6 +174,7 @@ export const useStore = create<AppState>()(persist((set) => ({
   })),
   setHomeAddress: (location) => set({ homeAddress: location }),
   setListPanelOpen: (open) => set({ listPanelOpen: open }),
+  setListFilterMode: (mode) => set({ listFilterMode: mode }),
   setFilterBarOpen: (open) => set({ filterBarOpen: open }),
   setMapBounds: (bounds) => set({ mapBounds: bounds }),
   clearFilters: () => set((state) => {

@@ -144,7 +144,10 @@ const SearchBar: React.FC = () => {
         )}
         <div className="w-px h-5 bg-outline/20 mx-1 flex-shrink-0" />
         <button
-          onClick={() => setFilterBarOpen(!filterBarOpen)}
+          onClick={() => {
+            setShowDropdown(false);
+            setFilterBarOpen(!filterBarOpen);
+          }}
           className={cn(
             "p-1.5 rounded-full transition-colors flex-shrink-0",
             filterBarOpen
@@ -160,7 +163,7 @@ const SearchBar: React.FC = () => {
       </div>
 
       <AnimatePresence>
-        {showDropdown && matchingSchools.length > 0 && (
+        {showDropdown && !filterBarOpen && matchingSchools.length > 0 && (
           <motion.div
             ref={dropdownRef}
             initial={{ opacity: 0, y: -10 }}

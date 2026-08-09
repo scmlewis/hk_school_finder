@@ -94,6 +94,8 @@ export interface AppState {
   setHomeAddress: (location: { lat: number; lng: number } | null) => void;
   listPanelOpen: boolean;
   setListPanelOpen: (open: boolean) => void;
+  listFilterMode: 'viewport' | 'all';
+  setListFilterMode: (mode: 'viewport' | 'all') => void;
   filterBarOpen: boolean;
   setFilterBarOpen: (open: boolean) => void;
   setMapBounds: (bounds: MapBounds | null) => void;
