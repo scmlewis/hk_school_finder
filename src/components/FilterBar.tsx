@@ -28,6 +28,8 @@ const FilterBar: React.FC = () => {
     deleteFilterPreset,
     homeAddress,
     setHomeAddress,
+    filterBarOpen,
+    setFilterBarOpen,
   } = useStore();
   const [isLocating, setIsLocating] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
@@ -986,14 +988,23 @@ const FilterBar: React.FC = () => {
 
   return (
     <>
-      <div className="hidden md:block absolute top-20 left-2 z-20 max-w-xs w-full">
-          <div className="rounded-3xl shadow-2xl border border-outline-variant overflow-hidden bg-surface-container">
-          <div className="px-4 py-3 border-b border-outline-variant bg-surface-container-high">
-            <p className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">{t.title}</p>
+      {filterBarOpen && (
+        <div className="hidden md:block absolute top-24 sm:top-28 left-2 z-30 max-w-xs w-full">
+            <div className="rounded-2xl shadow-2xl border border-outline-variant overflow-hidden bg-surface-container">
+            <div className="px-4 py-3 border-b border-outline-variant bg-surface-container-high flex items-center justify-between">
+              <p className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">{t.title}</p>
+              <button
+                onClick={() => setFilterBarOpen(false)}
+                className="p-1 rounded-full hover:bg-surface-container-highest text-on-surface-variant transition-colors"
+                aria-label={language === 'zh' ? '關閉篩選' : 'Close filters'}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            {panelContent}
           </div>
-          {panelContent}
         </div>
-      </div>
+      )}
 
       <div className="md:hidden absolute top-28 sm:top-32 left-2 z-40">
         <button

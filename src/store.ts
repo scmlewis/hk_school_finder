@@ -63,6 +63,7 @@ export const useStore = create<AppState>()(persist((set) => ({
   filterPresets: [],
   homeAddress: null,
   listPanelOpen: false,
+  filterBarOpen: false,
   mapBounds: null,
 
   setSchools: (schools) => set((state) => {
@@ -172,6 +173,7 @@ export const useStore = create<AppState>()(persist((set) => ({
   })),
   setHomeAddress: (location) => set({ homeAddress: location }),
   setListPanelOpen: (open) => set({ listPanelOpen: open }),
+  setFilterBarOpen: (open) => set({ filterBarOpen: open }),
   setMapBounds: (bounds) => set({ mapBounds: bounds }),
   clearFilters: () => set((state) => {
     const nextLevelFilter = ['KINDERGARTEN', 'PRIMARY', 'SECONDARY'];

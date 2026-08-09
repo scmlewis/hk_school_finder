@@ -195,7 +195,7 @@ export default function App() {
             <div className="flex-1 relative">
               <SearchBar />
               <FilterBar />
-              <div className="absolute top-28 sm:top-32 left-2 right-2 z-30">
+              <div className="absolute top-24 sm:top-28 left-2 right-2 z-30 md:max-w-md">
                 <ActiveFilters />
               </div>
               {deferMap ? (

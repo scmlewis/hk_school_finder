@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { List } from 'react-window';
+import { motion } from 'motion/react';
 import { useStore } from '../store';
 import { School } from '../types';
 import SchoolCard from './SchoolCard';

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, X } from 'lucide-react';
+import { Search, X, SlidersHorizontal } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useStore } from '../store';
 import { cn, getLevelBadgeColor, getSchoolDistrictByLanguage, getSchoolFinancingByLanguage, getSchoolNameByLanguage, getSchoolSecondaryNameByLanguage, getSchoolLevelByLanguage, localizeDistrictValue, localizeFinancingValue } from '../utils';
@@ -12,6 +12,8 @@ const SearchBar: React.FC = () => {
     setSelectedSchool,
     selectedSchool,
     language,
+    filterBarOpen,
+    setFilterBarOpen,
   } = useStore();
 
   const [localQuery, setLocalQuery] = useState(searchQuery);
@@ -112,13 +114,13 @@ const SearchBar: React.FC = () => {
 
   return (
     <div className="absolute top-16 sm:top-20 left-2 z-40 flex flex-col gap-1.5 sm:gap-2 max-w-md w-full">
-      <div className="rounded-full flex items-center px-3 sm:px-4 py-2 sm:py-2.5 bg-surface-container-high">
-        <Search className="text-on-surface-variant w-4 sm:w-5 h-4 sm:h-5 mr-2 sm:mr-3 flex-shrink-0" />
+      <div className="rounded-2xl flex items-center px-2 sm:px-3 py-1.5 sm:py-2 bg-surface-container-high shadow-lg border border-outline/10">
+        <Search className="text-on-surface-variant w-4 sm:w-5 h-4 sm:h-5 mr-2 flex-shrink-0" />
         <input
           ref={inputRef}
           type="text"
-          placeholder={language === 'zh' ? '搜尋學校...（例如：小學、Primary）' : 'Search school... (e.g., 小學, Primary)'}
-          className="bg-transparent border-none outline-none flex-1 text-on-surface placeholder:text-on-surface-variant font-medium py-1 text-sm sm:text-base md:text-lg"
+          placeholder={language === 'zh' ? '搜尋學校...' : 'Search school...'}
+          className="bg-transparent border-none outline-none flex-1 text-on-surface placeholder:text-on-surface-variant font-medium py-1 text-sm sm:text-base"
           value={localQuery}
           onChange={(e) => setLocalQuery(e.target.value)}
           onFocus={() => localQuery.length > 0 && setShowDropdown(true)}
@@ -133,13 +135,28 @@ const SearchBar: React.FC = () => {
         {localQuery && (
           <button
             onClick={handleClearSearch}
-            className="p-1.5 sm:p-2 hover:bg-surface-container-highest rounded-full transition-colors text-on-surface-variant flex-shrink-0"
+            className="p-1.5 hover:bg-surface-container-highest rounded-full transition-colors text-on-surface-variant flex-shrink-0"
             title={language === 'zh' ? '清除' : 'Clear'}
             aria-label={language === 'zh' ? '清除搜尋' : 'Clear search'}
           >
-            <X className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
+            <X className="w-4 h-4" />
           </button>
         )}
+        <div className="w-px h-5 bg-outline/20 mx-1 flex-shrink-0" />
+        <button
+          onClick={() => setFilterBarOpen(!filterBarOpen)}
+          className={cn(
+            "p-1.5 rounded-full transition-colors flex-shrink-0",
+            filterBarOpen
+              ? "bg-primary text-on-primary"
+              : "hover:bg-surface-container-highest text-on-surface-variant"
+          )}
+          title={language === 'zh' ? '篩選' : 'Filters'}
+          aria-label={language === 'zh' ? '篩選學校' : 'Filter schools'}
+          aria-expanded={filterBarOpen}
+        >
+          <SlidersHorizontal className="w-4 h-4" />
+        </button>
       </div>
 
       <AnimatePresence>
