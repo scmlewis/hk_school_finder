@@ -1089,8 +1089,8 @@ const FilterBar: React.FC = () => {
     <>
       {filterBarOpen && (
         <div className="hidden md:block absolute top-24 sm:top-28 left-2 z-30 max-w-xs w-full">
-            <div className="rounded-2xl shadow-2xl border border-outline-variant overflow-hidden bg-surface-container">
-            <div className="px-4 py-3 border-b border-outline-variant bg-surface-container-high flex items-center justify-between">
+            <div className="rounded-2xl shadow-2xl border border-outline-variant overflow-hidden bg-surface-container max-h-[calc(100vh-8rem)] flex flex-col">
+            <div className="px-4 py-3 border-b border-outline-variant bg-surface-container-high flex items-center justify-between flex-shrink-0">
               <p className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">{t.title}</p>
               <button
                 onClick={() => setFilterBarOpen(false)}
@@ -1100,7 +1100,9 @@ const FilterBar: React.FC = () => {
                 <X className="w-4 h-4" />
               </button>
             </div>
-            {panelContent}
+            <div className="overflow-y-auto flex-1">
+              {panelContent}
+            </div>
           </div>
         </div>
       )}
