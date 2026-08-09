@@ -111,7 +111,7 @@ const SearchBar: React.FC = () => {
   };
 
   return (
-    <div className="absolute top-16 sm:top-20 left-2 right-2 z-40 flex flex-col gap-1.5 sm:gap-2 max-w-xl mx-auto md:max-w-lg">
+    <div className="absolute top-16 sm:top-20 left-2 z-40 flex flex-col gap-1.5 sm:gap-2 max-w-md w-full">
       <div className="rounded-full flex items-center px-3 sm:px-4 py-2 sm:py-2.5 bg-surface-container-high">
         <Search className="text-on-surface-variant w-4 sm:w-5 h-4 sm:h-5 mr-2 sm:mr-3 flex-shrink-0" />
         <input

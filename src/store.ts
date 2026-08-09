@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { AppState, School } from './types';
+import { AppState, MapBounds, School } from './types';
 import { getDistance } from './services';
 
 type IndexedSchool = School & {
@@ -63,6 +63,7 @@ export const useStore = create<AppState>()(persist((set) => ({
   filterPresets: [],
   homeAddress: null,
   listPanelOpen: false,
+  mapBounds: null,
 
   setSchools: (schools) => set((state) => {
     if (!Array.isArray(schools)) {
@@ -171,6 +172,7 @@ export const useStore = create<AppState>()(persist((set) => ({
   })),
   setHomeAddress: (location) => set({ homeAddress: location }),
   setListPanelOpen: (open) => set({ listPanelOpen: open }),
+  setMapBounds: (bounds) => set({ mapBounds: bounds }),
   clearFilters: () => set((state) => {
     const nextLevelFilter = ['KINDERGARTEN', 'PRIMARY', 'SECONDARY'];
     const nextQuery = '';

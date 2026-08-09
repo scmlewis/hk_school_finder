@@ -51,6 +51,7 @@ const Map: React.FC = () => {
     setActiveSchoolNet,
     activeSchoolNet,
     setMapZoom,
+    setMapBounds,
     language,
   } = useStore();
 
@@ -159,6 +160,21 @@ const Map: React.FC = () => {
           setMapZoom(zoomBucket);
         }
       });
+
+      const emitBounds = () => {
+        if (!map.current) return;
+        const b = map.current.getBounds();
+        if (b) {
+          setMapBounds({
+            north: b.getNorth(),
+            south: b.getSouth(),
+            east: b.getEast(),
+            west: b.getWest(),
+          });
+        }
+      };
+
+      m.on('moveend', emitBounds);
 
       m.on('load', async () => {
         if (!map.current) return;
@@ -442,6 +458,7 @@ const Map: React.FC = () => {
 
           mapReady.current = true;
           setIsMapLoaded(true);
+          emitBounds();
         } catch (err) {
           console.error('Error in map load:', err);
           mapReady.current = true;
@@ -460,7 +477,7 @@ const Map: React.FC = () => {
     } catch (err) {
       console.error('Error initializing map:', err);
     }
-  }, [setMapZoom, setActiveSchoolNet, setSelectedSchool]);
+  }, [setMapZoom, setActiveSchoolNet, setSelectedSchool, setMapBounds]);
 
   useEffect(() => {
     if (!mapContainer.current || !map.current) return;

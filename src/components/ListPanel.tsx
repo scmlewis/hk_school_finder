@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { List } from 'react-window';
-import { motion } from 'motion/react';
 import { useStore } from '../store';
+import { School } from '../types';
 import SchoolCard from './SchoolCard';
 import { SkeletonListCard } from './Skeleton';
 
@@ -94,16 +94,31 @@ function ListContent({ containerHeight, isLoaded, filteredSchools, t }: {
 }
 
 export default function ListPanel() {
-  const { filteredSchools, selectedSchool, setSelectedSchool, language } = useStore();
+  const { filteredSchools, selectedSchool, setSelectedSchool, language, mapBounds } = useStore();
   const [isLoaded, setIsLoaded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerHeight, setContainerHeight] = useState(600);
+
+  const viewportSchools = useMemo(() => {
+    if (!mapBounds) return filteredSchools;
+    return filteredSchools.filter((school: School) => {
+      const lat = parseFloat(school.Latitude || (school as any).latitude || '');
+      const lng = parseFloat(school.Longitude || (school as any).longitude || '');
+      if (isNaN(lat) || isNaN(lng)) return false;
+      return (
+        lat <= mapBounds.north &&
+        lat >= mapBounds.south &&
+        lng <= mapBounds.east &&
+        lng >= mapBounds.west
+      );
+    });
+  }, [filteredSchools, mapBounds]);
 
   useEffect(() => {
     setIsLoaded(false);
     const timer = setTimeout(() => setIsLoaded(true), 200);
     return () => clearTimeout(timer);
-  }, [filteredSchools]);
+  }, [viewportSchools]);
 
   useEffect(() => {
     const updateHeight = () => {
@@ -131,7 +146,7 @@ export default function ListPanel() {
         <ListContent
           containerHeight={containerHeight}
           isLoaded={isLoaded}
-          filteredSchools={filteredSchools}
+          filteredSchools={viewportSchools}
           t={t}
         />
       </div>
@@ -158,7 +173,7 @@ export default function ListPanel() {
         <ListContent
           containerHeight={Math.floor(window.innerHeight * 0.6) - 32}
           isLoaded={isLoaded}
-          filteredSchools={filteredSchools}
+          filteredSchools={viewportSchools}
           t={t}
         />
       </motion.div>

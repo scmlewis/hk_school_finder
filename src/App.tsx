@@ -195,7 +195,9 @@ export default function App() {
             <div className="flex-1 relative">
               <SearchBar />
               <FilterBar />
-              <ActiveFilters />
+              <div className="absolute top-28 sm:top-32 left-2 right-2 z-30">
+                <ActiveFilters />
+              </div>
               {deferMap ? (
                 <Suspense fallback={<div className="p-4 text-on-surface-variant">{language === 'zh' ? '載入地圖...' : 'Loading map...'}</div>}>
                   <Map />

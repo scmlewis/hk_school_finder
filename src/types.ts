@@ -42,6 +42,13 @@ export type CachedPayload<T> = {
   updatedAt: number;
 };
 
+export interface MapBounds {
+  north: number;
+  south: number;
+  east: number;
+  west: number;
+}
+
 export interface AppState {
   schools: School[];
   filteredSchools: School[];
@@ -62,6 +69,7 @@ export interface AppState {
   favorites: string[];
   filterPresets: FilterPreset[];
   homeAddress: { lat: number; lng: number } | null;
+  mapBounds: MapBounds | null;
   
   setSchools: (schools: School[]) => void;
   setLoading: (loading: boolean) => void;
@@ -86,4 +94,5 @@ export interface AppState {
   setHomeAddress: (location: { lat: number; lng: number } | null) => void;
   listPanelOpen: boolean;
   setListPanelOpen: (open: boolean) => void;
+  setMapBounds: (bounds: MapBounds | null) => void;
 }

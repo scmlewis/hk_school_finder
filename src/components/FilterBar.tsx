@@ -986,7 +986,7 @@ const FilterBar: React.FC = () => {
 
   return (
     <>
-      <div className="hidden md:block absolute top-20 right-3 z-20 max-w-sm w-full mx-2 md:mx-0">
+      <div className="hidden md:block absolute top-20 left-2 z-20 max-w-xs w-full">
           <div className="rounded-3xl shadow-2xl border border-outline-variant overflow-hidden bg-surface-container">
           <div className="px-4 py-3 border-b border-outline-variant bg-surface-container-high">
             <p className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">{t.title}</p>
@@ -995,7 +995,7 @@ const FilterBar: React.FC = () => {
         </div>
       </div>
 
-      <div className="md:hidden absolute top-32 sm:top-36 right-2 sm:right-3 z-40">
+      <div className="md:hidden absolute top-28 sm:top-32 left-2 z-40">
         <button
           onClick={() => setIsMobileOpen(true)}
           className="h-10 sm:h-12 px-3 sm:px-4 rounded-lg sm:rounded-xl bg-surface-container-high border border-outline-variant text-on-surface shadow-lg flex items-center gap-1.5 sm:gap-2 cursor-pointer hover:bg-surface-container-highest transition-colors active:scale-95"
