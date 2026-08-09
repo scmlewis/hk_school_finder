@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { List } from 'react-window';
 import { motion } from 'motion/react';
+import { X, School as SchoolIcon } from 'lucide-react';
 import { useStore } from '../store';
 import { School } from '../types';
 import SchoolCard from './SchoolCard';
@@ -8,6 +9,7 @@ import { SkeletonListCard } from './Skeleton';
 
 const CARD_HEIGHT = 88;
 const PANEL_WIDTH = 360;
+const NAV_HEIGHT = 56;
 
 interface SchoolRowProps {
   index: number;
@@ -25,16 +27,18 @@ function SchoolRow({ index, style, schools, selectedSchoolId, onSchoolClick }: S
       school={school}
       isSelected={isSelected}
       onClick={() => onSchoolClick(school)}
-      style={{ ...style, paddingLeft: 12, paddingRight: 12, paddingBottom: 8 }}
+      style={{ ...style, paddingLeft: 8, paddingRight: 8, paddingBottom: 6 }}
     />
   );
 }
 
-function ListContent({ containerHeight, isLoaded, filteredSchools, t }: {
-  containerHeight: number;
+function ListContent({ availableHeight, isLoaded, filteredSchools, totalCount, t, onClose }: {
+  availableHeight: number;
   isLoaded: boolean;
   filteredSchools: any[];
-  t: { noResults: string; schools: string };
+  totalCount: number;
+  t: { noResults: string; schools: string; title: string; showing: string; of: string; close: string };
+  onClose: () => void;
 }) {
   const { selectedSchool, setSelectedSchool, language } = useStore();
   const listRef = useRef<{ element: HTMLDivElement | null; scrollToRow: (config: { align?: string; behavior?: string; index: number }) => void } | null>(null);
@@ -61,13 +65,32 @@ function ListContent({ containerHeight, isLoaded, filteredSchools, t }: {
     onSchoolClick: handleSchoolClick,
   } as any;
 
+  const HEADER_HEIGHT = 48;
+  const COUNT_HEIGHT = 36;
+  const listHeight = availableHeight - HEADER_HEIGHT - COUNT_HEIGHT;
+
   return (
-    <>
+    <div className="flex flex-col h-full">
+      <div className="px-4 py-3 border-b border-outline/10 flex items-center justify-between flex-shrink-0 bg-surface-container-high rounded-t-2xl">
+        <div className="flex items-center gap-2">
+          <SchoolIcon className="w-4 h-4 text-on-surface-variant" />
+          <p className="text-sm font-semibold text-on-surface">{t.title}</p>
+        </div>
+        <button
+          onClick={onClose}
+          className="p-1.5 rounded-full hover:bg-surface-container-highest text-on-surface-variant transition-colors"
+          aria-label={t.close}
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+
       <div className="px-3 py-2 border-b border-outline/10 flex-shrink-0">
         <p className="text-xs text-on-surface-variant font-medium">
-          {filteredSchools.length.toLocaleString()} {t.schools}
+          {t.showing} <span className="text-on-surface font-semibold">{filteredSchools.length.toLocaleString()}</span> {t.of} {totalCount.toLocaleString()} {t.schools}
         </p>
       </div>
+
       <div className="flex-1 overflow-hidden">
         {!isLoaded ? (
           <div className="p-3 space-y-2">
@@ -76,7 +99,8 @@ function ListContent({ containerHeight, isLoaded, filteredSchools, t }: {
             ))}
           </div>
         ) : filteredSchools.length === 0 ? (
-          <div className="flex items-center justify-center h-full px-4">
+          <div className="flex flex-col items-center justify-center h-full px-4 gap-2">
+            <SchoolIcon className="w-8 h-8 text-outline-variant" />
             <p className="text-sm text-on-surface-variant text-center">{t.noResults}</p>
           </div>
         ) : (
@@ -86,23 +110,23 @@ function ListContent({ containerHeight, isLoaded, filteredSchools, t }: {
             rowCount={filteredSchools.length}
             rowHeight={CARD_HEIGHT}
             rowProps={rowProps}
-            style={{ height: containerHeight - 40, width: '100%' }}
+            style={{ height: listHeight, width: '100%' }}
           />
         )}
       </div>
-    </>
+    </div>
   );
 }
 
 export default function ListPanel() {
-  const { filteredSchools, selectedSchool, setSelectedSchool, language, mapBounds } = useStore();
+  const { filteredSchools, selectedSchool, setSelectedSchool, language, mapBounds, setListPanelOpen } = useStore();
   const [isLoaded, setIsLoaded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerHeight, setContainerHeight] = useState(600);
 
   const viewportSchools = useMemo(() => {
-    if (!mapBounds) return filteredSchools;
-    return filteredSchools.filter((school: School) => {
+    const deduped = new Map<string, School>();
+    const source = mapBounds ? filteredSchools.filter((school: School) => {
       const lat = parseFloat(school.Latitude || (school as any).latitude || '');
       const lng = parseFloat(school.Longitude || (school as any).longitude || '');
       if (isNaN(lat) || isNaN(lng)) return false;
@@ -112,7 +136,15 @@ export default function ListPanel() {
         lng <= mapBounds.east &&
         lng >= mapBounds.west
       );
-    });
+    }) : filteredSchools;
+
+    for (const school of source) {
+      const id = school['School No.'] || '';
+      if (id && !deduped.has(id)) {
+        deduped.set(id, school);
+      }
+    }
+    return Array.from(deduped.values());
   }, [filteredSchools, mapBounds]);
 
   useEffect(() => {
@@ -133,8 +165,10 @@ export default function ListPanel() {
   }, []);
 
   const t = language === 'zh'
-    ? { noResults: '沒有符合條件的學校', schools: '所學校' }
-    : { noResults: 'No schools match your filters', schools: 'schools' };
+    ? { noResults: '沒有符合條件的學校', schools: '所學校', title: '學校列表', showing: '顯示', of: '/', close: '關閉列表' }
+    : { noResults: 'No schools match your filters', schools: 'schools', title: 'School List', showing: 'Showing', of: 'of', close: 'Close list' };
+
+  const handleClose = () => setListPanelOpen(false);
 
   return (
     <>
@@ -142,13 +176,15 @@ export default function ListPanel() {
       <div
         ref={containerRef}
         className="hidden md:flex h-full bg-surface border-l border-outline/10 flex-col"
-        style={{ width: PANEL_WIDTH }}
+        style={{ width: PANEL_WIDTH, marginTop: NAV_HEIGHT }}
       >
         <ListContent
-          containerHeight={containerHeight}
+          availableHeight={containerHeight}
           isLoaded={isLoaded}
           filteredSchools={viewportSchools}
+          totalCount={filteredSchools.length}
           t={t}
+          onClose={handleClose}
         />
       </div>
 
@@ -162,7 +198,7 @@ export default function ListPanel() {
         dragElastic={0.2}
         onDragEnd={(_, info) => {
           if (info.offset.y > 100) {
-            useStore.getState().setListPanelOpen(false);
+            handleClose();
           }
         }}
         className="md:hidden fixed bottom-0 left-0 right-0 bg-surface rounded-t-2xl shadow-2xl flex flex-col"
@@ -172,10 +208,12 @@ export default function ListPanel() {
           <div className="w-10 h-1 bg-outline-variant rounded-full" />
         </div>
         <ListContent
-          containerHeight={Math.floor(window.innerHeight * 0.6) - 32}
+          availableHeight={Math.floor(window.innerHeight * 0.6) - 32}
           isLoaded={isLoaded}
           filteredSchools={viewportSchools}
+          totalCount={filteredSchools.length}
           t={t}
+          onClose={handleClose}
         />
       </motion.div>
     </>
