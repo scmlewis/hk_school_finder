@@ -14,7 +14,7 @@ import { AlertCircle, Info, X, Github, List } from 'lucide-react';
 import Loading from './components/Loading';
 
 export default function App() {
-  const { setSchools, setLoading, setError, loading, error, schools, language, setLanguage, favorites, listPanelOpen, setListPanelOpen } = useStore();
+  const { setSchools, setLoading, setError, loading, error, schools, language, setLanguage, favorites, listPanelOpen, setListPanelOpen, filterBarOpen } = useStore();
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [activeView, setActiveView] = useState<'map' | 'stats' | 'favorites'>('map');
   const [deferMap, setDeferMap] = useState(false);
@@ -191,23 +191,23 @@ export default function App() {
 
       {activeView === 'map' ? (
         <>
-          <div className="flex w-full h-full">
-            <div className="flex-1 relative">
-              <SearchBar />
-              <FilterBar />
+          <div className="w-full h-full relative">
+            <SearchBar />
+            <FilterBar />
+            {!filterBarOpen && (
               <div className="absolute top-24 sm:top-28 left-2 right-2 z-30 md:max-w-md">
                 <ActiveFilters />
               </div>
-              {deferMap ? (
-                <Suspense fallback={<div className="p-4 text-on-surface-variant">{language === 'zh' ? '載入地圖...' : 'Loading map...'}</div>}>
-                  <Map />
-                </Suspense>
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-on-surface-variant">{language === 'zh' ? '載入地圖中...' : 'Preparing map...'}</div>
-              )}
-            </div>
-            {listPanelOpen && <ListPanel />}
+            )}
+            {deferMap ? (
+              <Suspense fallback={<div className="p-4 text-on-surface-variant">{language === 'zh' ? '載入地圖...' : 'Loading map...'}</div>}>
+                <Map />
+              </Suspense>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-on-surface-variant">{language === 'zh' ? '載入地圖中...' : 'Preparing map...'}</div>
+            )}
           </div>
+          {listPanelOpen && <ListPanel />}
           <BottomSheet />
         </>
       ) : activeView === 'favorites' ? (

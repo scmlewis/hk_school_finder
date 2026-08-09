@@ -33,7 +33,6 @@ const FilterBar: React.FC = () => {
   } = useStore();
   const [isLocating, setIsLocating] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isPresetInputOpen, setIsPresetInputOpen] = useState(false);
   const [presetName, setPresetName] = useState('');
   const [isHomeInputOpen, setIsHomeInputOpen] = useState(false);
@@ -1006,38 +1005,28 @@ const FilterBar: React.FC = () => {
         </div>
       )}
 
-      <div className="md:hidden absolute top-28 sm:top-32 left-2 z-40">
-        <button
-          onClick={() => setIsMobileOpen(true)}
-          className="h-10 sm:h-12 px-3 sm:px-4 rounded-lg sm:rounded-xl bg-surface-container-high border border-outline-variant text-on-surface shadow-lg flex items-center gap-1.5 sm:gap-2 cursor-pointer hover:bg-surface-container-highest transition-colors active:scale-95"
-        >
-          <SlidersHorizontal className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
-          <span className="text-sm sm:text-base font-semibold">{t.filtersBtn}</span>
-        </button>
-      </div>
-
-      {isMobileOpen && (
+      {filterBarOpen && (
         <>
           <button
             type="button"
             aria-label="Close filters"
-            className="fixed inset-0 z-40 bg-black/45"
-            onClick={() => setIsMobileOpen(false)}
+            className="fixed inset-0 z-40 bg-black/45 md:hidden"
+            onClick={() => setFilterBarOpen(false)}
           />
-          <div className="fixed bottom-0 left-0 right-0 z-50 px-2 sm:px-3 pb-2 sm:pb-3">
-            <div className="bg-surface-container border border-outline-variant rounded-t-xl sm:rounded-t-2xl rounded-b-xl sm:rounded-b-2xl overflow-hidden shadow-2xl max-h-[75vh]">
+          <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 px-2 sm:px-3 pb-2 sm:pb-3">
+            <div className="bg-surface-container border border-outline-variant rounded-t-2xl rounded-b-2xl overflow-hidden shadow-2xl max-h-[75vh]">
               <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 border-b border-outline-variant bg-surface-container-high">
                 <p className="text-xs sm:text-sm font-bold text-on-surface tracking-wide uppercase">{t.title}</p>
                 <button
                   type="button"
-                  onClick={() => setIsMobileOpen(false)}
+                  onClick={() => setFilterBarOpen(false)}
                   className="w-8 sm:w-9 h-8 sm:h-9 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center cursor-pointer hover:bg-surface-container-highest transition-colors flex-shrink-0"
                 >
                   <X className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
                 </button>
               </div>
               <div className="max-h-[calc(75vh-50px)] overflow-y-auto p-2 sm:p-3">
-                <div className="rounded-lg sm:rounded-2xl border border-outline-variant bg-surface-container">
+                <div className="rounded-2xl border border-outline-variant bg-surface-container">
                   {panelContent}
                 </div>
               </div>

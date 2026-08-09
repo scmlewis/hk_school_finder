@@ -9,7 +9,6 @@ import { SkeletonListCard } from './Skeleton';
 
 const CARD_HEIGHT = 88;
 const PANEL_WIDTH = 360;
-const NAV_HEIGHT = 56;
 
 interface SchoolRowProps {
   index: number;
@@ -119,39 +118,27 @@ function ListContent({ availableHeight, isLoaded, filteredSchools, totalCount, t
 }
 
 export default function ListPanel() {
-  const { filteredSchools, selectedSchool, setSelectedSchool, language, mapBounds, setListPanelOpen } = useStore();
+  const { filteredSchools, language, setListPanelOpen } = useStore();
   const [isLoaded, setIsLoaded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerHeight, setContainerHeight] = useState(600);
 
-  const viewportSchools = useMemo(() => {
-    const deduped = new Map<string, School>();
-    const source = mapBounds ? filteredSchools.filter((school: School) => {
-      const lat = parseFloat(school.Latitude || (school as any).latitude || '');
-      const lng = parseFloat(school.Longitude || (school as any).longitude || '');
-      if (isNaN(lat) || isNaN(lng)) return false;
-      return (
-        lat <= mapBounds.north &&
-        lat >= mapBounds.south &&
-        lng <= mapBounds.east &&
-        lng >= mapBounds.west
-      );
-    }) : filteredSchools;
-
-    for (const school of source) {
+  const dedupedSchools = useMemo(() => {
+    const seen = new Map<string, School>();
+    for (const school of filteredSchools) {
       const id = school['School No.'] || '';
-      if (id && !deduped.has(id)) {
-        deduped.set(id, school);
+      if (id && !seen.has(id)) {
+        seen.set(id, school);
       }
     }
-    return Array.from(deduped.values());
-  }, [filteredSchools, mapBounds]);
+    return Array.from(seen.values());
+  }, [filteredSchools]);
 
   useEffect(() => {
     setIsLoaded(false);
     const timer = setTimeout(() => setIsLoaded(true), 200);
     return () => clearTimeout(timer);
-  }, [viewportSchools]);
+  }, [dedupedSchools]);
 
   useEffect(() => {
     const updateHeight = () => {
@@ -172,23 +159,23 @@ export default function ListPanel() {
 
   return (
     <>
-      {/* Desktop: side panel */}
+      {/* Desktop: floating card over map */}
       <div
         ref={containerRef}
-        className="hidden md:flex h-full bg-surface border-l border-outline/10 flex-col"
-        style={{ width: PANEL_WIDTH, marginTop: NAV_HEIGHT }}
+        className="hidden md:flex fixed top-[60px] right-3 bottom-3 z-40 bg-surface-container border border-outline-variant rounded-2xl shadow-2xl flex-col overflow-hidden"
+        style={{ width: PANEL_WIDTH }}
       >
         <ListContent
           availableHeight={containerHeight}
           isLoaded={isLoaded}
-          filteredSchools={viewportSchools}
+          filteredSchools={dedupedSchools}
           totalCount={filteredSchools.length}
           t={t}
           onClose={handleClose}
         />
       </div>
 
-      {/* Mobile: drawer */}
+      {/* Mobile: bottom drawer */}
       <motion.div
         initial={{ y: '100%' }}
         animate={{ y: 0 }}
@@ -201,7 +188,7 @@ export default function ListPanel() {
             handleClose();
           }
         }}
-        className="md:hidden fixed bottom-0 left-0 right-0 bg-surface rounded-t-2xl shadow-2xl flex flex-col"
+        className="md:hidden fixed bottom-0 left-0 right-0 bg-surface-container rounded-t-2xl shadow-2xl flex flex-col border border-outline-variant border-b-0"
         style={{ height: '60vh', zIndex: 45 }}
       >
         <div className="flex justify-center py-2 flex-shrink-0">
@@ -210,7 +197,7 @@ export default function ListPanel() {
         <ListContent
           availableHeight={Math.floor(window.innerHeight * 0.6) - 32}
           isLoaded={isLoaded}
-          filteredSchools={viewportSchools}
+          filteredSchools={dedupedSchools}
           totalCount={filteredSchools.length}
           t={t}
           onClose={handleClose}
