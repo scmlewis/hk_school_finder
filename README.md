@@ -19,6 +19,20 @@ Parents comparing schools juggle a dozen government pages. This finder puts kind
 - **Offline Ready**: PWA support enables offline access to cached school data
 - **Real-time Data**: Powered by official Hong Kong EDB (Education Bureau) school data from Data.gov.hk
 
+## Tech Stack
+
+| Category | Technology |
+|----------|-------------|
+| Framework | React 19 + TypeScript |
+| Build Tool | Vite 6 |
+| Styling | Tailwind CSS 4 |
+| Map Library | MapLibre GL |
+| State Management | Zustand |
+| UI Components | Lucide React, Framer Motion |
+| Server | Express.js |
+| Deployment | Vercel |
+| Data Fetching | Axios with Turf.js for geospatial calculations |
+
 ## Getting Started
 
 ### Prerequisites
@@ -64,20 +78,6 @@ Preview the production build:
 npm run preview
 ```
 
-## Tech Stack
-
-| Category | Technology |
-|----------|-------------|
-| Framework | React 19 + TypeScript |
-| Build Tool | Vite 6 |
-| Styling | Tailwind CSS 4 |
-| Map Library | MapLibre GL |
-| State Management | Zustand |
-| UI Components | Lucide React, Framer Motion |
-| Server | Express.js |
-| Deployment | Vercel |
-| Data Fetching | Axios with Turf.js for geospatial calculations |
-
 ## How to Use
 
 1. **Search**: Type a school name in the search bar to find schools
@@ -98,25 +98,6 @@ This app uses official data from:
 - **Data.gov.hk**: Open government datasets
 - **Google Maps & OpenStreetMap**: Base map layers (via MapLibre GL)
 
-## Development Roadmap
-
-The app is built in phases:
-
-### Phase 1: ✅ Data & Map Foundation
-- ✅ Vite + React + TypeScript setup with Tailwind CSS
-- ✅ EDB API data integration
-- ✅ Full-screen mobile-friendly map
-- ✅ School marker visualization and clustering
-
-### Phase 2: ✅ Commute Logic & UI Polish  
--- ✅ Glassmorphism-styled bottom sheet
--- ✅ Bilingual UI
-
-### Phase 3: 🚀 School Net Geometry (In Progress)
-- 🚀 GeoJSON school net boundaries
-- 🚀 Spatial filtering
-- 🚀 PWA finalization
-
 ## Project Structure
 
 ```
@@ -136,6 +117,29 @@ The app is built in phases:
 └── package.json           # Dependencies and scripts
 ```
 
+## Development Roadmap
+
+The app is built in phases:
+
+### Phase 1:  Data & Map Foundation
+-  Vite + React + TypeScript setup with Tailwind CSS
+-  EDB API data integration
+-  Full-screen mobile-friendly map
+-  School marker visualization and clustering
+
+### Phase 2:  Commute Logic & UI Polish  
+--  Glassmorphism-styled bottom sheet
+--  Bilingual UI
+
+### Phase 3:  School Net Geometry (In Progress)
+-  GeoJSON school net boundaries
+-  Spatial filtering
+-  PWA finalization
+
+## License
+
+This project is open source and available under the MIT License.
+
 ## Contributing
 
 Contributions are welcome! Please:
@@ -145,17 +149,13 @@ Contributions are welcome! Please:
 4. Push to the branch (`git push origin feature/your-feature`)
 5. Open a Pull Request
 
-## License
-
-This project is open source and available under the MIT License.
-
 ## Feedback
 
 Have suggestions or found a bug? Please open an issue on GitHub or contact the maintainers.
 
 ---
 
-**Built with ❤️ for Hong Kong families**
+**Built with  for Hong Kong families**
 ---
 
 If this saved you time or gave you an idea, a ⭐ on the repo is appreciated — it helps others find it.
