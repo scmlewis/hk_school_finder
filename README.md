@@ -2,6 +2,12 @@
 
 A modern, mobile-first web app that helps families in Hong Kong find schools. Search by school name, filter by criteria (level, gender, financing type, religion), and visualize schools on an interactive map.
 
+---
+
+## Why this exists
+
+Parents comparing schools juggle a dozen government pages. This finder puts kindergartens, primary and secondary schools on one searchable map.
+
 ## Features
 
 - **Interactive Map**: Real-time visualization of all Hong Kong schools with clustering for better performance
@@ -150,3 +156,6 @@ Have suggestions or found a bug? Please open an issue on GitHub or contact the m
 ---
 
 **Built with ❤️ for Hong Kong families**
+---
+
+If this saved you time or gave you an idea, a ⭐ on the repo is appreciated — it helps others find it.
